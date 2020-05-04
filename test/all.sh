@@ -20,7 +20,7 @@ echo ''
 
 set -x pipefail
 
-perl $SCRIPTS/dadaist -i $BASEDIR/data -o $BASEDIR/output --tmp-dir $BASEDIR || echo "dadaist failed: debugging"
+perl "$SCRIPTS"/dadaist2 -i "$BASEDIR"/data -o "$BASEDIR"/output --tmp-dir "$BASEDIR" || echo "dadaist failed: debugging"
 
 ERRORS=0
 if [ -d "$BASEDIR/output/" ];
@@ -55,5 +55,6 @@ else
 fi
 if [ $ERRORS -gt 0 ]; then
 	printf " * $FAIL: $ERRORS ERRORS FOUND\n"
+	cat "$BASEDIR/output/dadaist.log"
 	exit 1
 fi
