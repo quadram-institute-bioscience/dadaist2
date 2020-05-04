@@ -17,7 +17,7 @@ use Digest::MD5 qw(md5_hex);
 use File::Temp;
 
 my $PROGRAM          = basename($0);
-my $VERSION          = '0.1.03';
+my $VERSION          = '0.1.04';
 my $opt_verbose      = 0;
 my $opt_debug        = 0;
 my $opt_id_separator = '_';
@@ -233,7 +233,7 @@ open my $d2_FH,    '<', "$dada2_tsv"  || die " ERROR:\n Unable to open <$dada2_t
 open my $dada2_FO,   '>', "$dada2_file"  || die " ERROR:\n Unable to write to <$dada2_file>\n";
 open my $repseqs_FO, '>', "$repseq_file" || die " ERROR:\n Unable to write to <$repseq_file>\n";
 my $feature_counter = 0;
-
+$S->verbose("DADA2 Finished: preparing output files");
 while ( my $line = readline($d2_FH) ) { 
 	if ($line=~/^#/) {
 		print {$dada2_FO} $line;
@@ -255,6 +255,7 @@ while ( my $line = readline($d2_FH) ) {
 	}
 
 }
+$S->verbose("Dadaist2 finished:\n * feature-table: $dada2_file\n * rep-seqs: $repseq_file");
 #copy(File::Spec->catfile($dada2_temp, 'stats.tsv'), 
 #	 File::Spec->catfile($opt_output_directory, 'dada2_stats.tsv')) || die " ERROR:\n Unable to copy stats.tsv file from $dada2_temp to $opt_output_directory.\n";
 
