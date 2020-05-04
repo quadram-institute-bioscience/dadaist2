@@ -14,6 +14,7 @@ use FASTX::Reader;
 use FASTX::ScriptHelper;
 use JSON::PP;
 use Digest::MD5 qw(md5_hex);
+use File::Temp;
 
 my $PROGRAM = basename($0);
 my $VERSION = '0.1.02';
