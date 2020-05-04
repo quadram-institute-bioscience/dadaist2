@@ -31,3 +31,8 @@ A directory containing the FASTQ files, that are usually gzipped. Paired-end are
 The output directory will contain:
 * _feature-table.tsv_ - the feature table 
 * _rep-seqs.fasta_ - the representative sequences (ASVs)
+
+## Citation
+
+This wrapper uses DADA2:
+* Benjamin J Callahan, Paul J McMurdie, Michael J Rosen, Andrew W Han, Amy Jo A Johnson, and Susan P Holmes. **Dada2: high-resolution sample inference from illumina amplicon data**. Nature methods, 13(7):581, 2016. [doi:10.1038/nmeth.3869](https://doi.org/doi:10.1038/nmeth.3869).
