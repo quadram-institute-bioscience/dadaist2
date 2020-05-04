@@ -8,7 +8,7 @@ Standalone CLI DADA2 package
 ## Usage
 
 ```
-dadaist -i INPUT_DIR -o OUTPUT_DIR [-t TMP_DIR]
+dadaist  [options] -i INPUT_DIR -o OUTPUT_DIR
 ```
 
 Other options:
@@ -17,6 +17,7 @@ Other options:
 * `-s`, `--id-separator` STRING, string delimiting the Sample ID (default: _)
 * `-l`, `--log-filename` FILE, to change the log file path (default: output_dir/dadaist.log)
 * `-t`, `--threads` INT, to specify the number of threads
+* `--tmp-dir` DIR, specify working directory
 * `--version` will print the program version and exit
 * `--help` will print the usage 
 
