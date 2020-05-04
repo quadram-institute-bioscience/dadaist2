@@ -13,14 +13,16 @@ use Term::ANSIColor qw(color);
 use FASTX::Reader;
 use FASTX::ScriptHelper;
 use JSON::PP;
+use Digest::MD5 qw(md5_hex);
 
 my $PROGRAM = basename($0);
-my $VERSION = '0.1.00';
+my $VERSION = '0.1.02';
 my $opt_verbose = 0;
 my $opt_debug   = 0;
 my $opt_id_separator = '_';
 my $opt_for_tag = '_R1';
 my $opt_rev_tag = '_R2';
+my $opt_seq_prefix = 'ASV';
 my $opt_temp_dir = File::Spec->tmpdir();
 my $opt_threads = 2;
 my ($opt_help,  $opt_log_filename, $opt_input_directory, $opt_output_directory, $opt_version);
@@ -33,6 +35,7 @@ GetOptions(
  's|id-separator=s'                => \$opt_id_separator,
  'l|log-file=s'                    => \$opt_log_filename,
  't|threads=i'                     => \$opt_threads,
+ 'p|prefix=s'                      => \$opt_seq_prefix,
  'tmp-dir=s'                       => \$opt_temp_dir,
  'verbose'                         => \$opt_verbose,
  'version'                         => \$opt_version,
@@ -237,7 +240,13 @@ while ( my $line = readline($d2_FH) ) {
 		chomp($line);
 		$feature_counter++;
 		my ($sequence, @values) = split /\t/, $line;
-		my $name = 'ASV' . $feature_counter;
+		my $name;
+		if ($opt_seq_prefix eq 'MD5') {
+			$name = md5_hex($sequence);
+		} else {
+			$name = $opt_seq_prefix . $feature_counter;
+		}
+		
 		say {$repseqs_FO} '>' , $name, "\n", $sequence;
 		say {$dada2_FO} $name, "\t", join("\t", @values);
 	}
