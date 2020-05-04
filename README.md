@@ -8,7 +8,7 @@ Standalone CLI DADA2 package
 ## Usage
 
 ```
-dadaist  [options] -i INPUT_DIR -o OUTPUT_DIR
+dadaist2  [options] -i INPUT_DIR -o OUTPUT_DIR
 ```
 
 Other options:
