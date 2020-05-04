@@ -16,16 +16,17 @@ use JSON::PP;
 use Digest::MD5 qw(md5_hex);
 use File::Temp;
 
-my $PROGRAM = basename($0);
-my $VERSION = '0.1.02';
-my $opt_verbose = 0;
-my $opt_debug   = 0;
+my $PROGRAM          = basename($0);
+my $VERSION          = '0.1.03';
+my $opt_verbose      = 0;
+my $opt_debug        = 0;
 my $opt_id_separator = '_';
-my $opt_for_tag = '_R1';
-my $opt_rev_tag = '_R2';
-my $opt_seq_prefix = 'ASV';
-my $opt_temp_dir = File::Spec->tmpdir();
-my $opt_threads = 2;
+my $opt_for_tag      = '_R1';
+my $opt_rev_tag      = '_R2';
+my $opt_seq_prefix   = 'ASV';
+my $opt_temp_dir     = File::Spec->tmpdir();
+my $opt_threads      = 2;
+
 my ($opt_help,  $opt_log_filename, $opt_input_directory, $opt_output_directory, $opt_version);
 
 GetOptions(
@@ -51,6 +52,7 @@ my $fastp_threads = $opt_threads > 4 ? 4 : $opt_threads;
 usage("Missing parameter(s): input directory (-i DIR).")  if (not defined $opt_input_directory);
 usage("Missing parameter(s): output directory (-o DIR).") if (not defined $opt_output_directory);
 
+
 # Prepare temporary directories
 my $temp_dir = File::Temp->newdir( 'dada2_XXXXXX', 
 		CLEANUP => 0,
@@ -70,6 +72,7 @@ my $S = FASTX::ScriptHelper->new({
 });
 
 
+
 $temp_dir = File::Spec->rel2abs($temp_dir);
 	mkdir "$temp_dir/for"            || die " FATAL ERROR:\n Unable to create directory $temp_dir/for\n $!\n";
 	mkdir "$temp_dir/rev"            || die " FATAL ERROR:\n Unable to create directory $temp_dir/rev\n $!\n";
@@ -77,10 +80,9 @@ $temp_dir = File::Spec->rel2abs($temp_dir);
 	mkdir "$temp_dir/rev/filtered"   || die " FATAL ERROR:\n Unable to create directory $temp_dir/rev/filtered\n $!\n";
 	mkdir "$dada2_temp"              || die " FATAL ERROR:\n Unable to create directory $temp_dir/dada2\n $!\n";
 
+$S->verbose("Threads: $opt_threads");
 $S->verbose("Temporary directory: $temp_dir");
-
-
-
+$S->verbose("Output directory: $opt_output_directory");
 $S->verbose("Scanning input directory: $opt_input_directory");
 my $files = get_file_reads($opt_input_directory);
 
