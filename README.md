@@ -2,7 +2,7 @@
 
 [![Dadaist2 logo](docs/dadaist.png)](https://github.com/quadram-institute-bioscience/dadaist2#readme)
 
-Standalone CLI DADA2 package
+[![Build Status](https://travis-ci.org/quadram-institute-bioscience/dadaist2.svg?branch=master)](https://travis-ci.org/quadram-institute-bioscience/dadaist2) Standalone CLI DADA2 package
 
 
 ## Usage
