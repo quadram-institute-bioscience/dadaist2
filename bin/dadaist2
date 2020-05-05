@@ -1,6 +1,9 @@
 #!/usr/bin/env perl
 #ABSTRACT: A program to run DADA2 from the CLI
 
+# Minichangelog
+# 0.1.07 - Added quality plot
+
 use 5.012;
 use warnings;
 use Getopt::Long;
@@ -26,8 +29,8 @@ my $opt_rev_tag      = '_R2';
 my $opt_seq_prefix   = 'ASV';
 my $opt_temp_dir     = File::Spec->tmpdir();
 my $opt_threads      = 2;
-
-my ($opt_help,  $opt_log_filename, $opt_input_directory, $opt_output_directory, $opt_version);
+my $do_plots         = 'do_plots';
+my ($opt_help,  $opt_log_filename, $opt_input_directory, $opt_output_directory, $opt_version, $opt_skip_plots);
 
 GetOptions(
  'i|input-directory=s'             => \$opt_input_directory,
@@ -39,6 +42,7 @@ GetOptions(
  't|threads=i'                     => \$opt_threads,
  'p|prefix=s'                      => \$opt_seq_prefix,
  'tmp-dir=s'                       => \$opt_temp_dir,
+ 'skip-plots'                      => \$opt_skip_plots,
  'verbose'                         => \$opt_verbose,
  'version'                         => \$opt_version,
  'h|help'                          => \$opt_help,
@@ -46,6 +50,7 @@ GetOptions(
 
 $opt_version && version();
 $opt_help    && usage("Manual to be released");
+$do_plots    = 'skip' if ($opt_skip_plots);
 
 # Check essential parameters
 my $fastp_threads = $opt_threads > 4 ? 4 : $opt_threads;
@@ -71,7 +76,7 @@ my $S = FASTX::ScriptHelper->new({
 	logfile    => $log_filename,
 });
 
-
+$S->verbose("$PROGRAM $VERSION");
 
 $temp_dir = File::Spec->rel2abs($temp_dir);
 	mkdir "$temp_dir/for"            || die " FATAL ERROR:\n Unable to create directory $temp_dir/for\n $!\n";
@@ -210,7 +215,10 @@ my @dada_paired_args = (
      $dada2_min_reads,
 
 # 18) base dir,
-	${temp_dir}
+	${temp_dir},
+
+# 19) make plots (if "do_plots" will make pdfs)
+    ${do_plots}
 );
 
 
@@ -220,13 +228,21 @@ my $cmd_dada_paired = "Rscript --vanilla $RealBin/run_dada_paired.R " . join(" "
 my $dada2_execution = $S->run($cmd_dada_paired, { candie => 1 });
 
 if ( $dada2_execution->{'exit'} != 0 ) {
-	$S->verbose("DADA2 Failed:\n$dada2_execution->{stderr}");
+	$S->verbose("DADA2 Failed:\n> $dada2_execution->{stderr}\n> $dada2_execution->{stdout}");
 	exit 1;
+} else {
+	$S->verbose("DADA2 output:\n$dada2_execution->{stdout}");
 }
-
 copy(File::Spec->catfile($dada2_temp, 'stats.tsv'), 
 	 File::Spec->catfile($opt_output_directory, 'dada2_stats.tsv')) || die " ERROR:\n Unable to copy stats.tsv file from $dada2_temp to $opt_output_directory.\n";
 
+if (! $opt_skip_plots ) {
+	copy(File::Spec->catfile("$temp_dir", 'quality_R1.pdf'),
+		 File::Spec->catfile($opt_output_directory, 'plot_R1.pdf')) || die " ERROR:\n Unable to copy plot_R1.pdf file from $temp_dir to $opt_output_directory.\n";
+	copy(File::Spec->catfile("$temp_dir", 'quality_R2.pdf'),
+		 File::Spec->catfile($opt_output_directory, 'plot_R2.pdf')) || die " ERROR:\n Unable to copy plot_R2.pdf file from $temp_dir to $opt_output_directory.\n";
+
+}
 my $dada2_tsv   = File::Spec->catfile($dada2_temp, 'dada2.tsv');
 my $dada2_file  = File::Spec->catfile($opt_output_directory, 'feature-table.tsv');
 my $repseq_file = File::Spec->catfile($opt_output_directory, 'rep-seqs.fasta');

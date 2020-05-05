@@ -100,6 +100,11 @@
 #                 Special values: 0 - Use all input reads.
 #    Ex: 1000000
 #
+#
+# 18) Output directory
+#
+# 19) 'do_plots' to save quality plots
+#
 
 cat(R.version$version.string, "\n")
 errQuit <- function(mesg, status=1) { message("Error: ", mesg); q(status=status) }
@@ -125,6 +130,8 @@ minParentFold <- as.numeric(args[[15]])
 nthreads      <- as.integer(args[[16]])
 nreads.learn  <- as.integer(args[[17]])
 outbasepath   <- args[[18]]
+make_plots    <- args[[19]]
+
 ### VALIDATE ARGUMENTS ###
 
 # Input directory is expected to contain .fastq.gz file(s)
@@ -175,16 +182,28 @@ cat("DADA2:", as.character(packageVersion("dada2")), "/",
     "RcppParallel:", as.character(packageVersion("RcppParallel")), "\n")
 
 ### TRIM AND FILTER ###
-cat("1) Filtering ")
+cat(format(Sys.time(), "%Y-%m-%d %H:%M:%S"), " [1] Filtering reads ")
 filtsF <- file.path(filtered.dirF, basename(unfiltsF))
 filtsR <- file.path(filtered.dirR, basename(unfiltsR))
 
-for (p in c(filtsF,filtsR)) {
-  png(cat(outbasepath,"/",basename(p),".png"));
-  plotQualityProfile(p)
-  dev.off()
-}
 
+
+### QUALITY PLOTS
+if (make_plots == 'do_plots') {
+  pdf(paste(outbasepath,"/quality_R1.pdf",sep = ""));
+
+  print(plotQualityProfile( unfiltsF, n = 100000, aggregate=TRUE))
+  for (p in c(unfiltsF)) {
+    print(plotQualityProfile( file.path(p), n = 100000))
+  }
+  dev.off();
+
+  pdf(paste(outbasepath,"/quality_R2.pdf",sep = ""));
+  print(plotQualityProfile( unfiltsR, n = 100000, aggregate=TRUE))
+  for (p in c(unfiltsR)) {
+    print(plotQualityProfile( file.path(p), n = 100000))
+  }
+}
 
 
 out <- suppressWarnings(filterAndTrim(unfiltsF, filtsF, unfiltsR, filtsR,
@@ -201,7 +220,7 @@ if(length(filtsF) == 0) { # All reads were filtered out
 
 ### LEARN ERROR RATES ###
 # Dereplicate enough samples to get nreads.learn total reads
-cat("2) Learning Error Rates\n")
+cat(format(Sys.time(), "%Y-%m-%d %H:%M:%S"), " [2] Learning Error Rates\n")
 errF <- suppressWarnings(learnErrors(filtsF, nreads=nreads.learn, multithread=multithread))
 errR <- suppressWarnings(learnErrors(filtsR, nreads=nreads.learn, multithread=multithread))
 
@@ -209,7 +228,7 @@ errR <- suppressWarnings(learnErrors(filtsR, nreads=nreads.learn, multithread=mu
 # Loop over rest in streaming fashion with learned error rates
 denoisedF <- rep(0, length(filtsF))
 mergers <- vector("list", length(filtsF))
-cat("3) Denoise remaining samples ")
+cat(format(Sys.time(), "%Y-%m-%d %H:%M:%S"), " [3] Denoise remaining samples ")
 for(j in seq(length(filtsF))) {
   drpF <- derepFastq(filtsF[[j]])
   ddF <- dada(drpF, err=errF, multithread=multithread, verbose=FALSE)
@@ -225,7 +244,7 @@ cat("\n")
 seqtab <- makeSequenceTable(mergers)
 
 # Remove chimeras
-cat("4) Remove chimeras (method = ", chimeraMethod, ")\n", sep="")
+cat(format(Sys.time(), "%Y-%m-%d %H:%M:%S"), " [4] Remove chimeras (method = ", chimeraMethod, ")\n", sep="")
 if(chimeraMethod %in% c("pooled", "consensus")) {
   seqtab.nochim <- removeBimeraDenovo(seqtab, method=chimeraMethod, minFoldParentOverAbundance=minParentFold, multithread=multithread)
 } else { # No chimera removal, copy seqtab to seqtab.nochim
@@ -245,7 +264,7 @@ write.table(track, out.track, sep="\t", row.names=TRUE, col.names=NA,
 
 ### WRITE OUTPUT AND QUIT ###
 # Formatting as tsv plain-text sequence table table
-cat("6) Write output\n")
+cat(format(Sys.time(), "%Y-%m-%d %H:%M:%S"), " [6] Write output\n")
 seqtab.nochim <- t(seqtab.nochim) # QIIME has OTUs as rows
 col.names <- basename(filtsF)
 col.names[[1]] <- paste0("#OTU ID\t", col.names[[1]])
