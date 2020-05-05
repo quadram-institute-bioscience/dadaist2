@@ -17,7 +17,7 @@ use Digest::MD5 qw(md5_hex);
 use File::Temp;
 
 my $PROGRAM          = basename($0);
-my $VERSION          = '0.1.04';
+my $VERSION          = '0.1.07';
 my $opt_verbose      = 0;
 my $opt_debug        = 0;
 my $opt_id_separator = '_';
@@ -208,6 +208,9 @@ my @dada_paired_args = (
 #                 Special values: 0 - Use all input reads.
 #    Ex: 1000000
      $dada2_min_reads,
+
+# 18) base dir,
+	${temp_dir}
 );
 
 
@@ -224,7 +227,7 @@ if ( $dada2_execution->{'exit'} != 0 ) {
 copy(File::Spec->catfile($dada2_temp, 'stats.tsv'), 
 	 File::Spec->catfile($opt_output_directory, 'dada2_stats.tsv')) || die " ERROR:\n Unable to copy stats.tsv file from $dada2_temp to $opt_output_directory.\n";
 
-my $dada2_tsv  = File::Spec->catfile($dada2_temp, 'dada2.tsv');
+my $dada2_tsv   = File::Spec->catfile($dada2_temp, 'dada2.tsv');
 my $dada2_file  = File::Spec->catfile($opt_output_directory, 'feature-table.tsv');
 my $repseq_file = File::Spec->catfile($opt_output_directory, 'rep-seqs.fasta');
 

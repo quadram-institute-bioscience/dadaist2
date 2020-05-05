@@ -107,9 +107,9 @@ getN <- function(x) sum(getUniques(x))
 args <- commandArgs(TRUE)
 
 # Assign each of the arguments, in positional order, to an appropriately named R variable
-inp.dirF <- args[[1]]
-inp.dirR <- args[[2]]
-out.path <- args[[3]]
+inp.dirF  <- args[[1]]
+inp.dirR  <- args[[2]]
+out.path  <- args[[3]]
 out.track <- args[[4]]
 filtered.dirF <- args[[5]]
 filtered.dirR <- args[[6]]
@@ -117,14 +117,14 @@ truncLenF <- as.integer(args[[7]])
 truncLenR <- as.integer(args[[8]])
 trimLeftF <- as.integer(args[[9]])
 trimLeftR <- as.integer(args[[10]])
-maxEEF <- as.numeric(args[[11]])
-maxEER <- as.numeric(args[[12]])
-truncQ <- as.integer(args[[13]])
+maxEEF    <- as.numeric(args[[11]])
+maxEER    <- as.numeric(args[[12]])
+truncQ    <- as.integer(args[[13]])
 chimeraMethod <- args[[14]]
 minParentFold <- as.numeric(args[[15]])
-nthreads <- as.integer(args[[16]])
-nreads.learn <- as.integer(args[[17]])
-
+nthreads      <- as.integer(args[[16]])
+nreads.learn  <- as.integer(args[[17]])
+outbasepath   <- args[[18]]
 ### VALIDATE ARGUMENTS ###
 
 # Input directory is expected to contain .fastq.gz file(s)
@@ -178,6 +178,15 @@ cat("DADA2:", as.character(packageVersion("dada2")), "/",
 cat("1) Filtering ")
 filtsF <- file.path(filtered.dirF, basename(unfiltsF))
 filtsR <- file.path(filtered.dirR, basename(unfiltsR))
+
+for (p in c(filtsF,filtsR)) {
+  png(cat(outbasepath,"/",basename(p),".png"));
+  plotQualityProfile(p)
+  dev.off()
+}
+
+
+
 out <- suppressWarnings(filterAndTrim(unfiltsF, filtsF, unfiltsR, filtsR,
                                       truncLen=c(truncLenF, truncLenR), trimLeft=c(trimLeftF, trimLeftR),
                                       maxEE=c(maxEEF, maxEER), truncQ=truncQ, rm.phix=TRUE,
@@ -242,6 +251,6 @@ col.names <- basename(filtsF)
 col.names[[1]] <- paste0("#OTU ID\t", col.names[[1]])
 write.table(seqtab.nochim, out.path, sep="\t",
             row.names=TRUE, col.names=col.names, quote=FALSE)
-saveRDS(seqtab.nochim, gsub("tsv", "rds", out.path)) ### TESTING
+#saveRDS(seqtab.nochim, gsub("tsv", "rds", out.path)) ### TESTING
 
 q(status=0)
