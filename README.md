@@ -34,5 +34,9 @@ The output directory will contain:
 
 ## Citation
 
-This wrapper uses DADA2:
+This is a wrapper around DADA2:
 * Benjamin J Callahan, Paul J McMurdie, Michael J Rosen, Andrew W Han, Amy Jo A Johnson, and Susan P Holmes. **Dada2: high-resolution sample inference from illumina amplicon data**. Nature methods, 13(7):581, 2016. [doi:10.1038/nmeth.3869](https://doi.org/doi:10.1038/nmeth.3869).
+The wrapper uses R scripts from
+* [q2-dada2, a Qiime2 plugin](https://github.com/qiime2/q2-dada2)
+
+
