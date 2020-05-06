@@ -2,6 +2,7 @@
 
 [![Dadaist2 logo](docs/dadaist.png)](https://github.com/quadram-institute-bioscience/dadaist2#readme)
 
+[![Conda](https://img.shields.io/conda/dn/bioconda/dadaist2)](https://bioconda.github.io/recipes/dadaist2/README.html)
 [![Build Status](https://travis-ci.org/quadram-institute-bioscience/dadaist2.svg?branch=master)](https://travis-ci.org/quadram-institute-bioscience/dadaist2) Standalone wrapper for [DADA2](https://benjjneb.github.io/dada2/index.html) package
 
 
