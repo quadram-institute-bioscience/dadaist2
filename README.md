@@ -18,6 +18,7 @@ Other options:
 * `-l`, `--log-filename` FILE, to change the log file path (default: output_dir/dadaist.log)
 * `-t`, `--threads` INT, to specify the number of threads
 * `-p`, `--prefix` STRING, representative sequences name prefix (default: 'ASV'). If set to "MD5" the MD5 hash of the sequence will be used as sequence name (as Qiime2 does)
+* `--skip-plots`, do not plot [quality plots](docs/quality_plot.png)
 * `--tmp-dir` DIR, specify working directory
 * `--version` will print the program version and exit
 * `--help` will print the usage 
@@ -31,6 +32,8 @@ A directory containing the FASTQ files, that are usually gzipped. Paired-end are
 The output directory will contain:
 * _feature-table.tsv_ - the feature table 
 * _rep-seqs.fasta_ - the representative sequences (ASVs)
+* JSON file of the _fastp_ filter
+* PDF plots of the [quality profiles](docs/quality_plot.png)
 
 ## Citation
 
