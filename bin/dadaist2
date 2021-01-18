@@ -2,6 +2,8 @@
 #ABSTRACT: A program to run DADA2 from the CLI
 
 # Minichangelog
+# 0.2.00 - Manual, save Rds, further analysis, taxonomy labels, downloader
+# 0.1.09 - Added autocalculated trimming [qualified_wnd/qualified_min_qual]
 # 0.1.07 - Added quality plot
 
 use 5.012;
@@ -11,6 +13,7 @@ use Data::Dumper;
 use FindBin qw($RealBin);
 use File::Basename;
 use File::Spec;
+use File::Spec::Functions;
 use File::Copy;
 use Term::ANSIColor qw(color);
 use FASTX::Reader;
@@ -18,9 +21,10 @@ use FASTX::ScriptHelper;
 use JSON::PP;
 use Digest::MD5 qw(md5_hex);
 use File::Temp;
+use Pod::Usage;
 
 my $PROGRAM          = basename($0);
-my $VERSION          = '0.1.07';
+my $VERSION          = '0.2.00';
 my $opt_verbose      = 0;
 my $opt_debug        = 0;
 my $opt_id_separator = '_';
@@ -29,12 +33,36 @@ my $opt_rev_tag      = '_R2';
 my $opt_seq_prefix   = 'ASV';
 my $opt_temp_dir     = File::Spec->tmpdir();
 my $opt_threads      = 2;
+my $opt_tax_db       = "skip";
+my $save_rds         = "no";
+# FASTP Preprocess
+# To be autocalculated:
+my $fastp_trim_front1 = 14;
+my $fastp_trim_front2 = 14;
+my $fastp_trim_tail1  = 0;
+my $fastp_trim_tail2  = 0;
+my $fastp_minlen      = 110;
+
+# DADA2
 my $do_plots         = 'do_plots';
+my $trunc_len_1      = 0;
+my $trunc_len_2      = 0;
+my $trunc_start_1    = 0;
+my $trunc_start_2    = 0;
+my $total_len_1      = 0;
+my $total_len_2      = 0;
+my $qualified_wnd    = 4;
+my $qualified_min_qual = 30;
+
+my $r1_len = 10_000;
+my $r2_len = 10_000;
+my $tot_reads = 0;
 my ($opt_help,  $opt_log_filename, $opt_input_directory, $opt_output_directory, $opt_version, $opt_skip_plots);
 
 GetOptions(
  'i|input-directory=s'             => \$opt_input_directory,
  'o|output-directory=s'            => \$opt_output_directory,
+ 'd|database=s'                    => \$opt_tax_db,
  '1|for-tag=s'                     => \$opt_for_tag,
  '2|rev-tag=s'                     => \$opt_rev_tag,
  's|id-separator=s'                => \$opt_id_separator,
@@ -49,8 +77,9 @@ GetOptions(
 );
 
 $opt_version && version();
-$opt_help    && usage("Manual to be released");
+$opt_help    && pod2usage({-exitval => 0, -verbose => 2});
 $do_plots    = 'skip' if ($opt_skip_plots);
+
 
 # Check essential parameters
 my $fastp_threads = $opt_threads > 4 ? 4 : $opt_threads;
@@ -59,7 +88,7 @@ usage("Missing parameter(s): output directory (-o DIR).") if (not defined $opt_o
 
 
 # Prepare temporary directories
-my $temp_dir = File::Temp->newdir( 'dada2_XXXXXX', 
+my $temp_dir = File::Temp->newdir( 'dada2_XXXXXX',
 		CLEANUP => 0,
 		DIR => $opt_temp_dir);
 my $dada2_temp = File::Spec->catdir("$temp_dir", 'dada2');
@@ -67,7 +96,12 @@ my $dada2_temp = File::Spec->catdir("$temp_dir", 'dada2');
 # Prepare output directory
 if ( ! -d "$opt_output_directory") {
 	mkdir "$opt_output_directory"    || die " FATAL ERROR:\n Unable to create directory $opt_output_directory/\n $!\n";
+	mkdir File::Spec->catdir("$opt_output_directory", 'qc')    || die " FATAL ERROR:\n Unable to create directory $opt_output_directory/qc\n $!\n";
+
 }
+
+
+
 
 # Log file
 my $log_filename =  $opt_log_filename // File::Spec->catfile($opt_output_directory, 'dadaist.log');
@@ -77,62 +111,96 @@ my $S = FASTX::ScriptHelper->new({
 });
 
 $S->verbose("$PROGRAM $VERSION");
+check_required_binaries({
+	'fastp'   => 'fastp --version 2>&1',
+	'RScript' => 'Rscript  --version 2>&1',
+	'fasttree'=> 'fasttree 2>&1 | head -n 1 | cut -c 11-',
+	'clustalo'=> 'clustalo --version 2>&1',
+	'vsearch' => 'vsearch --version 2>&1 | head -n 1',
+});
 
-$temp_dir = File::Spec->rel2abs($temp_dir);
-	mkdir "$temp_dir/for"            || die " FATAL ERROR:\n Unable to create directory $temp_dir/for\n $!\n";
-	mkdir "$temp_dir/rev"            || die " FATAL ERROR:\n Unable to create directory $temp_dir/rev\n $!\n";
-	mkdir "$temp_dir/for/filtered"   || die " FATAL ERROR:\n Unable to create directory $temp_dir/for/filtered\n $!\n";
-	mkdir "$temp_dir/rev/filtered"   || die " FATAL ERROR:\n Unable to create directory $temp_dir/rev/filtered\n $!\n";
-	mkdir "$dada2_temp"              || die " FATAL ERROR:\n Unable to create directory $temp_dir/dada2\n $!\n";
+# Check taxonomy database
+if ($opt_tax_db ne 'skip') {
+	if (valid_gzipped_fasta($opt_tax_db)) {
+		$S->verbose("Taxonomy database: $opt_tax_db");
+	} else {
+		$S->verbose("Taxonomy database not valid: $opt_tax_db. Taxonomy will be skipped.");
+		$opt_tax_db = 'skip';
+	}
+}
+
+$temp_dir = prepare_temporary_directories($temp_dir);
 
 $S->verbose("Threads: $opt_threads");
-$S->verbose("Temporary directory: $temp_dir");
 $S->verbose("Output directory: $opt_output_directory");
-$S->verbose("Scanning input directory: $opt_input_directory");
-my $files = get_file_reads($opt_input_directory);
 
-# Preprocess
-# To be autocalculated:
-my $fastp_trim_front1 = 14;
-my $fastp_trim_front2 = 14;
-my $fastp_trim_tail1  = 0;
-my $fastp_trim_tail2  = 0;
-my $fastp_minlen      = 110;
+my ($files_hash, $is_paired, $samples_count) = get_file_reads($opt_input_directory);
+my $library_type = $is_paired > 0 ? 'paired-end' : 'single-end';
+$S->verbose("Input directory \"$opt_input_directory\": $samples_count found ($library_type) ");
 
-my $r1_len = 10_000;
-my $r2_len = 10_000;
-my $tot_reads = 0;
-for my $sample (sort keys %{ $files } ) {
-	my $json_file = File::Spec->catfile($temp_dir, "${sample}.json");
+
+# Input sanitation with "fastp"
+for my $sample (sort keys %{ $files_hash } ) {
 	$S->verbose("Processing $sample");
-	my $filt_cmd = qq(fastp -w $fastp_threads -i "$$files{$sample}{for}" -I "$$files{$sample}{rev}" -o "$temp_dir"/for/${sample}_R1.fastq.gz -O  "$temp_dir"/rev/${sample}_R2.fastq.gz  ) .
-		    qq( --trim_front1 $fastp_trim_front1 --trim_front2  $fastp_trim_front2 ).
-		    qq( --detect_adapter_for_pe --disable_quality_filtering --n_base_limit  1  ).
+	my $json_file = File::Spec->catfile($temp_dir, "${sample}.json");
+
+	my $filt_cmd;
+	if ($$files_hash{$sample}{rev}) {
+		# Paired reads
+		$filt_cmd = qq(fastp -w $fastp_threads -i "$$files_hash{$sample}{for}" -I "$$files_hash{$sample}{rev}" -o "$temp_dir"/for/${sample}_R1.fastq.gz -O  "$temp_dir"/rev/${sample}_R2.fastq.gz  ) .
+			    qq( --trim_front1 $fastp_trim_front1 --trim_front2  $fastp_trim_front2 ).
+			    qq( --detect_adapter_for_pe --disable_quality_filtering --n_base_limit  1  ).
+			    qq( --json "$json_file" --html /dev/null ).
+			    qq( --trim_tail1 $fastp_trim_tail1 --trim_tail2 $fastp_trim_tail2 --length_required $fastp_minlen );
+	} else {
+		# Single end
+		$filt_cmd = qq(fastp -w $fastp_threads -i "$$files_hash{$sample}{for}" -o "$temp_dir"/for/${sample}_R1.fastq.gz   ) .
+		    qq( --trim_front1 $fastp_trim_front1  ).
+		    qq( --disable_quality_filtering --n_base_limit  1  ).
 		    qq( --json "$json_file" --html /dev/null ).
-		    qq( --trim_tail1 $fastp_trim_tail1 --trim_tail1 $fastp_trim_tail2 --length_required $fastp_minlen );
+		    qq( --trim_tail1 $fastp_trim_tail1 - --length_required $fastp_minlen );
+		    die " FATAL ERROR: Single end processing is not supported at the moment (coming soon)\n";
+	}
+
+
+
 	my $out = $S->run( $filt_cmd, { candie => 1 } );
 	if ($out->{exit} != 0) {
 		die " FATAL ERROR: 'fastp' failed processing sample $sample.\nCommand: $out->{cmd}\nOut: $out->{stdout}\nErr: $out->{stderr}";
 	}
-	copy($json_file, $opt_output_directory) or die " ERROR:\n Unable to copy JSON stats <$json_file> to <$opt_output_directory>.\n";
+	copy($json_file, File::Spec->catdir("$opt_output_directory", 'qc')) or die " ERROR:\n Unable to copy JSON stats <$json_file> to <$opt_output_directory>.\n";
 	my $summary = load_json_from_file( $json_file );
 	my $raw_reads  = $summary->{summary}->{before_filtering}->{total_reads};
 	my $pass_reads = $summary->{summary}->{after_filtering}->{total_reads};
 	my $ins_size   = $summary->{insert_size}->{peak};
 	my $q30        = $summary->{summary}->{after_filtering}->{q30_rate};
 	my $passed     = 0;
+	my @qual_R1    = @{ $summary->{read1_after_filtering}->{quality_curves}->{mean} };
+	($trunc_start_1, $trunc_len_1, $total_len_1)  = get_qualified_positions(@qual_R1);
+	my @qual_R2;
+	if ($$files_hash{$sample}{rev}) {
+		@qual_R2    = @{ $summary->{read2_after_filtering}->{quality_curves}->{mean} };
+		($trunc_start_2, $trunc_len_2, $total_len_2)  = get_qualified_positions(@qual_R2);
+	}
 
-	$tot_reads += int( $pass_reads / 2); 
+
+	$tot_reads += int( $pass_reads / 2);
 	$r1_len     = $summary->{read1_after_filtering}->{total_cycles}
 		if ($summary->{read1_after_filtering}->{total_cycles} < $r1_len);
 	$r2_len     = $summary->{read2_after_filtering}->{total_cycles}
 		if ($summary->{read2_after_filtering}->{total_cycles} < $r2_len);
 	$passed += sprintf("%.2f", 100*$pass_reads/$raw_reads) if ($raw_reads);
-	$S->verbose(qq($pass_reads/$raw_reads (${passed}%) reads kept. Average insert size: $ins_size bp, Q30: $q30 ));
+	$S->verbose(qq($pass_reads/$raw_reads (${passed}%) reads kept.\n * Average insert size: $ins_size bp\n * Q30: $q30\n * Qualified region: [$trunc_start_1 - $trunc_len_1]/$total_len_1, [$trunc_start_2 - $trunc_len_2]/$total_len_2));
 }
 
 my $dada2_min_reads = $tot_reads < 10000 ? $tot_reads : 10000;
-
+my @dada_paired_parameter_labels = (
+'forward_reads', 'reverse_reads', 'feature_table_output', 'stats_output',
+'filt_forward', 'filt_reverse', 'truncLenF', 'truncLenR',
+'trimLeftF', 'trimLeftR', 'maxEEF', 'maxEER',
+'truncQ', 'chimeraMethod', 'minFold','threads',
+'nreads_learn','baseDir', 'doPlots', 'taxonomyDb', 'saveRDS'
+);
 my @dada_paired_args = (
 # 1) File path to directory with the FORWARD .fastq.gz files to be processed.
 #    Ex: path/to/dir/with/FWD_fastqgzs
@@ -162,20 +230,20 @@ my @dada_paired_args = (
 #               than truncLenF will be discarded.
 #               Special values: 0 - no truncation or length filtering.
 #    Ex: 240
-    0,
+    $trunc_len_1,
 # 8) truncLenR - The position at which to truncate reverse reads. Reverse reads shorter
 #               than truncLenR will be discarded.
 #               Special values: 0 - no truncation or length filtering.
 #    Ex: 160
-    0,
+    $trunc_len_2,
 # 9) trimLeftF - The number of nucleotides to remove from the start of
 #               each forward read. Should be less than truncLenF.
 #    Ex: 0
-    0,
+    $trunc_start_1,
 # 10) trimLeftR - The number of nucleotides to remove from the start of
 #               each reverse read. Should be less than truncLenR.
 #    Ex: 0
-    0,
+    $trunc_start_2,
 # 11) maxEEF - Forward reads with expected errors higher than maxEEF are discarded.
 #               Both forward and reverse reads are independently tested.
 #    Ex: 2.0
@@ -214,47 +282,68 @@ my @dada_paired_args = (
 #    Ex: 1000000
      $dada2_min_reads,
 
-# 18) base dir,
+# 18)  dir (general use),
 	${temp_dir},
 
 # 19) make plots (if "do_plots" will make pdfs)
-    ${do_plots}
+    ${do_plots},
+
+# 20) Taxonomy database || 'skip'
+	${opt_tax_db},
+
+# 21) Save rds. 'save' => yes
+	${save_rds},
 );
 
 
 ## RUN DADA2
 $S->verbose("Running DADA2...");
 my $cmd_dada_paired = "Rscript --vanilla $RealBin/run_dada_paired.R " . join(" ", @dada_paired_args);
+$S->verbose("Dada2 script parameters:");
+my $i_index = 0;
+for my $arg (@dada_paired_args) {
+  my $label = @dada_paired_parameter_labels[$i_index];
+  $i_index++;
+  say STDERR  " * [$i_index]", color('magenta'), " $label: " , color('reset'), "$arg";
+}
 my $dada2_execution = $S->run($cmd_dada_paired, { candie => 1 });
 
+# Check exit status of DADA2 wrapper
 if ( $dada2_execution->{'exit'} != 0 ) {
+  say STDERR color('red'), " *** ERROR *** ";
 	$S->verbose("DADA2 Failed:\n> $dada2_execution->{stderr}\n> $dada2_execution->{stdout}");
 	exit 1;
 } else {
 	$S->verbose("DADA2 output:\n$dada2_execution->{stdout}");
+	$S->run(qq(rm -rf "$temp_dir"/for "$temp_dir"/rev))
 }
-copy(File::Spec->catfile($dada2_temp, 'stats.tsv'), 
+copy(File::Spec->catfile($dada2_temp, 'stats.tsv'),
 	 File::Spec->catfile($opt_output_directory, 'dada2_stats.tsv')) || die " ERROR:\n Unable to copy stats.tsv file from $dada2_temp to $opt_output_directory.\n";
 
 if (! $opt_skip_plots ) {
 	copy(File::Spec->catfile("$temp_dir", 'quality_R1.pdf'),
-		 File::Spec->catfile($opt_output_directory, 'plot_R1.pdf')) || die " ERROR:\n Unable to copy plot_R1.pdf file from $temp_dir to $opt_output_directory.\n";
+		 File::Spec->catfile(File::Spec->catdir("$opt_output_directory", 'qc'), 'plot_R1.pdf')) || die " ERROR:\n Unable to copy plot_R1.pdf file from $temp_dir to $opt_output_directory.\n";
 	copy(File::Spec->catfile("$temp_dir", 'quality_R2.pdf'),
-		 File::Spec->catfile($opt_output_directory, 'plot_R2.pdf')) || die " ERROR:\n Unable to copy plot_R2.pdf file from $temp_dir to $opt_output_directory.\n";
+		 File::Spec->catfile(File::Spec->catdir("$opt_output_directory", 'qc'), 'plot_R2.pdf')) || die " ERROR:\n Unable to copy plot_R2.pdf file from $temp_dir to $opt_output_directory.\n";
 
 }
+
+## PROCESS DADA2 MAIN OUTPUT
 my $dada2_tsv   = File::Spec->catfile($dada2_temp, 'dada2.tsv');
 my $dada2_file  = File::Spec->catfile($opt_output_directory, 'feature-table.tsv');
 my $repseq_file = File::Spec->catfile($opt_output_directory, 'rep-seqs.fasta');
 
-my @header = ();   
-open my $d2_FH,    '<', "$dada2_tsv"  || die " ERROR:\n Unable to open <$dada2_tsv>\n";
+my @header = ();
+open my $DADA_TSV,   '<', "$dada2_tsv"   || die " ERROR:\n Unable to open <$dada2_tsv>\n";
 open my $dada2_FO,   '>', "$dada2_file"  || die " ERROR:\n Unable to write to <$dada2_file>\n";
 open my $repseqs_FO, '>', "$repseq_file" || die " ERROR:\n Unable to write to <$repseq_file>\n";
 my $feature_counter = 0;
 $S->verbose("DADA2 Finished: preparing output files");
-while ( my $line = readline($d2_FH) ) { 
+
+# Create OTU Table and FASTA file from TSV
+while ( my $line = readline($DADA_TSV) ) {
 	if ($line=~/^#/) {
+		$line=~s/_R1.fastq.gz//g;
 		print {$dada2_FO} $line;
 		chomp($line);
 		@header = split /\t/, $line;
@@ -268,14 +357,23 @@ while ( my $line = readline($d2_FH) ) {
 		} else {
 			$name = $opt_seq_prefix . $feature_counter;
 		}
-		
+
 		say {$repseqs_FO} '>' , $name, "\n", $sequence;
 		say {$dada2_FO} $name, "\t", join("\t", @values);
 	}
 
 }
 $S->verbose("Dadaist2 finished:\n * feature-table: $dada2_file\n * rep-seqs: $repseq_file");
-#copy(File::Spec->catfile($dada2_temp, 'stats.tsv'), 
+
+if ($opt_tax_db ne 'skip') {
+	copy(File::Spec->catfile("$temp_dir", 'taxonomy.tsv'),
+	     File::Spec->catfile("$opt_output_directory", 'taxonomy.tsv')) || die " ERROR:\n Unable to copy taxonomy.txt file from " . File::Spec->catfile("$temp_dir", 'taxonomy.txt') . " to $opt_output_directory.\n";
+
+}
+
+$S->run(qq(rm -rf "$temp_dir"));
+
+#copy(File::Spec->catfile($dada2_temp, 'stats.tsv'),
 #	 File::Spec->catfile($opt_output_directory, 'dada2_stats.tsv')) || die " ERROR:\n Unable to copy stats.tsv file from $dada2_temp to $opt_output_directory.\n";
 
 #dada2.rds  dada2.tsv  stats.tsv
@@ -298,11 +396,43 @@ END
  }
 }
 
+sub get_qualified_positions {
+	# Scan a list of qualityes and return the boundaries of qualified quality
+	my $len = @_;
+	my $start = undef;
+	my $end = undef;
+
+	for (my $pos = 0; $pos < ($len - $qualified_wnd); $pos++) {
+		my $avg = avg_array( @_[$pos..$pos+$qualified_wnd] );
+
+		if ($avg > $qualified_min_qual) {
+			$start = $pos unless defined $start;
+		} else {
+			next if not defined $start;
+			$end = $pos unless defined $end;
+		}
+
+
+	}
+	$end = $len unless defined $end;
+	return($start, $end, $len);
+}
+sub avg_array {
+	my $agg = 0;
+	$agg += $_ for @_;
+	return $agg/@_;
+}
+sub sum_array {
+	my $agg = 0;
+	$agg += $_ for @_;
+	return $agg
+}
+
 sub load_json_from_file {
 	my $file = shift @_;
 	my $json_read = $S->run(qq(cat "$file"));
 
-	
+
 	my $data;
 	eval {
 		$data = decode_json $json_read->{stdout};
@@ -315,19 +445,134 @@ sub load_json_from_file {
 }
 sub get_file_reads {
 	my ($dir) = @_;
+	my $is_paired = undef;
 	$dir = File::Spec->rel2abs($dir);
 	my @files = <"$dir"/*.*>;
 	my %samples;
+	my $counter_for = 0;
+	my $counter_rev = 0;
 	for my $file (sort @files) {
 		next if (substr($file, 0, 1) eq '.');
 		my ($id) = split /$opt_id_separator/, basename($file);
 		if ($file =~/$opt_for_tag/) {
-			$samples{$id}{'for'} = $file; 
+			$counter_for++;
+			$samples{$id}{'for'} = $file;
 		} elsif ($file =~/$opt_rev_tag/) {
-			$samples{$id}{'rev'} = $file; 
+			$counter_rev++;
+			$samples{$id}{'rev'} = $file;
 		} else {
 			$S->verbose("Skipping file <$file>: missing $opt_for_tag/$opt_rev_tag");
 		}
 	}
-	return \%samples;
+	if ($counter_for == 0 and $counter_rev == 0) {
+		die "FATAL ERROR: No samples found in <$dir>.\n";
+	} elsif ($counter_for == $counter_rev) {
+		$is_paired = 1;
+	} elsif ($counter_rev == 0 ) {
+		$is_paired = 0;
+	} else {
+		die "FATAL ERROR: $counter_rev paired samples found, but $counter_for forward pairs found.\n";
+	}
+	return (\%samples, $is_paired, $counter_rev);
 }
+
+sub valid_gzipped_fasta {
+	my $file = shift @_;
+	my $reader;
+	my $check = eval {
+		$reader = FASTX::Reader->new({ filename => "$file"});
+
+	};
+	if ($@) {
+		$S->verbose("Reference $file reading error: unable to open:\n$@");
+		return 0;
+	} else {
+		if ($reader->{compressed} == 1) {
+			return 1;
+		} else {
+			$S->verbose("Reference $file should be compressed with GZip!");
+		}
+
+	}
+
+	exit;
+}
+sub check_required_binaries {
+
+	for my $bin (sort keys  %{ $_[0]} ) {
+		my $run = $S->run("${ $_[0]}{$bin}", { candie => 1});
+		if ($run->{exit} == 0 and $run->{stdout} !~/not found/) {
+			$S->verbose("Checking $bin: $run->{stdout}");
+		} else {
+			die "FATAL ERROR:\nDependency '$bin' not found or returned non zero exit value.\n";
+		}
+
+	}
+}
+
+sub prepare_temporary_directories {
+ my $temp_dir = shift @_;
+ $temp_dir = File::Spec->rel2abs($temp_dir);
+	mkdir "$temp_dir/for"            || die " FATAL ERROR:\n Unable to create directory $temp_dir/for\n $!\n";
+	mkdir "$temp_dir/rev"            || die " FATAL ERROR:\n Unable to create directory $temp_dir/rev\n $!\n";
+	mkdir "$temp_dir/for/filtered"   || die " FATAL ERROR:\n Unable to create directory $temp_dir/for/filtered\n $!\n";
+	mkdir "$temp_dir/rev/filtered"   || die " FATAL ERROR:\n Unable to create directory $temp_dir/rev/filtered\n $!\n";
+	mkdir "$dada2_temp"              || die " FATAL ERROR:\n Unable to create directory $temp_dir/dada2\n $!\n";
+  $S->verbose("Temporary directory: $temp_dir");
+  return $temp_dir;
+}
+
+__END__
+
+=head1 NAME
+
+B<dadaist2> - a shell wrapper for DADA2, to detect representative sequences and generate
+a feature table starting from Illumina Paired End reads.
+
+=head1 AUTHOR
+
+Andrea Telatin <andrea.telatin@quadram.ac.uk>
+
+=head1 SYNOPSIS
+
+dadaist2 [options] -i INPUT_DIR -o OUTPUT_DIR
+
+=head1 PARAMETERS
+
+=over 4
+
+=item I<-i>, I<--input-directory> DIRECTORY
+
+Directory containing the paired end files in FASTQ format, gzipped or not.
+
+=item I<-o>, I<--output-directory> DIRECTORY
+
+Output directory (will be created).
+
+=item I<-d>, I<--database> DATABASE
+
+Reference database in gzipped FASTA format.
+
+=item I<-1>, I<--for-tag> STRING [and I<-2>, I<--rev-tag>]
+
+String identifying the forward (and reverse) pairs. Default are _R1 and _R2.
+
+=item I<-s>, I<--id-separator> STRING
+
+String used to separate the "sample name" from the filename. Default "_".
+
+=item I<-p>, I<--prefix> STRING
+
+Prefix for the output FASTA file, if "MD5" is specified, the sequence MD5 hash
+will be used instead. Default is "ASV".
+
+=item I<-l>, I<--log-file> FILE
+
+Filename for the program log.
+
+=back
+
+=head1 SOURCE CODE AND DOCUMENTATION
+
+The program is freely available at https://github.com/quadram-institute-bioscience/dadaist2
+released under the MIT licence. The website contains further DOCUMENTATION.

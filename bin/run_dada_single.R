@@ -1,17 +1,18 @@
 #!/usr/bin/env Rscript
 
-###################################################
+#########################################################################################################################################################
+# ** NOT USED BY DADAIST2 **
 # This R script takes an input directory of .fastq.gz files
 # and outputs a tsv file of the dada2 processed sequence
 # table. It is intended for use with the QIIME2 plugin
 # for DADA2.
 #
 # Ex: Rscript run_dada_single.R input_dir output.tsv track.tsv filtered_dir 200 0 2.0 2 Inf pooled 1.0 0 1000000 NULL 32
-####################################################
+##########################################################################################################################################################
 
-####################################################
-#             DESCRIPTION OF ARGUMENTS             #
-####################################################
+##########################################################################################################################################################
+#             DESCRIPTION OF ARGUMENTS                                                                                                                   #
+##########################################################################################################################################################
 # NOTE: All numeric arguments should be zero or positive.
 # NOTE: All numeric arguments save maxEE are expected to be integers.
 # NOTE: Currently the filterered_dir must already exist.

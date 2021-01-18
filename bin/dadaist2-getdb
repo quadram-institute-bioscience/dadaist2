@@ -1,0 +1,146 @@
+#!/usr/bin/env perl
+#ABSTRACT: A program to download databases
+
+
+use 5.012;
+use warnings;
+
+my $url_db = {
+	'testset' => {
+		desc => 'FASTQ input, Small 16S dataset to test the suite',
+		url  => 'https://github.com/quadram-institute-bioscience/dadaist2/releases/download/v0.1.04/data.zip',
+		md5  => '',
+		ver  => '1.0',
+	},
+	'dada2-hitdb' => {
+		desc => 'HITdb is a reference taxonomy for Human Intestinal 16S rRNA genes',
+		url  => 'https://zenodo.org/record/159205/files/hitdb_v1.00.fa.gz?download=1',
+		md5  => '1a94d81644a76e513f486a5901a78a1b',
+		cite => 'Ritari J, Salojärvi J, Lahti L & de Vos WM. Improved taxonomic assignment of human intestinal 16S rRNA sequences by a dedicated reference database. BMC Genomics. 2015 Dec 12;16(1):1056. doi: 10.1186/s12864-015-2265-y.',
+		ver  => 'v1.00',
+	},
+	'dada2-silva-138' => {
+		desc => 'SILVA release 138',
+		url  => 'https://zenodo.org/record/3731176/files/silva_nr_v138_train_set.fa.gz?download=1',
+		md5  => '1deeaa2ecc9dbeabdcb9331a565f8343',
+		cite => 'Quast C, Pruesse E, Yilmaz P, Gerken J, Schweer T, Yarza P, Peplies J, Glöckner FO (2013) The SILVA ribosomal RNA gene database project: improved data processing and web-based tools. Opens external link in new windowNucl. Acids Res. 41 (D1): D590-D596. ',
+		ver  => '138',
+	},
+	'dada2-silva-species-138' => {
+		desc => 'SILVA release 138 (species)',
+		url  => 'https://zenodo.org/record/3731176/files/silva_species_assignment_v138.fa.gz?download=1',
+		md5  => '0ba301cbdd6e3684db25fae78fad8158',
+		cite => 'Quast C, Pruesse E, Yilmaz P, Gerken J, Schweer T, Yarza P, Peplies J, Glöckner FO (2013) The SILVA ribosomal RNA gene database project: improved data processing and web-based tools. Opens external link in new windowNucl. Acids Res. 41 (D1): D590-D596. ',
+		ver  => '138',
+	},
+	'dada2-rdp-species-16' => {
+		desc => 'RDP taxonomic training data formatted for DADA2 (RDP trainset 16/release 11.5)',
+		url  => 'https://zenodo.org/record/801828/files/rdp_species_assignment_16.fa.gz?download=1',
+		md5  => 'd68d4980326be10c58aaaa74cc6cdb6e',
+		cite => 'Cole, J. R., Q. Wang, J. A. Fish, B. Chai, D. M. McGarrell, Y. Sun, C. T. Brown, A. Porras-Alfaro, C. R. Kuske, and J. M. Tiedje. 2014. Ribosomal Database Project: data and tools for high throughput rRNA analysis Nucl. Acids Res. 42(Database issue):D633-D642; doi: 10.1093/nar/gkt1244 ',
+		ver  => '11.5',
+	},
+	'dada2-rdp-train-16' => {
+		desc => 'RDP taxonomic training data formatted for DADA2 (RDP trainset 16/release 11.5)',
+		url  => 'https://zenodo.org/record/801828/files/rdp_train_set_16.fa.gz?download=1',
+		md5  => 'cac51b436f1679fefc9a1db1d3b24686',
+		cite => 'Cole, J. R., Q. Wang, J. A. Fish, B. Chai, D. M. McGarrell, Y. Sun, C. T. Brown, A. Porras-Alfaro, C. R. Kuske, and J. M. Tiedje. 2014. Ribosomal Database Project: data and tools for high throughput rRNA analysis Nucl. Acids Res. 42(Database issue):D633-D642; doi: 10.1093/nar/gkt1244 ',
+		ver  => '16',
+	},
+};
+use Getopt::Long;
+use Data::Dumper;
+use FindBin qw($RealBin);
+use File::Basename;
+use File::Spec;
+use File::Spec::Functions;
+use File::Copy;
+use Term::ANSIColor qw(color);
+use FASTX::Reader;
+use FASTX::ScriptHelper;
+use JSON::PP;
+use File::Temp;
+
+my ($opt_urls_db, $opt_list, @opt_db, $opt_output_dir, $opt_help);
+
+GetOptions(
+	'u|url-db=s'     => \$opt_urls_db,
+	'l|list'         => \$opt_list,
+	'd|database=s'   => \@opt_db,
+	'o|output-dir=s' => \$opt_output_dir,
+	'h|help'         => \$opt_help,
+);
+
+$opt_help && usage();
+$url_db = $opt_urls_db ? load_db_from_file($opt_urls_db) : $url_db;
+
+my $S = FASTX::ScriptHelper->new({
+	verbose => 1,
+
+});
+
+
+validate_db($url_db);
+
+
+if ($opt_list) {
+	# LIST DATABASES
+	list_dbs($url_db);
+} elsif ($opt_db[0]) {
+	# DOWNLOAD DATABASES
+	$opt_output_dir //= $ENV{PWD};
+	$S->run(qq(mkdir -p "$opt_output_dir"));
+	say STDERR " * Preparing to download to $opt_output_dir";
+	for my $id (sort  @opt_db) {
+		if (defined $url_db->{$id}) {
+			say STDERR " * Getting ", $url_db->{$id}->{desc};
+			#$S->download($url_db->{$id}->{url}, $opt_output_dir);
+			my $filename = basename($url_db->{$id}->{url});
+			($filename) = split /[\?]/, $filename;
+			my $download_cmd = qq(curl -o "$opt_output_dir/$filename" "$url_db->{$id}->{url}");
+			$S->run($download_cmd);
+		}
+
+	}
+
+
+} else {
+	usage();
+}
+
+sub list_dbs {
+	my $db = shift @_;
+	for my $record (sort keys %{ $db }) {
+		say STDERR color('bold'), $record, color('reset'), ": ${ $db }{ $record }{desc}";
+	}
+}
+sub load_db_from_file {
+	my $file = shift @_;
+	return 0;
+}
+sub validate_db{
+	my $db = shift @_;
+	my %valid_attr = (
+		desc => 1,
+		url  => 1,
+		md5  => 1,
+		cite => 1,
+		ver  => 1,
+	);
+
+	for my $record (sort keys %{ $db }) {
+
+		for my $key (sort keys %{ $db->{$record} }) {
+			die  "ERROR IN DATABASE: Record $record has unexpected key=$key\n"
+				unless ($valid_attr{$key});
+		}
+	}
+}
+
+sub usage {
+	my $PROG = basename($0);
+	say "USAGE:";
+	say "$PROG --list   (to list datasets)";
+	say "$PROG -d DATABASE_ID  -o DESTINATION (to download a dataset)\n";
+	exit;
+}

@@ -105,33 +105,37 @@
 #
 # 19) 'do_plots' to save quality plots
 #
+# 20) taxonomy DB -or- 'skip'
 
 cat(R.version$version.string, "\n")
 errQuit <- function(mesg, status=1) { message("Error: ", mesg); q(status=status) }
 getN <- function(x) sum(getUniques(x))
 args <- commandArgs(TRUE)
 
+feature_table_header = '#OTU ID';
 # Assign each of the arguments, in positional order, to an appropriately named R variable
-inp.dirF  <- args[[1]]
-inp.dirR  <- args[[2]]
-out.path  <- args[[3]]
-out.track <- args[[4]]
+inp.dirF      <- args[[1]]
+inp.dirR      <- args[[2]]
+out.path      <- args[[3]]
+out.track     <- args[[4]]
 filtered.dirF <- args[[5]]
 filtered.dirR <- args[[6]]
-truncLenF <- as.integer(args[[7]])
-truncLenR <- as.integer(args[[8]])
-trimLeftF <- as.integer(args[[9]])
-trimLeftR <- as.integer(args[[10]])
-maxEEF    <- as.numeric(args[[11]])
-maxEER    <- as.numeric(args[[12]])
-truncQ    <- as.integer(args[[13]])
+truncLenF     <- as.integer(args[[7]])
+truncLenR     <- as.integer(args[[8]])
+trimLeftF     <- as.integer(args[[9]])
+trimLeftR     <- as.integer(args[[10]])
+maxEEF        <- as.numeric(args[[11]])
+maxEER        <- as.numeric(args[[12]])
+truncQ        <- as.integer(args[[13]])
 chimeraMethod <- args[[14]]
 minParentFold <- as.numeric(args[[15]])
 nthreads      <- as.integer(args[[16]])
 nreads.learn  <- as.integer(args[[17]])
+
 outbasepath   <- args[[18]]
 make_plots    <- args[[19]]
-
+taxonomy_db   <- args[[20]]
+save_rds      <- args[[21]]
 ### VALIDATE ARGUMENTS ###
 
 # Input directory is expected to contain .fastq.gz file(s)
@@ -174,15 +178,16 @@ if(nthreads < 0) {
   multithread <- nthreads
 }
 
+
 ### LOAD LIBRARIES ###
 suppressWarnings(library(methods))
 suppressWarnings(library(dada2))
-cat("DADA2:", as.character(packageVersion("dada2")), "/",
+cat("#DADA2:", as.character(packageVersion("dada2")), "/",
     "Rcpp:", as.character(packageVersion("Rcpp")), "/",
     "RcppParallel:", as.character(packageVersion("RcppParallel")), "\n")
 
 ### TRIM AND FILTER ###
-cat(format(Sys.time(), "%Y-%m-%d %H:%M:%S"), " [1] Filtering reads ")
+cat(format(Sys.time(), "%Y-%m-%d %H:%M:%S"), "\t[1] Filtering reads ")
 filtsF <- file.path(filtered.dirF, basename(unfiltsF))
 filtsR <- file.path(filtered.dirR, basename(unfiltsR))
 
@@ -220,7 +225,7 @@ if(length(filtsF) == 0) { # All reads were filtered out
 
 ### LEARN ERROR RATES ###
 # Dereplicate enough samples to get nreads.learn total reads
-cat(format(Sys.time(), "%Y-%m-%d %H:%M:%S"), " [2] Learning Error Rates\n")
+cat(format(Sys.time(), "%Y-%m-%d %H:%M:%S"), "\t[2] Learning Error Rates\n")
 errF <- suppressWarnings(learnErrors(filtsF, nreads=nreads.learn, multithread=multithread))
 errR <- suppressWarnings(learnErrors(filtsR, nreads=nreads.learn, multithread=multithread))
 
@@ -228,7 +233,8 @@ errR <- suppressWarnings(learnErrors(filtsR, nreads=nreads.learn, multithread=mu
 # Loop over rest in streaming fashion with learned error rates
 denoisedF <- rep(0, length(filtsF))
 mergers <- vector("list", length(filtsF))
-cat(format(Sys.time(), "%Y-%m-%d %H:%M:%S"), " [3] Denoise remaining samples ")
+
+cat(format(Sys.time(), "%Y-%m-%d %H:%M:%S"), "\t[3] Denoise remaining samples ")
 for(j in seq(length(filtsF))) {
   drpF <- derepFastq(filtsF[[j]])
   ddF <- dada(drpF, err=errF, multithread=multithread, verbose=FALSE)
@@ -244,7 +250,7 @@ cat("\n")
 seqtab <- makeSequenceTable(mergers)
 
 # Remove chimeras
-cat(format(Sys.time(), "%Y-%m-%d %H:%M:%S"), " [4] Remove chimeras (method = ", chimeraMethod, ")\n", sep="")
+cat(format(Sys.time(), "%Y-%m-%d %H:%M:%S"), "\t[4] Remove chimeras (method = ", chimeraMethod, ")\n", sep="")
 if(chimeraMethod %in% c("pooled", "consensus")) {
   seqtab.nochim <- removeBimeraDenovo(seqtab, method=chimeraMethod, minFoldParentOverAbundance=minParentFold, multithread=multithread)
 } else { # No chimera removal, copy seqtab to seqtab.nochim
@@ -262,14 +268,38 @@ track[passed.filtering,"non-chimeric"] <- rowSums(seqtab.nochim)
 write.table(track, out.track, sep="\t", row.names=TRUE, col.names=NA,
 	    quote=FALSE)
 
+
+# ### TAXONOMY
+
+if (taxonomy_db != 'skip' && file.exists(taxonomy_db)) {
+   cat(format(Sys.time(), "%Y-%m-%d %H:%M:%S"), "\t[5.1] Taxonomy\n");
+   taxa <- assignTaxonomy(seqtab.nochim, file.path(taxonomy_db), multithread=TRUE,tryRC=TRUE)
+
+   taxa.print <- taxa # Removing sequence rownames for display only
+   rownames(taxa.print) <- NULL
+
+}
+
 ### WRITE OUTPUT AND QUIT ###
 # Formatting as tsv plain-text sequence table table
-cat(format(Sys.time(), "%Y-%m-%d %H:%M:%S"), " [6] Write output\n")
+cat(format(Sys.time(), "%Y-%m-%d %H:%M:%S"), "\t[6] Write output\n")
 seqtab.nochim <- t(seqtab.nochim) # QIIME has OTUs as rows
 col.names <- basename(filtsF)
-col.names[[1]] <- paste0("#OTU ID\t", col.names[[1]])
+col.names[[1]] <- paste0(feature_table_header,"\t", col.names[[1]])
+
+cat("\t * ", out.path, "\n");
 write.table(seqtab.nochim, out.path, sep="\t",
             row.names=TRUE, col.names=col.names, quote=FALSE)
-#saveRDS(seqtab.nochim, gsub("tsv", "rds", out.path)) ### TESTING
+
+cat("\t * ", file.path(paste(outbasepath, 'taxonomy.tsv', sep='')), "\n");
+write.table(taxa.print,
+    file.path(paste(outbasepath, '/taxonomy.tsv', sep='')),
+    row.names=TRUE,
+    quote=FALSE
+)
+
+if (save_rds == 'save') {
+  saveRDS(seqtab.nochim, gsub("tsv", "rds", out.path)) ### TESTING
+}
 
 q(status=0)
