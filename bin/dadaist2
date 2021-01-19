@@ -2,9 +2,10 @@
 #ABSTRACT: A program to run DADA2 from the CLI
 
 # Minichangelog
-# TODO 0.5.0  - Added support for MicrobiomeAnalyst
-# 0.4.0  - Improved verbose mode, added quality parameter, added support to save RDS, added check for dada2 installed, expanded test set
-# 0.2.00 - Manual, save Rds, further analysis, taxonomy labels, downloader
+# TODO 0.5.0  -  support for MicrobiomeAnalyst
+# 0.4.0  - Improved verbose mode, added quality parameter, added support to save RDS, added check for dada2 installed, expanded test set, added makeSampleSheet
+# 0.3.00 - Added a reference database downloader (dadaist2-getdb)
+# 0.2.00 - Manual, save Rds, further analysis, taxonomy labels
 # 0.1.09 - Added autocalculated trimming [qualified_wnd/qualified_min_qual]
 # 0.1.07 - Added quality plot
 
