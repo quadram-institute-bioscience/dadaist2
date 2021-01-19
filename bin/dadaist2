@@ -136,8 +136,8 @@ check_required_binaries({
 	'fastp'   => 'fastp --version 2>&1',
 	'RScript' => 'Rscript  --version 2>&1',
   'dada2 (lib)'  => 'echo "library(dada2)" | R --no-save > /dev/null',
-#	'fasttree'=> 'fasttree 2>&1 | head -n 1 | cut -c 11-',
-#	'clustalo'=> 'clustalo --version 2>&1',
+	'fasttree'=> 'fasttree 2>&1 | head -n 1 | cut -c 11-',
+	'clustalo'=> 'clustalo --version 2>&1',
 #	'vsearch' => 'vsearch --version 2>&1 | head -n 1',
 });
 
@@ -367,7 +367,7 @@ open my $DADA_TSV,   '<', "$dada2_tsv"   || die " ERROR:\n Unable to open <$dada
 open my $dada2_FO,   '>', "$dada2_file"  || die " ERROR:\n Unable to write to <$dada2_file>\n";
 open my $repseqs_FO, '>', "$repseq_file" || die " ERROR:\n Unable to write to <$repseq_file>\n";
 my $feature_counter = 0;
-$S->verbose("DADA2 Finished: preparing output files");
+$S->verbose("DADA2 Finished.");
 
 # Create OTU Table and FASTA file from TSV
 while ( my $line = readline($DADA_TSV) ) {
@@ -397,6 +397,9 @@ my %output_files = (
  'feature-table' => "$dada2_file",
  'rep-seqs'      => "$repseq_file",
 );
+
+
+# Copy optional files
 if ($opt_tax_db ne 'skip') {
   $output_files{'taxonomy-table'} = File::Spec->catfile("$opt_output_directory", 'taxonomy.txt');
 	copy(File::Spec->catfile("$temp_dir", 'taxonomy.tsv'),
@@ -409,6 +412,27 @@ if ($save_rds eq 'save') {
 	     File::Spec->catfile("$opt_output_directory", 'feature-table.rds')) || die " ERROR:\n Unable to copy RDS file from " . File::Spec->catfile("$temp_dir",  'dada2.rds') . " to $opt_output_directory.\n";
 
 }
+
+# Make Tree
+my $msa_output  = File::Spec->catfile("$opt_output_directory", 'rep-seqs.msa');
+my $tree_output = File::Spec->catfile("$opt_output_directory", 'rep-seqs.tree');
+my $msa_cmd     = qq(clustalo -i "$repseq_file" -o "$msa_output" --outfmt=fasta --force);
+my $tree_cmd    = qq(fasttree -nt -gtr -no2nd -spr 4 -quiet "$msa_output" > "$tree_output");
+my $msa_exec    = $S->run($msa_cmd, { candie => 1 });
+my $tree_exec   = $S->run($tree_cmd , { candie => 1 });
+if ( $msa_exec->{'exit'} != 0 or $tree_exec->{'exit'} != 0) {
+  say STDERR color('red'), " *** ERROR *** ";
+	$S->verbose("Clustalo execution failed.\n cmd> $msa_cmd\noutput> $msa_exec->{stderr}\nstderr> $msa_exec->{stdout}");
+	exit 1;
+} elsif ( $tree_exec->{'exit'} != 0) {
+  say STDERR color('red'), " *** ERROR *** ";
+  $S->verbose("FastTree execution failed.\n cmd> $tree_cmd\noutput> $tree_exec->{stderr}\nstderr> $tree_exec->{stdout}");
+	exit 1;
+} else {
+  $output_files{'multiple-alignment'} = $msa_output;
+  $output_files{'features-tree'} = $tree_output;
+}
+
 
 if ($opt_debug) {
   $S->verbose("Temporary directory _not_ deleted: $temp_dir");

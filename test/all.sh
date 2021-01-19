@@ -32,6 +32,7 @@ else
 	ERRORS=$((ERRORS+1))
 	printf  " * $FAIL: Output directory not created\n";
 fi
+
 if [ -e "$BASEDIR/output/dadaist.log" ];
 then
 	printf  " * $PASS: Log was produced\n";
@@ -54,6 +55,14 @@ then
 else
 	ERRORS=$((ERRORS+1))
 	printf  " * $FAIL: dada2 output not found\n";
+fi
+
+if [ -e "$BASEDIR/output/rep-seqs.tree" ];
+then
+	printf  " * $PASS: tree found\n";
+else
+	ERRORS=$((ERRORS+1))
+	printf  " * $FAIL: tree not found\n";
 fi
 
 # --
