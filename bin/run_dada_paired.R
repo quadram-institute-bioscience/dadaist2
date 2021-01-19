@@ -278,6 +278,8 @@ if (taxonomy_db != 'skip' && file.exists(taxonomy_db)) {
    taxa.print <- taxa # Removing sequence rownames for display only
    rownames(taxa.print) <- NULL
 
+} else {
+  cat(format(Sys.time(), "%Y-%m-%d %H:%M:%S"), "\t[5.1] Taxonomy (SKIPPED)\n");
 }
 
 ### WRITE OUTPUT AND QUIT ###
@@ -291,14 +293,17 @@ cat("\t * ", out.path, "\n");
 write.table(seqtab.nochim, out.path, sep="\t",
             row.names=TRUE, col.names=col.names, quote=FALSE)
 
-cat("\t * ", file.path(paste(outbasepath, 'taxonomy.tsv', sep='')), "\n");
-write.table(taxa.print,
-    file.path(paste(outbasepath, '/taxonomy.tsv', sep='')),
-    row.names=TRUE,
-    quote=FALSE
-)
+if (taxonomy_db != 'skip' && file.exists(taxonomy_db)) {
+  cat("\t * ", file.path(paste(outbasepath, 'taxonomy.tsv', sep='')), "\n");
+  write.table(taxa.print,
+      file.path(paste(outbasepath, '/taxonomy.tsv', sep='')),
+      row.names=TRUE,
+      quote=FALSE
+  )
+}
 
 if (save_rds == 'save') {
+  cat("\t * Saving RDS: ", gsub("tsv", "rds", out.path))
   saveRDS(seqtab.nochim, gsub("tsv", "rds", out.path)) ### TESTING
 }
 

@@ -1,0 +1,158 @@
+#!/usr/bin/env perl
+
+use 5.012;
+use warnings;
+use Getopt::Long;
+use File::Spec;
+use File::Basename;
+use Data::Dumper;
+use Pod::Usage;
+my $opt_input_directory;
+my $opt_output_file;
+my $opt_rev_tag = '_R2';
+my $opt_for_tag = '_R1';
+my $opt_id_separator = '_';
+my $opt_table_sep = "\t";
+my $opt_header_field = '#SampleID';
+my $opt_help;
+my $opt_fullpath;
+my $opt_mock_column;
+my $opt_mock_value = 'sample';
+GetOptions(
+ 'i|input-directory=s'  => \$opt_input_directory,
+ 'o|sample-sheet=s'     => \$opt_output_file,
+ '1|for-tag=s'          => \$opt_for_tag,
+ '2|rev-tag=s'          => \$opt_rev_tag,
+ 's|id-separator=s'     => \$opt_id_separator,
+ 'f|field-separator=s'  => \$opt_table_sep,
+ 'h|header-first-col=s' => \$opt_header_field,
+ 'add-full-path'        => \$opt_fullpath,
+ 'add-mock-column=s'    => \$opt_mock_column,
+ 'mock-value=s'         => \$opt_mock_value,
+ 'help'                 => \$opt_help,
+) || die " Parameters error, type --help for more info.\n";
+
+$opt_help    && pod2usage({-exitval => 0, -verbose => 2});
+
+die "Missing parameter(s): input directory (-i DIR).\n"  if (not defined $opt_input_directory);
+
+my $OUT;
+if ($opt_output_file) {
+  open( $OUT, '>', "$opt_output_file") || die "FATAL ERROR: Unable to write to output file: $opt_output_file\n";
+} else {
+  $OUT=\*STDOUT;
+}
+my ($files_hash, $is_paired, $samples_count) = get_file_reads($opt_input_directory);
+
+#Header
+my @field_headers = ($opt_header_field, 'Files');
+push(@field_headers, 'AbsolutePaths') if ($opt_fullpath);
+push(@field_headers, $opt_mock_column) if (defined $opt_mock_column);
+say {$OUT} join( $opt_table_sep, @field_headers);
+
+for my $key (sort keys %{$files_hash}) {
+  my @fields = ($key);
+  for my $field_key (@field_headers) {
+    push(@fields, join(",", basename($files_hash->{$key}->{for}), basename($files_hash->{$key}->{rev}))) if ($field_key eq 'Files');
+    push(@fields, join(",", $files_hash->{$key}->{for},$files_hash->{$key}->{rev})) if ($field_key eq 'AbsolutePaths');
+    push(@fields, $opt_mock_value) if ($opt_mock_column and $field_key eq $opt_mock_column);
+  }
+  say {$OUT} join( $opt_table_sep, @fields    );
+}
+sub get_file_reads {
+	my ($dir) = @_;
+	my $is_paired = undef;
+	$dir = File::Spec->rel2abs($dir);
+	my @files = <"$dir"/*.*>;
+	my %samples;
+	my $counter_for = 0;
+	my $counter_rev = 0;
+	for my $file (sort @files) {
+		next if (substr($file, 0, 1) eq '.');
+		my ($id) = split /$opt_id_separator/, basename($file);
+		if ($file =~/$opt_for_tag/) {
+			$counter_for++;
+			$samples{$id}{'for'} = $file;
+		} elsif ($file =~/$opt_rev_tag/) {
+			$counter_rev++;
+			$samples{$id}{'rev'} = $file;
+		} else {
+			say STDERR "Skipping file <$file>: missing $opt_for_tag/$opt_rev_tag";
+		}
+	}
+	if ($counter_for == 0 and $counter_rev == 0) {
+		die "FATAL ERROR: No samples found in <$dir>.\n";
+	} elsif ($counter_for == $counter_rev) {
+		$is_paired = 1;
+	} elsif ($counter_rev == 0 ) {
+		$is_paired = 0;
+	} else {
+		die "FATAL ERROR: $counter_rev paired samples found, but $counter_for forward pairs found.\n";
+	}
+	return (\%samples, $is_paired, $counter_rev);
+}
+
+
+__END__
+
+=head1 NAME
+
+B<makeSampleSheet> - create a sample sheet from a list of Paired End FASTQ files,
+that can be used as a template to add further columns.
+
+=head1 AUTHOR
+
+Andrea Telatin <andrea.telatin@quadram.ac.uk>
+
+=head1 SYNOPSIS
+
+makeSampleSheet [options] -i INPUT_DIR
+
+=head1 PARAMETERS
+
+=over 4
+
+=item I<-i>, I<--input-directory> DIRECTORY
+
+Directory containing the paired end files in FASTQ format, gzipped or not.
+
+=item I<-o>, I<--output-file> FILE
+
+Output file, if not specified will be printed to STDOUT.
+
+=item I<-1>, I<--for-tag> (and I<-2>, I<--rev-tag>) TAG
+
+Identifier for forward and reverse reads (default: _R1 and _R2)
+
+=item I<-s>, I<id-separator> STRING
+
+Sample name separator (default: _)
+
+=item I<-f>, I<--field-separator> CHAR
+
+Separator in the output file table (default: \t)
+
+=item I<-h>, I<--header-first-col> COLNAME
+
+Name of the first column header (default: #SampleID)
+
+=item I<--add-full-path>
+
+Add a colum with the absolute path of the sample Reads
+
+=item I<--add-mock-column> COLNAME
+
+Add an extra column named C<COLNAME> having as value what is specified by
+C<--mock-value>
+
+=item I<---mock-value> VALUE
+
+Default value used to fill an optional column (requires C<--add-mock-column>). Default "sample".
+
+
+=back
+
+=head1 SOURCE CODE AND DOCUMENTATION
+
+The program is freely available at https://github.com/quadram-institute-bioscience/dadaist2
+released under the MIT licence. The website contains further DOCUMENTATION.

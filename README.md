@@ -20,6 +20,7 @@ Other options:
 * `-1`, `--for-tag` STRING, string identifying a file as being _forward_ (default: \_R1)
 * `-2`, `--rev-tag` STRING, string identifying a file as being _reverse_ (default: \_R2)
 * `-d`, `--database` FILE, database in gzipped FASTA format
+* `-q`, `--min-qual` FLOAT, minimum average quality at a position to set truncation start in DADA2 (default: 28)
 * `-s`, `--id-separator` STRING, string delimiting the Sample ID (default: _)
 * `-l`, `--log-filename` FILE, to change the log file path (default: output_dir/dadaist.log)
 * `-t`, `--threads` INT, to specify the number of threads

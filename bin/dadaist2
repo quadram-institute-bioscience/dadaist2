@@ -2,6 +2,8 @@
 #ABSTRACT: A program to run DADA2 from the CLI
 
 # Minichangelog
+# TODO 0.5.0  - Added support for MicrobiomeAnalyst
+# 0.4.0  - Improved verbose mode, added quality parameter, added support to save RDS, added check for dada2 installed, expanded test set
 # 0.2.00 - Manual, save Rds, further analysis, taxonomy labels, downloader
 # 0.1.09 - Added autocalculated trimming [qualified_wnd/qualified_min_qual]
 # 0.1.07 - Added quality plot
@@ -24,9 +26,10 @@ use File::Temp;
 use Pod::Usage;
 
 my $PROGRAM          = basename($0);
-my $VERSION          = '0.2.00';
+my $VERSION          = '0.4.00';
 my $opt_verbose      = 0;
 my $opt_debug        = 0;
+my $opt_metadata     = undef;
 my $opt_id_separator = '_';
 my $opt_for_tag      = '_R1';
 my $opt_rev_tag      = '_R2';
@@ -34,7 +37,9 @@ my $opt_seq_prefix   = 'ASV';
 my $opt_temp_dir     = File::Spec->tmpdir();
 my $opt_threads      = 2;
 my $opt_tax_db       = "skip";
+my $opt_save_rds     = 0;
 my $save_rds         = "no";
+
 # FASTP Preprocess
 # To be autocalculated:
 my $fastp_trim_front1 = 14;
@@ -52,7 +57,7 @@ my $trunc_start_2    = 0;
 my $total_len_1      = 0;
 my $total_len_2      = 0;
 my $qualified_wnd    = 4;
-my $qualified_min_qual = 30;
+my $qualified_min_qual = 28;
 
 my $r1_len = 10_000;
 my $r2_len = 10_000;
@@ -63,29 +68,44 @@ GetOptions(
  'i|input-directory=s'             => \$opt_input_directory,
  'o|output-directory=s'            => \$opt_output_directory,
  'd|database=s'                    => \$opt_tax_db,
+ 'm|metadata=s'                    => \$opt_metadata,
  '1|for-tag=s'                     => \$opt_for_tag,
  '2|rev-tag=s'                     => \$opt_rev_tag,
  's|id-separator=s'                => \$opt_id_separator,
  'l|log-file=s'                    => \$opt_log_filename,
  't|threads=i'                     => \$opt_threads,
  'p|prefix=s'                      => \$opt_seq_prefix,
+ 'q|min-quality=f'                 => \$qualified_min_qual,
+ 'r|save-rds'                      => \$opt_save_rds,
  'tmp-dir=s'                       => \$opt_temp_dir,
  'skip-plots'                      => \$opt_skip_plots,
  'verbose'                         => \$opt_verbose,
+ 'debug'                           => \$opt_debug,
  'version'                         => \$opt_version,
  'h|help'                          => \$opt_help,
-);
+) || die " Parameters error, type --help for more info.\n";;
 
 $opt_version && version();
 $opt_help    && pod2usage({-exitval => 0, -verbose => 2});
 $do_plots    = 'skip' if ($opt_skip_plots);
 
+$opt_verbose = 1 if ($opt_debug);
+
+if ($opt_save_rds) {
+  $save_rds = 'save';
+}
 
 # Check essential parameters
-my $fastp_threads = $opt_threads > 4 ? 4 : $opt_threads;
+my $fastp_threads = $opt_threads > 8 ? 8 : $opt_threads;
 usage("Missing parameter(s): input directory (-i DIR).")  if (not defined $opt_input_directory);
 usage("Missing parameter(s): output directory (-o DIR).") if (not defined $opt_output_directory);
 
+if ( ! -d "$opt_input_directory") {
+  die " FATAL ERROR: Input directory not found: $opt_input_directory\n"
+}
+if ( $opt_tax_db ne 'skip' and ! -e "$opt_tax_db") {
+  die " FATAL ERROR: Taxonomy database not found: $opt_tax_db\n"
+}
 
 # Prepare temporary directories
 my $temp_dir = File::Temp->newdir( 'dada2_XXXXXX',
@@ -114,9 +134,10 @@ $S->verbose("$PROGRAM $VERSION");
 check_required_binaries({
 	'fastp'   => 'fastp --version 2>&1',
 	'RScript' => 'Rscript  --version 2>&1',
-	'fasttree'=> 'fasttree 2>&1 | head -n 1 | cut -c 11-',
-	'clustalo'=> 'clustalo --version 2>&1',
-	'vsearch' => 'vsearch --version 2>&1 | head -n 1',
+  'dada2 (lib)'  => 'echo "library(dada2)" | R --no-save > /dev/null',
+#	'fasttree'=> 'fasttree 2>&1 | head -n 1 | cut -c 11-',
+#	'clustalo'=> 'clustalo --version 2>&1',
+#	'vsearch' => 'vsearch --version 2>&1 | head -n 1',
 });
 
 # Check taxonomy database
@@ -159,7 +180,7 @@ for my $sample (sort keys %{ $files_hash } ) {
 		    qq( --disable_quality_filtering --n_base_limit  1  ).
 		    qq( --json "$json_file" --html /dev/null ).
 		    qq( --trim_tail1 $fastp_trim_tail1 - --length_required $fastp_minlen );
-		    die " FATAL ERROR: Single end processing is not supported at the moment (coming soon)\n";
+		    die " FATAL ERROR: Single end processing is not supported at the moment.\n";
 	}
 
 
@@ -299,12 +320,15 @@ my @dada_paired_args = (
 ## RUN DADA2
 $S->verbose("Running DADA2...");
 my $cmd_dada_paired = "Rscript --vanilla $RealBin/run_dada_paired.R " . join(" ", @dada_paired_args);
-$S->verbose("Dada2 script parameters:");
-my $i_index = 0;
-for my $arg (@dada_paired_args) {
-  my $label = @dada_paired_parameter_labels[$i_index];
-  $i_index++;
-  say STDERR  " * [$i_index]", color('magenta'), " $label: " , color('reset'), "$arg";
+
+if ($opt_debug) {
+  $S->verbose("Dada2 script parameters:");
+  my $i_index = 0;
+  for my $arg (@dada_paired_args) {
+    my $label = $dada_paired_parameter_labels[$i_index];
+    $i_index++;
+    say STDERR  " * [$i_index]", color('blue'), " $label: " , color('reset'), "$arg";
+  }
 }
 my $dada2_execution = $S->run($cmd_dada_paired, { candie => 1 });
 
@@ -314,9 +338,13 @@ if ( $dada2_execution->{'exit'} != 0 ) {
 	$S->verbose("DADA2 Failed:\n> $dada2_execution->{stderr}\n> $dada2_execution->{stdout}");
 	exit 1;
 } else {
-	$S->verbose("DADA2 output:\n$dada2_execution->{stdout}");
+	$S->verbose("DADA2 output:\n" . color('yellow') . $dada2_execution->{stdout} . color('reset')) if ($opt_debug);
 	$S->run(qq(rm -rf "$temp_dir"/for "$temp_dir"/rev))
 }
+
+
+# Copy output files
+
 copy(File::Spec->catfile($dada2_temp, 'stats.tsv'),
 	 File::Spec->catfile($opt_output_directory, 'dada2_stats.tsv')) || die " ERROR:\n Unable to copy stats.tsv file from $dada2_temp to $opt_output_directory.\n";
 
@@ -363,15 +391,37 @@ while ( my $line = readline($DADA_TSV) ) {
 	}
 
 }
-$S->verbose("Dadaist2 finished:\n * feature-table: $dada2_file\n * rep-seqs: $repseq_file");
 
+my %output_files = (
+ 'feature-table' => "$dada2_file",
+ 'rep-seqs'      => "$repseq_file",
+);
 if ($opt_tax_db ne 'skip') {
+  $output_files{'taxonomy-table'} = File::Spec->catfile("$opt_output_directory", 'taxonomy.txt');
 	copy(File::Spec->catfile("$temp_dir", 'taxonomy.tsv'),
-	     File::Spec->catfile("$opt_output_directory", 'taxonomy.tsv')) || die " ERROR:\n Unable to copy taxonomy.txt file from " . File::Spec->catfile("$temp_dir", 'taxonomy.txt') . " to $opt_output_directory.\n";
+	     File::Spec->catfile("$opt_output_directory", 'taxonomy.txt')) || die " ERROR:\n Unable to copy taxonomy.txt file from " . File::Spec->catfile("$temp_dir", 'taxonomy.txt') . " to $opt_output_directory.\n";
+}
+
+if ($save_rds eq 'save') {
+  $output_files{'feature-table-RDS'} = File::Spec->catfile("$opt_output_directory", 'feature-table.rds');
+  copy(File::Spec->catfile("$dada2_temp", 'dada2.rds'),
+	     File::Spec->catfile("$opt_output_directory", 'feature-table.rds')) || die " ERROR:\n Unable to copy RDS file from " . File::Spec->catfile("$temp_dir",  'dada2.rds') . " to $opt_output_directory.\n";
 
 }
 
-$S->run(qq(rm -rf "$temp_dir"));
+if ($opt_debug) {
+  $S->verbose("Temporary directory _not_ deleted: $temp_dir");
+} else {
+  $S->verbose("Cleaning up");
+  $S->run(qq(rm -rf "$temp_dir"));
+
+}
+
+my $output_message = "DADA2 finished, output files saved:\n";
+for my $f (keys %output_files) {
+  $output_message .= " * $f: " . $output_files{$f} . "\n";
+}
+$S->verbose($output_message);
 
 #copy(File::Spec->catfile($dada2_temp, 'stats.tsv'),
 #	 File::Spec->catfile($opt_output_directory, 'dada2_stats.tsv')) || die " ERROR:\n Unable to copy stats.tsv file from $dada2_temp to $opt_output_directory.\n";
@@ -551,7 +601,16 @@ Output directory (will be created).
 
 =item I<-d>, I<--database> DATABASE
 
-Reference database in gzipped FASTA format.
+Reference database in gzipped FASTA format, specify 'skip' not to assign
+taxonomy (default: skip)
+
+=item I<-q>, I<--min-qual> FLOAT
+
+Minimum average quality for DADA2 truncation (default: 28)
+
+=item I<-r>, I<--save-rds>
+
+Save a copy of the RDS file (default: off)
 
 =item I<-1>, I<--for-tag> STRING [and I<-2>, I<--rev-tag>]
 

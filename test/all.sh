@@ -15,12 +15,14 @@ echo -e "Perl version:\t$(env perl -v | grep version)"
 echo -e "conda_prefix:\t$CONDA_PREFIX"
 echo -e "conda_prompt:\t$CONDA_PROMPT_MODIFIER"
 echo -e "current_path:\t$PWD"
-echo -e "list_binaries:\n"$(ls "$SCRIPTS")
+echo -e "list_binaries:\t"$(ls "$SCRIPTS")
 echo ''
 
-set -x pipefail
+set -eu pipefail
 
-perl "$SCRIPTS"/dadaist2 -i "$BASEDIR"/data -o "$BASEDIR"/output --tmp-dir "$BASEDIR" || echo "dadaist failed: debugging"
+# NO TAXONOMY
+echo " [1] Test basic settings"
+perl "$SCRIPTS"/dadaist2 -i "$BASEDIR"/data -o "$BASEDIR"/output --tmp-dir "$BASEDIR" > /dev/null 2>&1 || echo "dadaist failed: debugging"
 
 ERRORS=0
 if [ -d "$BASEDIR/output/" ];
@@ -38,13 +40,13 @@ else
 	printf  " * $FAIL: Log file not found\n";
 fi
 
-if [ -e "$BASEDIR/output/A01.json" ];
-then
-	printf  " * $PASS: fastp output found\n";
-else
-	ERRORS=$((ERRORS+1))
-	printf  " * $FAIL: fastp output not found\n";
-fi
+# if [ -e "$BASEDIR/output/A01.json" ];
+# then
+# 	printf  " * $PASS: fastp output found\n";
+# else
+# 	ERRORS=$((ERRORS+1))
+# 	printf  " * $FAIL: fastp output not found\n";
+# fi
 
 if [ -e "$BASEDIR/output/feature-table.tsv" ];
 then
@@ -53,6 +55,52 @@ else
 	ERRORS=$((ERRORS+1))
 	printf  " * $FAIL: dada2 output not found\n";
 fi
+
+# --
+# Taxonomy
+
+echo " [1] Test with taxonomy assignments"
+if [ -e "$BASEDIR/refs/rdp_train_set_16.fa.gz" ];
+	then
+	perl "$SCRIPTS"/dadaist2  -d "$BASEDIR/refs/rdp_train_set_16.fa.gz" -i "$BASEDIR"/data -o "$BASEDIR"/output-taxonomy --tmp-dir "$BASEDIR" > /dev/null  2>&1 || echo "dadaist failed: debugging"
+
+	ERRORS=0
+	if [ -d "$BASEDIR/output/" ];
+	then
+		printf  " * $PASS: Output directory created\n";
+	else
+		ERRORS=$((ERRORS+1))
+		printf  " * $FAIL: Output directory not created\n";
+	fi
+	if [ -e "$BASEDIR/output/dadaist.log" ];
+	then
+		printf  " * $PASS: Log was produced\n";
+	else
+		ERRORS=$((ERRORS+1))
+		printf  " * $FAIL: Log file not found\n";
+	fi
+
+
+
+	if [ -e "$BASEDIR/output/feature-table.tsv" ];
+	then
+		printf  " * $PASS: dada2 output found\n";
+	else
+		ERRORS=$((ERRORS+1))
+		printf  " * $FAIL: dada2 output not found\n";
+	fi
+
+	if [ -e "$BASEDIR/output/taxonomy.txt" ];
+	then
+		printf  " * $PASS: dada2 taxonomy found\n";
+	else
+		ERRORS=$((ERRORS+1))
+		printf  " * $FAIL: dada2 taxonomy not found\n";
+	fi
+fi
+
+
+# END
 if [ $ERRORS -gt 0 ]; then
 	printf " * $FAIL: $ERRORS ERRORS FOUND\n"
 	cat "$BASEDIR/output/dadaist.log"
