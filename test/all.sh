@@ -18,7 +18,7 @@ echo -e "current_path:\t$PWD"
 echo -e "list_binaries:\t"$(ls "$SCRIPTS")
 echo ''
 
-set -eu pipefail
+set -eux pipefail
 
 # NO TAXONOMY
 echo " [1] Test basic settings"
@@ -59,20 +59,20 @@ fi
 # --
 # Taxonomy
 
-echo " [1] Test with taxonomy assignments"
+echo " [2] Test with taxonomy assignments"
 if [ -e "$BASEDIR/refs/rdp_train_set_16.fa.gz" ];
 	then
 	perl "$SCRIPTS"/dadaist2  -d "$BASEDIR/refs/rdp_train_set_16.fa.gz" -i "$BASEDIR"/data -o "$BASEDIR"/output-taxonomy --tmp-dir "$BASEDIR" > /dev/null  2>&1 || echo "dadaist failed: debugging"
 
 	ERRORS=0
-	if [ -d "$BASEDIR/output/" ];
+	if [ -d "$BASEDIR/output-taxonomy/" ];
 	then
 		printf  " * $PASS: Output directory created\n";
 	else
 		ERRORS=$((ERRORS+1))
 		printf  " * $FAIL: Output directory not created\n";
 	fi
-	if [ -e "$BASEDIR/output/dadaist.log" ];
+	if [ -e "$BASEDIR/output-taxonomy/dadaist.log" ];
 	then
 		printf  " * $PASS: Log was produced\n";
 	else
@@ -82,7 +82,7 @@ if [ -e "$BASEDIR/refs/rdp_train_set_16.fa.gz" ];
 
 
 
-	if [ -e "$BASEDIR/output/feature-table.tsv" ];
+	if [ -e "$BASEDIR/output-taxonomy/feature-table.tsv" ];
 	then
 		printf  " * $PASS: dada2 output found\n";
 	else
@@ -90,7 +90,7 @@ if [ -e "$BASEDIR/refs/rdp_train_set_16.fa.gz" ];
 		printf  " * $FAIL: dada2 output not found\n";
 	fi
 
-	if [ -e "$BASEDIR/output/taxonomy.txt" ];
+	if [ -e "$BASEDIR/output-taxonomy/taxonomy.txt" ];
 	then
 		printf  " * $PASS: dada2 taxonomy found\n";
 	else
@@ -106,3 +106,5 @@ if [ $ERRORS -gt 0 ]; then
 	cat "$BASEDIR/output/dadaist.log"
 	exit 1
 fi
+
+rm -rf output output-taxonomy || true
