@@ -1,4 +1,4 @@
-## Name
+## makeSampleSheet
 **makeSampleSheet** - create a sample sheet from a list of Paired End FASTQ files,
 that can be used as a template to add further columns.
 
@@ -31,7 +31,7 @@ makeSampleSheet \[options\] -i INPUT\_DIR
 
 - _-h_, _--header-first-col_ COLNAME
 
-    Name of the first column header (default: #SampleID)
+    makeSampleSheet of the first column header (default: #SampleID)
 
 - _--add-full-path_
 
