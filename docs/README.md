@@ -1,5 +1,5 @@
-<a href="https://telatin.github.io/seqfu2" description="SeqFu documentation">
-<img align="right" width="128" height="128" src="dadaist2.png">
+<a href="https://quadram-institute-bioscience.github.io/dadaist2" description="Dadaist documentation">
+<img align="right" width="128" height="128" src="dadaist.png">
 </a>
 
 # dadaist2
