@@ -15,9 +15,11 @@ my $opt_id_separator = '_';
 my $opt_table_sep = "\t";
 my $opt_header_field = '#SampleID';
 my $opt_help;
+my $opt_version;
 my $opt_fullpath;
 my $opt_mock_column;
 my $opt_mock_value = 'sample';
+my $VERSION = '1.0.0';
 GetOptions(
  'i|input-directory=s'  => \$opt_input_directory,
  'o|sample-sheet=s'     => \$opt_output_file,
@@ -30,8 +32,11 @@ GetOptions(
  'add-mock-column=s'    => \$opt_mock_column,
  'mock-value=s'         => \$opt_mock_value,
  'help'                 => \$opt_help,
+ 'version'              => \$opt_version,
 ) || die " Parameters error, type --help for more info.\n";
 
+
+$opt_version && version();
 $opt_help    && pod2usage({-exitval => 0, -verbose => 2});
 
 die "Missing parameter(s): input directory (-i DIR).\n"  if (not defined $opt_input_directory);
@@ -92,6 +97,10 @@ sub get_file_reads {
 	return (\%samples, $is_paired, $counter_rev);
 }
 
+sub version {
+  say basename($0), " ", $VERSION;
+  exit;
+}
 
 __END__
 
@@ -149,6 +158,9 @@ C<--mock-value>
 
 Default value used to fill an optional column (requires C<--add-mock-column>). Default "sample".
 
+=item I<--version>
+
+Print version and exit.
 
 =back
 

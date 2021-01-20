@@ -1,16 +1,17 @@
 #!/usr/bin/env perl
 #ABSTRACT: A program to run DADA2 from the CLI
+use 5.012;
+use warnings;
 
 # Minichangelog
-# TODO 0.5.0  -  support for MicrobiomeAnalyst
+# 0.5.0  - support for MicrobiomeAnalyst (enabled by default)
 # 0.4.0  - Improved verbose mode, added quality parameter, added support to save RDS, added check for dada2 installed, expanded test set, added makeSampleSheet
 # 0.3.00 - Added a reference database downloader (dadaist2-getdb)
 # 0.2.00 - Manual, save Rds, further analysis, taxonomy labels
 # 0.1.09 - Added autocalculated trimming [qualified_wnd/qualified_min_qual]
 # 0.1.07 - Added quality plot
+my $VERSION          = '0.4.00';
 
-use 5.012;
-use warnings;
 use Getopt::Long;
 use Data::Dumper;
 use FindBin qw($RealBin);
@@ -27,7 +28,6 @@ use File::Temp;
 use Pod::Usage;
 
 my $PROGRAM          = basename($0);
-my $VERSION          = '0.4.00';
 my $opt_verbose      = 0;
 my $opt_debug        = 0;
 my $opt_metadata     = undef;
@@ -133,15 +133,22 @@ my $S = FASTX::ScriptHelper->new({
 });
 
 $S->verbose("$PROGRAM $VERSION");
-check_required_binaries({
+
+my %dependencies = (
 	'fastp'   => 'fastp --version 2>&1',
 	'RScript' => 'Rscript  --version 2>&1',
   'dada2 (lib)'  => 'echo "library(dada2)" | R --no-save > /dev/null',
 	'fasttree'=> 'fasttree 2>&1 | head -n 1 | cut -c 11-',
 	'clustalo'=> 'clustalo --version 2>&1',
-#	'vsearch' => 'vsearch --version 2>&1 | head -n 1',
-});
+);
 
+
+
+if (! $opt_metadata) {
+  $dependencies{'makeSampleSheet'} = File::Spec->catfile($RealBin, 'makeSampleSheet') . ' --version';
+}
+
+check_required_binaries(\%dependencies);
 # Check taxonomy database
 if ($opt_tax_db ne 'skip') {
 	if (valid_gzipped_fasta($opt_tax_db)) {

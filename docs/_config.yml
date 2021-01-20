@@ -1,0 +1,20 @@
+title: dadaist2 docs
+repository: quadram-institute-bioscience/dadaist2
+lang: en
+description: "dadaist2: wrapper for DADA2 amplicon analysis from the command line"
+
+readme_index:
+  with_frontmatter: true
+
+theme: null
+
+remote_theme: rundocs/jekyll-rtd-theme
+
+plugins:
+  - jekyll-remote-theme
+  - jemoji
+
+markdown: CommonMarkGhPages
+commonmark:
+  options: ['SMART']
+  extensions: ['table']
