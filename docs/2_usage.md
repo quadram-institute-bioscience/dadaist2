@@ -10,6 +10,17 @@ permalink: /usage
 * A directory with Paired-End FASTQ files (gzipped or not)
 * (optional) a metadata file
 
+The input directory should contain paired-end reads as follows (with identifiable
+strand tags, like *_R1* and *_R2*, and a sample ID separator like *_*):
+```
+input_dir/Sample1_R1.fastq.gz
+input_dir/Sample1_R2.fastq.gz
+input_dir/Sample2_R1.fastq.gz
+input_dir/Sample2_R2.fastq.gz
+input_dir/Sample3_R1.fastq.gz
+input_dir/Sample3_R2.fastq.gz
+```
+
 ## Running dadaist2
 
 Without taxonomical assignment:

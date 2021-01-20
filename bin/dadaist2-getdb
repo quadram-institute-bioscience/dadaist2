@@ -144,3 +144,37 @@ sub usage {
 	say "$PROG -d DATABASE_ID  -o DESTINATION (to download a dataset)\n";
 	exit;
 }
+=head1 NAME
+
+B<dadaist2-getdb> - download reference databases for dadaist2
+
+=head1 AUTHOR
+
+Andrea Telatin <andrea.telatin@quadram.ac.uk>
+
+=head1 LIST AVAILABLE DATABASES
+
+  dadaist2-getdb --list
+
+
+=head1 DOWNLOAD A DATABASE
+
+  dadaist2-getdb -d DATABASE_NAME [-o OUTPUT_DIR]
+
+=over 4
+
+=item I<-d>, I<--database> ID
+
+Identifier of the database to be downloaded (list available database and their
+identifier name using C<dadaist2-getdb --list>).
+
+=item I<-o>, I<--output-dir> DIR
+
+Output directory, or the current working directory if not specified.
+
+=back
+
+=head1 SOURCE CODE AND DOCUMENTATION
+
+The program is freely available at https://github.com/quadram-institute-bioscience/dadaist2
+released under the MIT licence. The website contains further DOCUMENTATION.
