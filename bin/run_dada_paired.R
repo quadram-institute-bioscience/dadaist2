@@ -1,15 +1,5 @@
 #!/usr/bin/env Rscript
-
-###################################################
-# This R script takes an input two directories of
-# .fastq.gz files, corresponding to matched forward
-# and reverse sequence files,
-# and outputs a tsv file of the dada2 processed sequence
-# table. It is intended for use with the QIIME2 plugin
-# for DADA2.
-#
-# Rscript run_dada_paired.R input_dirF input_dirR output.tsv track.tsv filtered_dirF filtered_dirR 240 160 0 0 2.0 2 pooled 1.0 0 100000
-####################################################
+# edited after q2-dada plugin
 
 ####################################################
 #             DESCRIPTION OF ARGUMENTS             #

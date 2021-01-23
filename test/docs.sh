@@ -6,7 +6,7 @@ eval "echo | pod2markdown"
 if [[ $? == 0 ]];
 then
 	echo "Trying to make docs"
-  for script in dadaist2 makeSampleSheet dadaist2-getdb;
+  for script in dadaist2 makeSampleSheet dadaist2-getdb dadaist2-exporter;
   do
     echo " * $script -> $TEST_DIR/../docs/pages/$script.md"
     pod2markdown < "$TEST_DIR"/../bin/$script > "$TEST_DIR"/../docs/pages/$script.md

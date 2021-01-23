@@ -1,0 +1,199 @@
+#!/usr/bin/env perl
+use 5.012;
+use warnings;
+use Getopt::Long;
+use File::Spec;
+use File::Basename;
+use Data::Dumper;
+use Pod::Usage;
+use FASTX::Reader;
+
+my $VERSION = '1.0.0';
+my $opt_input_dir;
+my $opt_output_dir;
+my ($opt_version, $opt_help);
+my @required_files = ('taxonomy.txt', 'metadata.tsv', 'feature-table.tsv', 'rep-seqs.fasta', 'rep-seqs.tree');
+my @optional_files = ('');
+
+
+GetOptions(
+ 'i|input-directory=s'  => \$opt_input_dir,
+ 'o|output-directory=s' => \$opt_output_dir,
+ 'version' => \$opt_version,
+ 'help'    => \$opt_help,
+) || die " Parameters error. Use --help to display the manual.\n";
+
+
+$opt_version && version();
+$opt_help    && pod2usage({-exitval => 0, -verbose => 2});
+# Check required input
+die " Missing required parameter: -i INPUT_DIR\n" unless ($opt_input_dir);
+die " Input directory not found ($opt_input_dir)\n" unless (-d "$opt_input_dir");
+for my $fname (@required_files) {
+  my $file = File::Spec->catfile($opt_input_dir, $fname);
+  die "Required file $fname not found in $opt_input_dir\n" if (! -e "$file");
+}
+
+# Make output directory
+$opt_output_dir = File::Spec->catdir($opt_input_dir, 'MicrobiomeAnalyst')
+  if (not defined $opt_output_dir);
+
+mkdir "$opt_output_dir"
+  if (not -e "$opt_output_dir");
+
+# Metadata
+exportMetadata(
+  File::Spec->catfile($opt_input_dir, 'metadata.tsv'),
+  File::Spec->catfile($opt_output_dir, 'metadata.csv')
+);
+
+# FASTA and Taxonomy
+exportSeqTax(
+  File::Spec->catfile($opt_input_dir, 'rep-seqs.fasta'),
+  File::Spec->catfile($opt_output_dir, 'seqs.fa'),
+  File::Spec->catfile($opt_output_dir, 'taxonomy.csv')
+);
+
+# Feature table
+exportTable(
+  File::Spec->catfile($opt_input_dir, 'feature-table.tsv'),
+  File::Spec->catfile($opt_output_dir, 'table.csv')
+);
+
+# Copy tree
+
+sub version {
+  say basename($0), " ", $VERSION;
+  exit;
+}
+
+sub exportTable {
+  my ($in, $out) = @_;
+  my $c = 0;
+  open (my $I, '<', "$in") || die " Unable to load table <$in>.\n";
+  open (my $O, '>', "$out")|| die " Unable to write exported file to <$out>.\n";
+  while (my $line = readline($I)) {
+    $c++;
+    chomp($line);
+    my @fields = split /\t/, $line;
+    if ($c==1) {
+      $fields[0] = '#NAME';
+    }
+    print {$O} join(',', @fields), "\n";
+
+  }
+}
+sub exportMetadata{
+  my ($in, $out) = @_;
+  my $c = 0;
+  open (my $I, '<', "$in") || die " Unable to load metadata <$in>.\n";
+  open (my $O, '>', "$out")|| die " Unable to write exported file to <$out>.\n";
+  while (my $line = readline($I)) {
+    $c++;
+    chomp($line);
+    my @fields = split /\t/, $line;
+    if ($c==1) {
+      $fields[0] = '#NAME';
+    }
+    for my $f (@fields) {
+      if ($f !~/,/ ) {
+        print {$O} $f
+      } else {
+        print {$O} qq("$f");
+      }
+      $f eq $fields[-1] ? print {$O} "\n" : print {$O} ",";
+    }
+
+  }
+}
+
+sub exportSeqTax {
+  my ($in, $otus, $tax) = @_;
+  my $null = '';
+  my $READER = FASTX::Reader->new({filename => "$in"});
+  my @ranks = ('Domain', 'Phylum', 'Class', 'Order', 'Family', 'Genus', 'Species');
+
+  open (my $OTUS, '>', "$otus")|| die " Unable to write exported file to <$otus>.\n";
+  open (my $TAX,  '>', "$tax")|| die " Unable to write exported file to <$tax>.\n";
+  say {$TAX} join(',', '#TAXONOMY', @ranks);
+
+  while (my $seq = $READER->getRead()) {
+    if (not defined $seq->{comment}) {
+      die "Sequence $seq->{name} does not have taxonomy associated.\n";
+    }
+    print {$OTUS} '>', $seq->{name}, "\n", $seq->{seq}, "\n";
+    my @clades = split /;/, $seq->{comment};
+    for (my $i = 0; $i <= 6; $i++) {
+      if (defined $clades[$i]) {
+        $clades[$i] = $null  if ($clades[$i] eq 'NA');
+      } else {
+        $clades[$i] = $null ;
+      }
+      $clades[$i] = lc( substr($ranks[$i], 0, 1) ) . '__' . $clades[$i];
+    }
+    say {$TAX} join(',', $seq->{name}, @clades);
+  }
+}
+__END__
+
+=head1 NAME
+
+B<dadaist2-exporter> - tool to export dadaist2 output into MicrobiomeAnalyst
+compatible format. MicrobiomeAnalyst can be used as an B<R> module or
+via the user-friendly website L<https://www.microbiomeanalyst.ca/>.
+
+=head1 AUTHOR
+
+Andrea Telatin <andrea.telatin@quadram.ac.uk>
+
+=head1 SYNOPSIS
+
+dadaist2-exporter [options] -i INPUT_DIR
+
+=head1 PARAMETERS
+
+=over 4
+
+=item I<-i>, I<--input-directory> DIRECTORY
+
+Directory containing the paired end files in FASTQ format, gzipped or not.
+
+=item I<-o>, I<--output-directory> DIRECTORY
+
+Output directory, by default will be a subdirectory called C<MicrobiomeAnalyst>
+inside the input directory.
+
+=item I<--version>
+
+Print version and exit.
+
+=back
+
+=head1 OUTPUT
+
+The output directory will contain:
+
+=over 4
+
+=item I<metadata.csv>
+
+Metadata file to be used in the omonymous field.
+
+=item I<table.csv>
+
+Feature table to be used in the 'OTU/ASV table' field.
+
+=item I<taxonomy.csv>
+
+Taxonomy table to be used in the 'Taxonomy table' field.
+
+=item I<seqs.fa>
+
+Not used in MicrobiomeAnalyst, but kept for reference.
+
+=back
+
+=head1 SOURCE CODE AND DOCUMENTATION
+
+The program is freely available at https://github.com/quadram-institute-bioscience/dadaist2
+released under the MIT licence. The website contains further DOCUMENTATION.

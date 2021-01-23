@@ -31,6 +31,12 @@ dadaist2 \[options\] -i INPUT\_DIR -o OUTPUT\_DIR
 
     Minimum average quality for DADA2 truncation (default: 28)
 
+- _s1_, _--trim-primer-for_ INT
+
+    Trim primer from R1 read specifying the number of bases. Similarly
+    use `-s2` (`--trim-primer-rev`) to remove the front bases from the
+    reverse pair (R2). Default: 20 bases each side.
+
 - _-r_, _--save-rds_
 
     Save a copy of the RDS file (default: off)

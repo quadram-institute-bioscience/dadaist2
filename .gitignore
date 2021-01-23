@@ -5,3 +5,7 @@ output
 ref/silva*
 output-taxonomy
 dada2_*
+qibx_*
+refs/uni*
+refs/silva*
+qc

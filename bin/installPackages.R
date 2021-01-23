@@ -34,7 +34,7 @@ missing_packages <- lapply(not_installed, function(x) print(packages[x]))
 
 
 # Adding log file in analysis
-if (args[[1]] == 'save') {
+if (length(args)>0 and args[[1]] == 'save') {
   sink(file = "missing_packages.txt")
   cat (as.character(missing_packages))
   sink()
