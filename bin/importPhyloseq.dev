@@ -34,22 +34,29 @@ library("microbiome")
 # Load OTUs
 in_otu = as.matrix(read.table(file.path(paste(inp.dir, 'feature-table.tsv', sep='')), header=TRUE, sep="\t", row.names = 1, comment.char=""))
 cat (" * Loading feature table\n")
+
 # Load taxonomy
 in_tax = as.matrix(read.table(
   file.path(paste(ma.dir, 'taxonomy.csv', sep='')),
   header=TRUE, sep=",",
-  row.names = 1, fill=TRUE, na.strings=c("","NA","d__","p__","c__","o__","f__","g__","s__"),
+  row.names = 1,
+  fill=TRUE,
+  na.strings=c("","NA","k__", "d__","p__","c__","o__","f__","g__","s__"),
   comment.char=""))
 cat (" * Loading taxonomy\n")
+
 # Load tree
 in_tree <- read.tree(file = file.path(paste(inp.dir, 'rep-seqs.tree', sep='')))
 cat (" * Loading feature tree\n")
+
 # Load metadata
 meta_file=file.path(paste(inp.dir, 'metadata.tsv', sep=''))
+metaIn = read.table(meta_file, header=TRUE, sep="\t", comment.char="")
+rownames(metaIn) <- metaIn[,1]
+colnames(metaIn)[1] <- 'sampleID'
 
-metaIn = read.table(meta_file, header=TRUE, row.names = 1,sep="\t", comment.char="")
 
-
+# Generate phyloseq
 my_OTU = otu_table(in_otu, taxa_are_rows = TRUE)
 my_TAX = tax_table(in_tax)
 my_physeq = phyloseq(my_OTU, my_TAX, metaIn, in_tree)

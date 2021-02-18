@@ -1,0 +1,28 @@
+[2021-02-18 13:10:56] dadaist2 0.5.1
+[2021-02-18 13:10:56] Shell> Rscript  --version 2>&1
+[2021-02-18 13:10:56]     +> Elapsed time: 0.01s; Exit status: 0;
+[2021-02-18 13:10:56] Checking RScript: R scripting front-end version 4.0.3 (2020-10-10)
+[2021-02-18 13:10:56] Shell> clustalo --version 2>&1
+[2021-02-18 13:10:56]     +> Elapsed time: 0.02s; Exit status: 0;
+[2021-02-18 13:10:56] Checking clustalo: 1.2.4
+[2021-02-18 13:10:56] Shell> echo "library(dada2)" | R --no-save > /dev/null
+[2021-02-18 13:11:03]     +> Elapsed time: 6.74s; Exit status: 0;
+[2021-02-18 13:11:03] Checking dada2 (lib): 
+[2021-02-18 13:11:03] Shell> /Users/telatina/git/dadaist2/bin/dadaist2-exporter --version
+[2021-02-18 13:11:03]     +> Elapsed time: 0.09s; Exit status: 0;
+[2021-02-18 13:11:03] Checking exporter: dadaist2-exporter 1.0.0
+[2021-02-18 13:11:03] Shell> fastp --version 2>&1
+[2021-02-18 13:11:03]     +> Elapsed time: 0.01s; Exit status: 0;
+[2021-02-18 13:11:03] Checking fastp: fastp 0.20.1
+[2021-02-18 13:11:03] Shell> fasttree 2>&1 | head -n 1 | cut -c 11-
+[2021-02-18 13:11:03]     +> Elapsed time: 0.01s; Exit status: 0;
+[2021-02-18 13:11:03] Checking fasttree: FastTree version 2.1.10 Double precision (No SSE3):
+[2021-02-18 13:11:03] Shell> /Users/telatina/git/dadaist2/bin/makeSampleSheet --version
+[2021-02-18 13:11:03]     +> Elapsed time: 0.09s; Exit status: 0;
+[2021-02-18 13:11:03] Checking makeSampleSheet: makeSampleSheet 1.0.0
+[2021-02-18 13:11:03] Shell> /Users/telatina/git/dadaist2/bin/makeSampleSheet -i "data/wronglabels/" -o "/Users/telatina/git/dadaist2/test/out/metadata.tsv"
+[2021-02-18 13:11:03]     +> Elapsed time: 0.08s; Exit status: 0;
+[2021-02-18 13:11:03] Temporary directory: /var/folders/qf/64kyljyn0njdfbz8nyrgjv8hxrrkbt/T/dada2_oEWa4v
+[2021-02-18 13:11:03] Threads: 2
+[2021-02-18 13:11:03] Output directory: /Users/telatina/git/dadaist2/test/out/
+[2021-02-18 13:11:03] Error: Sample ID <Sample> was already found. The delimiter (_) is probably contained in the filename ID.

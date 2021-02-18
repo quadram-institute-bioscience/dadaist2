@@ -2,6 +2,7 @@
 .thumb*
 output
 
+amplicheck
 ref/silva*
 output-taxonomy
 dada2_*
@@ -9,3 +10,5 @@ qibx_*
 refs/uni*
 refs/silva*
 qc
+Sample2_R1.fq.gz
+Sample2_R2.fq.gz

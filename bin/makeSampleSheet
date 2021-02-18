@@ -108,6 +108,8 @@ __END__
 
 B<makeSampleSheet> - create a sample sheet from a list of Paired End FASTQ files,
 that can be used as a template to add further columns.
+This is automatically called by C<dadaist2>, but it can be used to generate a valid
+templeate to be extended with more columns.
 
 =head1 AUTHOR
 
@@ -115,7 +117,7 @@ Andrea Telatin <andrea.telatin@quadram.ac.uk>
 
 =head1 SYNOPSIS
 
-makeSampleSheet [options] -i INPUT_DIR
+  makeSampleSheet [options] -i INPUT_DIR
 
 =head1 PARAMETERS
 
@@ -166,5 +168,5 @@ Print version and exit.
 
 =head1 SOURCE CODE AND DOCUMENTATION
 
-The program is freely available at https://github.com/quadram-institute-bioscience/dadaist2
+The program is freely available at L<https://quadram-institute-bioscience.github.io/dadaist2>
 released under the MIT licence. The website contains further DOCUMENTATION.

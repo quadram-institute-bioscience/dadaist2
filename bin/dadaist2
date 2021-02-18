@@ -11,7 +11,7 @@ use warnings;
 # 0.2.00 - Manual, save Rds, further analysis, taxonomy labels
 # 0.1.09 - Added autocalculated trimming [qualified_wnd/qualified_min_qual]
 # 0.1.07 - Added quality plot
-my $VERSION          = '0.5.1';
+my $VERSION          = '0.6.0';
 
 use Getopt::Long;
 use Data::Dumper;
@@ -29,7 +29,8 @@ use File::Temp;
 use Pod::Usage;
 
 my $PROGRAM          = basename($0);
-my $opt_verbose      = 0;
+my $opt_verbose      = 1;
+my $opt_quiet        = 0;
 my $opt_debug        = 0;
 my $opt_metadata     = undef;
 my $opt_id_separator = '_';
@@ -57,10 +58,13 @@ my $trunc_len_1      = 0;
 my $trunc_len_2      = 0;
 my $trunc_start_1    = 0;
 my $trunc_start_2    = 0;
+my $opt_maxee_1      = 1.0;
+my $opt_maxee_2      = 1.5;
 my $total_len_1      = 0;
 my $total_len_2      = 0;
 my $qualified_wnd    = 4;
 my $qualified_min_qual = 28;
+my $opt_no_trunc;
 
 my @taxonomy = ();
 my $r1_len = 10_000;
@@ -83,14 +87,19 @@ GetOptions(
  'r|save-rds'                      => \$opt_save_rds,
  's1|trim-primer-for=i'            => \$fastp_trim_front1,
  's2|trim-primer-rev=i'            => \$fastp_trim_front2,
+ 'maxee1=f'                        => \$opt_maxee_1,
+ 'maxee2=f'                        => \$opt_maxee_2,
+ 'no-trunc'                        => \$opt_no_trunc,
  'tmp-dir=s'                       => \$opt_temp_dir,
  'skip-plots'                      => \$opt_skip_plots,
+ 'quiet'                           => \$opt_quiet,
  'verbose'                         => \$opt_verbose,
  'debug'                           => \$opt_debug,
  'version'                         => \$opt_version,
  'h|help'                          => \$opt_help,
 ) || die " Parameters error, type --help for more info.\n";;
 
+$opt_verbose = 0 if ($opt_quiet);
 $opt_version && version();
 $opt_help    && pod2usage({-exitval => 0, -verbose => 2});
 $do_plots    = 'skip' if ($opt_skip_plots);
@@ -106,6 +115,9 @@ my $fastp_threads = $opt_threads > 8 ? 8 : $opt_threads;
 usage("Missing parameter(s): input directory (-i DIR).")  if (not defined $opt_input_directory);
 usage("Missing parameter(s): output directory (-o DIR).") if (not defined $opt_output_directory);
 
+say STDERR color('bold magenta'), " Dadaist2 ", color('reset')
+ if not $opt_quiet;
+
 if ( ! -d "$opt_input_directory") {
   die " FATAL ERROR: Input directory not found: $opt_input_directory\n"
 }
@@ -120,10 +132,11 @@ my $temp_dir = File::Temp->newdir( 'dada2_XXXXXX',
 my $dada2_temp = File::Spec->catdir("$temp_dir", 'dada2');
 
 # Prepare output directory
+$opt_output_directory = File::Spec->rel2abs($opt_output_directory) . "/";
+
 if ( ! -d "$opt_output_directory") {
 	mkdir "$opt_output_directory"    || die " FATAL ERROR:\n Unable to create directory $opt_output_directory/\n $!\n";
 	mkdir File::Spec->catdir("$opt_output_directory", 'qc')    || die " FATAL ERROR:\n Unable to create directory $opt_output_directory/qc\n $!\n";
-
 }
 
 
@@ -138,6 +151,7 @@ my $S = FASTX::ScriptHelper->new({
 
 $S->verbose("$PROGRAM $VERSION");
 
+# Check dependencies
 my %dependencies = (
 	'fastp'   => 'fastp --version 2>&1',
 	'RScript' => 'Rscript  --version 2>&1',
@@ -147,17 +161,17 @@ my %dependencies = (
   'exporter' => File::Spec->catfile($RealBin, 'dadaist2-exporter') . ' --version',
 );
 
-
-
+# If metadata is not supplied, check Metadata maker
 if (! $opt_metadata) {
   $dependencies{'makeSampleSheet'} = File::Spec->catfile($RealBin, 'makeSampleSheet') . ' --version';
 }
 
 check_required_binaries(\%dependencies);
+
 # Check taxonomy database
 if ($opt_tax_db ne 'skip') {
 	if (valid_gzipped_fasta($opt_tax_db)) {
-		$S->verbose("Taxonomy database: $opt_tax_db");
+		$S->verbose("Taxonomy database found: $opt_tax_db");
 	} else {
 		$S->verbose("Taxonomy database not valid: $opt_tax_db. Taxonomy will be skipped.");
 		$opt_tax_db = 'skip';
@@ -188,6 +202,7 @@ $S->verbose("Input directory \"$opt_input_directory\": $samples_count found ($li
 
 
 # Input sanitation with "fastp"
+my @failed_samples = ();
 for my $sample (sort keys %{ $files_hash } ) {
 	$S->verbose("Processing $sample");
 	my $json_file = File::Spec->catfile($temp_dir, "${sample}.json");
@@ -224,12 +239,21 @@ for my $sample (sort keys %{ $files_hash } ) {
 	my $q30        = $summary->{summary}->{after_filtering}->{q30_rate};
 	my $passed     = 0;
 	my @qual_R1    = @{ $summary->{read1_after_filtering}->{quality_curves}->{mean} };
+  my $fastp_qc_pass = 1;
 	($trunc_start_1, $trunc_len_1, $total_len_1)  = get_qualified_positions(@qual_R1);
+  $fastp_qc_pass = 0 unless (defined $trunc_start_1);
+
 	my @qual_R2;
 	if ($$files_hash{$sample}{rev}) {
 		@qual_R2    = @{ $summary->{read2_after_filtering}->{quality_curves}->{mean} };
 		($trunc_start_2, $trunc_len_2, $total_len_2)  = get_qualified_positions(@qual_R2);
+    $fastp_qc_pass = 0 unless (defined $trunc_start_2);
 	}
+
+  if (not $fastp_qc_pass) {
+    $S->verbose("Sample failed QC: " . $sample);
+    push(@failed_samples, $sample);
+  }
 
 
 	$tot_reads += int( $pass_reads / 2);
@@ -239,7 +263,11 @@ for my $sample (sort keys %{ $files_hash } ) {
 		if ($summary->{read2_after_filtering}->{total_cycles} < $r2_len);
 	$passed += sprintf("%.2f", 100*$pass_reads/$raw_reads) if ($raw_reads);
 	$S->verbose(qq($pass_reads/$raw_reads (${passed}%) reads kept.\n * Average insert size: $ins_size bp\n * Q30: $q30\n * Qualified region: [$trunc_start_1 - $trunc_len_1]/$total_len_1, [$trunc_start_2 - $trunc_len_2]/$total_len_2));
+
 }
+
+$S->verbose(scalar @failed_samples . " failed samples: " . join(",", @failed_samples))
+  if (scalar @failed_samples);
 
 my $dada2_min_reads = $tot_reads < 10000 ? $tot_reads : 10000;
 my @dada_paired_parameter_labels = (
@@ -249,29 +277,43 @@ my @dada_paired_parameter_labels = (
 'truncQ', 'chimeraMethod', 'minFold','threads',
 'nreads_learn','baseDir', 'doPlots', 'taxonomyDb', 'saveRDS'
 );
+
+
+if  ($opt_no_trunc) {
+	$S->verbose("Skipping truncation");
+	$trunc_len_1 = 0;
+	$trunc_len_2 = 0;
+}
 my @dada_paired_args = (
 # 1) File path to directory with the FORWARD .fastq.gz files to be processed.
 #    Ex: path/to/dir/with/FWD_fastqgzs
 	"${temp_dir}/for",
+
 # 2) File path to directory with the REVERSE .fastq.gz files to be processed.
 #    Ex: path/to/dir/with/REV_fastqgzs
 	"${temp_dir}/rev",
+
 # 3) File path to output tsv file. If already exists, will be overwritten.
 #    Ex: path/to/output_file.tsv
 	"${temp_dir}/dada2/dada2.tsv",
+
 # 4) File path to tracking tsv file. If already exists, will be overwritte.
 #    Ex: path/to/tracking_stats.tsv
 	"${temp_dir}/dada2/stats.tsv",
+
 # 5) File path to directory to write the filtered FORWARD .fastq.gz files. These files are intermediate
 #               for the full workflow. Currently they remain after the script finishes. Directory must
 #               already exist.
 #    Ex: path/to/dir/with/FWD_fastqgzs/filtered
 	"${temp_dir}/for/filtered",
+
 # 6) File path to directory to write the filtered REVERSE .fastq.gz files. These files are intermediate
 #               for the full workflow. Currently they remain after the script finishes. Directory must
 #               already exist.
 #    Ex: path/to/dir/with/REV_fastqgzs/filtered
 	"${temp_dir}/rev/filtered",
+
+
 ### FILTERING ARGUMENTS ###
 #
 # 7) truncLenF - The position at which to truncate forward reads. Forward reads shorter
@@ -279,27 +321,33 @@ my @dada_paired_args = (
 #               Special values: 0 - no truncation or length filtering.
 #    Ex: 240
     $trunc_len_1,
+
 # 8) truncLenR - The position at which to truncate reverse reads. Reverse reads shorter
 #               than truncLenR will be discarded.
 #               Special values: 0 - no truncation or length filtering.
 #    Ex: 160
     $trunc_len_2,
+
 # 9) trimLeftF - The number of nucleotides to remove from the start of
 #               each forward read. Should be less than truncLenF.
 #    Ex: 0
     $trunc_start_1,
+
 # 10) trimLeftR - The number of nucleotides to remove from the start of
 #               each reverse read. Should be less than truncLenR.
 #    Ex: 0
     $trunc_start_2,
+
 # 11) maxEEF - Forward reads with expected errors higher than maxEEF are discarded.
 #               Both forward and reverse reads are independently tested.
 #    Ex: 2.0
-    1.0,
+    $opt_maxee_1,
+
 # 12) maxEER - Reverse reads with expected errors higher than maxEER are discarded.
 #               Both forward and reverse reads are independently tested.
 #    Ex: 2.0
-    1.4,
+    $opt_maxee_2,
+
 # 13) truncQ - Reads are truncated at the first instance of quality score truncQ.
 #                If the read is then shorter than truncLen, it is discarded.
 #    Ex: 2
@@ -565,6 +613,7 @@ sub get_qualified_positions {
 
 	}
 	$end = $len unless defined $end;
+
 	return($start, $end, $len);
 }
 sub avg_array {
@@ -604,6 +653,11 @@ sub get_file_reads {
 	for my $file (sort @files) {
 		next if (substr($file, 0, 1) eq '.');
 		my ($id) = split /$opt_id_separator/, basename($file);
+
+		if ( $samples{$id} ) {
+			$S->verbose("Error: Sample ID <$id> was already found. The delimiter ($opt_id_separator) is probably contained in the filename ID.");
+			die "FATAL ERROR: Duplicateed SampleID <$id> in file $file.\n";
+		}
 		if ($file =~/$opt_for_tag/) {
 			$counter_for++;
 			$samples{$id}{'for'} = $file;
@@ -685,7 +739,7 @@ Andrea Telatin <andrea.telatin@quadram.ac.uk>
 
 =head1 SYNOPSIS
 
-dadaist2 [options] -i INPUT_DIR -o OUTPUT_DIR
+  dadaist2 [options] -i INPUT_DIR -o OUTPUT_DIR
 
 =head1 PARAMETERS
 
@@ -709,9 +763,22 @@ a template will be autogenerated using C<makeSampleSheet>.
 Reference database in gzipped FASTA format, specify 'skip' not to assign
 taxonomy (default: skip)
 
+=item I<-t>, I<--threads> INT
+
+Number of threads (default: 2)
+
 =item I<-q>, I<--min-qual> FLOAT
 
 Minimum average quality for DADA2 truncation (default: 28)
+
+
+=item I<--no-trunc>
+
+Do not truncate reads (required for non-overlapping amplicons, like ITS)
+
+=item I<--maxee1>, and I<--maxee2> FLOAT
+
+Maximum Expected Errors in R1 and R2, respectively (default: 1.0 and 1.5)
 
 =item I<s1>, I<--trim-primer-for> INT
 
@@ -744,5 +811,5 @@ Filename for the program log.
 
 =head1 SOURCE CODE AND DOCUMENTATION
 
-The program is freely available at https://github.com/quadram-institute-bioscience/dadaist2
+The program is freely available at L<https://quadram-institute-bioscience.github.io/dadaist2>
 released under the MIT licence. The website contains further DOCUMENTATION.
