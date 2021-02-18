@@ -654,7 +654,7 @@ sub get_file_reads {
 		next if (substr($file, 0, 1) eq '.');
 		my ($id) = split /$opt_id_separator/, basename($file);
 
-		if ( $samples{$id} ) {
+		if ( $samples{$id}{'for'} and $samples{$id}{'rev'} ) {
 			$S->verbose("Error: Sample ID <$id> was already found. The delimiter ($opt_id_separator) is probably contained in the filename ID.");
 			die "FATAL ERROR: Duplicateed SampleID <$id> in file $file.\n";
 		}

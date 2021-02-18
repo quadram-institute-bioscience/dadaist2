@@ -1,9 +1,9 @@
-#!/bin/bash
+ls da#!/bin/bash
 
 TEST_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
 BASEDIR="$TEST_DIR/.."
 SCRIPTS="$BASEDIR/bin"
-DATA="$TEST_DIR/../data/"
+DATA="$TEST_DIR/../data/16S/"
 INPUT="$DATA/test.fa"
 PASS="\e[32mPASS\e[0m"
 FAIL="\e[31m** FAIL **\e[0m"
@@ -22,7 +22,7 @@ set -eux pipefail
 
 # NO TAXONOMY
 echo " [1] Test basic settings"
-perl "$SCRIPTS"/dadaist2 -i "$BASEDIR"/data -o "$BASEDIR"/output --tmp-dir "$BASEDIR" > /dev/null 2>&1 || echo "dadaist failed: debugging"
+perl "$SCRIPTS"/dadaist2 -i "$DATA" -o "$BASEDIR"/output --tmp-dir "$BASEDIR" > /dev/null 2>&1 || echo "dadaist failed: debugging"
 
 ERRORS=0
 if [ -d "$BASEDIR/output/" ];
@@ -71,7 +71,7 @@ fi
 echo " [2] Test with taxonomy assignments"
 if [ -e "$BASEDIR/refs/rdp_train_set_16.fa.gz" ];
 	then
-	perl "$SCRIPTS"/dadaist2  -d "$BASEDIR/refs/rdp_train_set_16.fa.gz" -i "$BASEDIR"/data -o "$BASEDIR"/output-taxonomy --tmp-dir "$BASEDIR" > /dev/null  2>&1 || echo "dadaist failed: debugging"
+	perl "$SCRIPTS"/dadaist2  -d "$BASEDIR/refs/rdp_train_set_16.fa.gz" -i "$DATA" -o "$BASEDIR"/output-taxonomy --tmp-dir "$BASEDIR" > /dev/null  2>&1 || echo "dadaist failed: debugging"
 
 	ERRORS=0
 	if [ -d "$BASEDIR/output-taxonomy/" ];
