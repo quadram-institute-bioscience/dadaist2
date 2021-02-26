@@ -126,6 +126,16 @@ outbasepath   <- args[[18]]
 make_plots    <- args[[19]]
 taxonomy_db   <- args[[20]]
 save_rds      <- args[[21]]
+justConcat    <- as.numeric(args[[22]])
+
+if (justConcat == 0) {
+	paramConcat = FALSE
+} else {
+	paramConcat = TRUE
+}
+
+
+
 ### VALIDATE ARGUMENTS ###
 
 # Input directory is expected to contain .fastq.gz file(s)
@@ -230,7 +240,11 @@ for(j in seq(length(filtsF))) {
   ddF <- dada(drpF, err=errF, multithread=multithread, verbose=FALSE)
   drpR <- derepFastq(filtsR[[j]])
   ddR <- dada(drpR, err=errR, multithread=multithread, verbose=FALSE)
-  mergers[[j]] <- mergePairs(ddF, drpF, ddR, drpR)
+  mergers[[j]] <- mergePairs(
+	ddF, drpF, 
+	ddR, drpR,
+	justConcatenate=paramConcat,
+	trimOverhang=TRUE)
   denoisedF[[j]] <- getN(ddF)
   cat(".")
 }

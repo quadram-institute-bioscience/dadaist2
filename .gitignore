@@ -1,7 +1,7 @@
 .DS_*
 .thumb*
 output
-
+test-concat
 amplicheck
 ref/silva*
 output-taxonomy
@@ -9,6 +9,9 @@ dada2_*
 qibx_*
 refs/uni*
 refs/silva*
+input/mock/*
 qc
 Sample2_R1.fq.gz
 Sample2_R2.fq.gz
+refs/*.RData
+data/mock*

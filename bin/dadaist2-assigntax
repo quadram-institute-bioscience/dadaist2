@@ -1,0 +1,174 @@
+#!/usr/bin/env perl
+#ABSTRACT: Assign taxonomy using R Decipher
+
+
+use 5.012;
+use warnings;
+use Pod::Usage;
+my $VERSION = "1.0.5";
+
+use Getopt::Long;
+use Data::Dumper;
+use FindBin qw($RealBin);
+use File::Basename;
+use File::Spec;
+use File::Spec::Functions;
+use File::Copy;
+use Term::ANSIColor qw(color);
+use FASTX::Reader;
+use FASTX::ScriptHelper;
+use JSON::PP;
+use File::Temp;
+
+my (
+	$opt_inputfile,
+	$opt_outdir,
+	$opt_reference,
+	$opt_version, $opt_help, $opt_verbose
+);
+
+my $opt_threads = 1;
+my $taxScript = File::Spec->catfile($RealBin, 'D2-decipher.R');
+
+GetOptions(
+	'i|input=s'      => \$opt_inputfile,
+	'o|outdir=s'     => \$opt_outdir,
+	'r|reference=s'  => \$opt_reference,
+	't|threads=i'    => \$opt_threads,
+	'version'        => \$opt_version,
+	'help'           => \$opt_help,
+);
+
+say STDERR color('magenta bold'), " DADAIST2 Assign Taxonomy", color('reset');
+
+$opt_version && version();
+$opt_help    && pod2usage({-exitval => 0, -verbose => 2});
+
+
+my $S = FASTX::ScriptHelper->new({
+	verbose => $opt_verbose,
+});
+
+
+die "Missing parameters. Use --help for full manual.\n" if (!$opt_inputfile or !$opt_reference);
+$opt_outdir = "./" unless ($opt_outdir);
+die "ERROR: Output directory not found ($opt_outdir)\n" unless (-d $opt_outdir);
+die "ERROR: Reference not found: $opt_reference\n" unless (-e $opt_reference);
+die "ERROR: Input file not found: $opt_inputfile\n" unless (-e $opt_inputfile);
+die "ERROR: Reference not in RData format: $opt_reference.\n" if ($opt_reference !~/RData$/i);
+die "ERROR: Missing script $taxScript.\n" unless (-e $taxScript);
+
+say STDERR "
+ Input file:  $opt_inputfile
+ Reference:   $opt_reference
+ Output dir:  $opt_outdir
+ Threads:     $opt_threads\n";
+
+
+
+if ($opt_inputfile =~/(tsv|csv)$/i) {
+	my $fasta_out = File::Spec->catfile($opt_outdir, "rep-seqs.fasta");
+	$S->verbose("Extracting FASTA file from $opt_inputfile");
+	open (my $I, '<', $opt_inputfile) || die "ERROR: Unable to read input file <$opt_inputfile>.\n";
+	open (my $O, '>', $fasta_out) || die "ERROR: Unable to write to $opt_outdir.\n";
+	my $c = 0;
+	while (my $line = readline($I)) {
+		chomp($line);
+		next if ($line =~/^#/);
+		my @fields = split /\t/, $line;
+		$c++;
+		print {$O} ">ASV", $c, "\n", $fields[0], "\n";
+	}
+	$opt_inputfile = $fasta_out;
+}
+
+my $exec =  $S->run(
+	qq(RScript --vanilla "$taxScript" "$opt_inputfile" "$opt_reference" "$opt_outdir" "$opt_threads"),
+	{ candie => 1 }
+);
+
+if ($exec->{exit} != 0) {
+	print STDERR $exec->{stderr}, "\n";
+	die "Taxonomy assignment failed.\n";
+}
+
+my $raw_output = File::Spec->catfile($opt_outdir, "taxonomy.decipher");
+my $clean_out  = File::Spec->catfile($opt_outdir, "taxonomy.txt");
+if ( -e $raw_output) {
+	open (my $I, '<', $raw_output) || die "ERROR: Unable to read input file <$raw_output>.\n";
+	open (my $O, '>', $clean_out) || die "ERROR: Unable to write to $opt_outdir.\n";
+  #2 Bacteria Cyanobacteria Cyanobacteriia Chloroplast NA NA
+	say {$O} "Kingdom Phylum Class Order Family Genus";
+	my $c;
+	while (my $line = readline($I)) {
+		# Name \t Tax;ranks;.. \t Root [rootrank, 100.0%]; Bacteria [domain, 100.0%]; Firmicutes [phylum, 100.0%]; 		
+		my ($seqname, $rank_string, $rank_confidence) = split /\t/, $line;
+		next unless defined $rank_string;
+		$c++;
+		my @ranks = split/;/, $rank_string;
+		my $out = "$c ";
+		for (my $i = 0; $i <= 5; $i++) {
+			if ( $ranks[$i] ) {
+				$out .= "$ranks[$i]";
+			} else {
+				$out .= "NA";
+			}
+
+			if ($i == 5) {
+				say {$O} $out;
+			} else {
+				$out .= " ";
+			}
+		}
+	}
+} else {
+	die "Taxonomy assignment failed, output file not found.\n";
+}
+
+sub version {
+	say basename($0), " ", $VERSION;
+	exit;
+}
+sub usage {
+	my $PROG = basename($0);
+	say "USAGE:";
+	say "$PROG -i rep-seqs.fasta -o outdir/ -r reference.RData [-t threads]";
+ 
+	exit;
+}
+
+__END__
+
+=head1 NAME
+
+B<dadaist2-assigntax> - Assign Taxonomy
+
+=head1 AUTHOR
+
+Andrea Telatin <andrea.telatin@quadram.ac.uk>
+
+=head1 LIST AVAILABLE DATABASES
+
+  dadaist2-assigntax -i FASTA -o DIR -r REFERENCE [-t THREADS]
+
+
+=over 4
+
+=item I<-i>, I<--input> FASTA
+
+Input file in FASTA format (or in DADA2 table format)
+
+=item I<-o>, I<--outdir> DIR
+
+Output directory, or the current working directory if not specified.
+
+=item I<-r>, I<--reference> FILE
+
+RData file with the training set in DECIPHER format.
+
+=back
+
+=head1 SOURCE CODE AND DOCUMENTATION
+
+The program is freely available at L<https://quadram-institute-bioscience.github.io/dadaist2>
+released under the MIT licence. The website contains further DOCUMENTATION.
