@@ -26,7 +26,7 @@ my (
 	$opt_reference,
 	$opt_version, $opt_help, $opt_verbose
 );
-
+my $opt_confidence = 80;
 my $opt_threads = 1;
 my $taxScript = File::Spec->catfile($RealBin, 'D2-decipher.R');
 
@@ -34,6 +34,7 @@ GetOptions(
 	'i|input=s'      => \$opt_inputfile,
 	'o|outdir=s'     => \$opt_outdir,
 	'r|reference=s'  => \$opt_reference,
+	'c|confidence=f' => \$opt_confidence,
 	't|threads=i'    => \$opt_threads,
 	'version'        => \$opt_version,
 	'help'           => \$opt_help,
@@ -65,7 +66,7 @@ say STDERR "
  Threads:     $opt_threads\n";
 
 
-
+# Input from DADA2 table (experimental)
 if ($opt_inputfile =~/(tsv|csv)$/i) {
 	my $fasta_out = File::Spec->catfile($opt_outdir, "rep-seqs.fasta");
 	$S->verbose("Extracting FASTA file from $opt_inputfile");
@@ -93,7 +94,7 @@ if ($exec->{exit} != 0) {
 }
 
 my $raw_output = File::Spec->catfile($opt_outdir, "taxonomy.decipher");
-my $clean_out  = File::Spec->catfile($opt_outdir, "taxonomy.txt");
+my $clean_out  = File::Spec->catfile($opt_outdir, "taxonomy.tsv");
 if ( -e $raw_output) {
 	open (my $I, '<', $raw_output) || die "ERROR: Unable to read input file <$raw_output>.\n";
 	open (my $O, '>', $clean_out) || die "ERROR: Unable to write to $opt_outdir.\n";
@@ -105,19 +106,45 @@ if ( -e $raw_output) {
 		my ($seqname, $rank_string, $rank_confidence) = split /\t/, $line;
 		next unless defined $rank_string;
 		$c++;
-		my @ranks = split/;/, $rank_string;
-		my $out = "$c ";
-		for (my $i = 0; $i <= 5; $i++) {
-			if ( $ranks[$i] ) {
-				$out .= "$ranks[$i]";
-			} else {
-				$out .= "NA";
-			}
+		if (defined $rank_confidence) {
 
-			if ($i == 5) {
-				say {$O} $out;
-			} else {
-				$out .= " ";
+			my @ranks = split/;/, $rank_string;
+			my $out = "$c ";
+			for (my $i = 0; $i <= 5; $i++) {
+				if ( $ranks[$i] ) {
+					$out .= "$ranks[$i]";
+				} else {
+					$out .= "NA";
+				}
+
+				if ($i == 5) {
+					say {$O} $out;
+				} else {
+					$out .= " ";
+				}
+			}
+		} else {
+			#ASV1	Root [rootrank, 90.8%]; Bacteria [domain, 90.8%]; Proteobacteria [phylum, 90.8%]; Gammaproteobacteria [class, 90.8%]; Burkholderiales [order, 90.8%]; Burkholderiaceae [family, 74.7%]; Ralstonia [genus, 73.9%]
+			my @ranks = split/;/, $rank_string;
+			my $out = "$c ";
+			for (my $i = 0; $i <= 5; $i++) {
+				if ( $ranks[$i] ) {
+					my ($taxName, $rankName, $confidence) = $ranks[$i] =~/^(.*)\s+\[(\w+), ([0-9.]+)\%\]/;
+					if ($confidence > $opt_confidence) {
+						$out .= "$taxName";
+					} else {
+						$out .= "NA";
+					}
+					
+				} else {
+					$out .= "NA";
+				}
+
+				if ($i == 5) {
+					say {$O} $out;
+				} else {
+					$out .= " ";
+				}
 			}
 		}
 	}

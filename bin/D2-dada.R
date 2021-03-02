@@ -298,7 +298,7 @@ write.table(seqtab.nochim, out.path, sep="\t",
             row.names=TRUE, col.names=col.names, quote=FALSE)
 
 if (taxonomy_db != 'skip' && file.exists(taxonomy_db)) {
-  cat("\t * ", file.path(paste(outbasepath, 'taxonomy.tsv', sep='')), "\n");
+  cat("\t * ", file.path(paste(outbasepath, '/taxonomy.tsv', sep='')), "\n");
   write.table(taxa.print,
       file.path(paste(outbasepath, '/taxonomy.tsv', sep='')),
       row.names=TRUE,

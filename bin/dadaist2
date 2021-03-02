@@ -2,6 +2,7 @@
 #ABSTRACT: A program to run DADA2 from the CLI
 use 5.012;
 use warnings;
+my $VERSION          = '0.7.2';
 
 =pod
 
@@ -21,6 +22,7 @@ Andrea Telatin <andrea.telatin@quadram.ac.uk>
 =cut
 
 # Minichangelog
+# 0.7.2  - No join
 # 0.7.0  - Decipher support
 # 0.6.0  - Phyloseq
 # 0.5.0  - support for MicrobiomeAnalyst (enabled by default)
@@ -30,7 +32,7 @@ Andrea Telatin <andrea.telatin@quadram.ac.uk>
 # 0.1.09 - Added autocalculated trimming [qualified_wnd/qualified_min_qual]
 # 0.1.07 - Added quality plot
 
-my $VERSION          = '0.7.1';
+
 
 use Getopt::Long;
 use Data::Dumper;
@@ -59,11 +61,11 @@ my $opt_seq_prefix   = 'ASV';
 my $opt_temp_dir     = File::Spec->tmpdir();
 my $opt_threads      = 2;
 my $opt_tax_db       = "skip";
-my $decipher_db      = "";
+my $decipher_db      = undef;
 my $opt_save_rds     = 0;
 my $save_rds         = "no";
 my $opt_metadata_separator = "\t";
-
+my $opt_notify       = 0;
 # FASTP Preprocess
 # To be autocalculated:
 my $fastp_trim_front1 = 20;
@@ -71,6 +73,11 @@ my $fastp_trim_front2 = 20;
 my $fastp_trim_tail1  = 0;
 my $fastp_trim_tail2  = 0;
 my $fastp_minlen      = 110;
+
+# AmpliCheck
+my $opt_primers       = undef;
+my $primer_for        = undef;
+my $primer_rev        = undef;
 
 # DADA2
 my $do_plots         = 'do_plots';
@@ -93,9 +100,15 @@ my $r2_len = 10_000;
 my $tot_reads = 0;
 my ($opt_help,  $opt_log_filename, $opt_input_directory, $opt_output_directory, $opt_version, $opt_skip_plots);
 
+my $chooser = {
+	'filtering' => 'fastp',
+	'database'  => undef,
+};
+
 # Check dependencies
 my %dependencies = (
 	'fastp'   => 'fastp --version 2>&1',
+	'fu-primers' => 'fu-primers --version 2>&1',
 	'RScript' => 'Rscript  --version 2>&1',
   'dada2 (lib)'  => 'echo "library(dada2)" | R --no-save > /dev/null',
 	'fasttree'=> 'fasttree 2>&1 | head -n 1 | cut -c 11-',
@@ -119,6 +132,7 @@ my $parsed = GetOptions(
  's1|trim-primer-for=i'            => \$fastp_trim_front1,
  's2|trim-primer-rev=i'            => \$fastp_trim_front2,
  'j|just-concat'                   => \$opt_justconcat,
+ 'primers=s'                       => \$opt_primers,
  'maxee1=f'                        => \$opt_maxee_1,
  'maxee2=f'                        => \$opt_maxee_2,
  'no-trunc'                        => \$opt_no_trunc,
@@ -127,6 +141,7 @@ my $parsed = GetOptions(
  'quiet'                           => \$opt_quiet,
  'verbose'                         => \$opt_verbose,
  'debug'                           => \$opt_debug,
+ 'popup'                           => \$opt_notify,
  'version'                         => \$opt_version,
  'h|help'                          => \$opt_help,
 ) || die " Parameters error, type --help for more info.\n";;
@@ -161,6 +176,15 @@ taxonomy (default: skip)
 =item I<-t>, I<--threads> INT
 
 Number of threads (default: 2)
+
+=item I<--primers> FOR:REV
+
+Strip primers with amplicheck, otherwise trim the primer regions
+with fastp.
+
+=item I<-j>, I<--just-concat>
+
+Do not try merging paired end reads, just concatenate.
 
 =back
 
@@ -215,6 +239,10 @@ will be used instead. Default is "ASV".
 
 Filename for the program log.
 
+=item I<--popup>
+
+Display popup notifications (tested on MacOS and Ubuntu)
+
 =back
 
 
@@ -226,6 +254,12 @@ $do_plots    = 'skip' if ($opt_skip_plots);
 
 $opt_verbose = 1 if ($opt_debug);
 
+if ($opt_primers) {
+	($primer_for, $primer_rev) = split /:/, $opt_primers;
+	die " ERROR: Primers should be in the format --primers FORWARD:REVERSE. Semicolon not found.\n" 
+	  unless defined $primer_rev;
+  $chooser->{'filtering'}  = 'seqfu';
+}
 if ($opt_save_rds) {
   $save_rds = 'save';
 }
@@ -234,6 +268,7 @@ if ($opt_save_rds) {
 my $fastp_threads = $opt_threads > 8 ? 8 : $opt_threads;
 usage("Missing parameter(s): input directory (-i DIR).")  if (not defined $opt_input_directory);
 usage("Missing parameter(s): output directory (-o DIR).") if (not defined $opt_output_directory);
+
 
 say STDERR color('bold magenta'), " Dadaist2 ", color('reset')
  if not $opt_quiet;
@@ -246,7 +281,7 @@ if ( $opt_tax_db ne 'skip' and ! -e "$opt_tax_db") {
 }
 
 # Prepare temporary directories
-my $temp_dir = File::Temp->newdir( 'dada2_XXXXXX',
+my $temp_dir = File::Temp->newdir( 'dadaist2_XXXXXX',
 		CLEANUP => 0,
 		DIR => $opt_temp_dir);
 my $dada2_temp = File::Spec->catdir("$temp_dir", 'dada2');
@@ -254,11 +289,12 @@ my $dada2_temp = File::Spec->catdir("$temp_dir", 'dada2');
 # Prepare output directory
 $opt_output_directory = File::Spec->rel2abs($opt_output_directory) . "/";
 
+$opt_output_directory .= '/' if ($opt_output_directory !~/\/$/);
 if ( ! -d "$opt_output_directory") {
 	mkdir "$opt_output_directory"    || die " FATAL ERROR:\n Unable to create directory $opt_output_directory/\n $!\n";
-	mkdir File::Spec->catdir("$opt_output_directory", 'qc')    || die " FATAL ERROR:\n Unable to create directory $opt_output_directory/qc\n $!\n";
 }
-
+mkdir File::Spec->catdir("$opt_output_directory", 'qc')    || die " FATAL ERROR:\n Unable to create directory $opt_output_directory/qc\n $!\n";
+die "ERROR: Unable to make ", File::Spec->catdir("$opt_output_directory", 'qc'), " directory.\n" unless (-d File::Spec->catdir("$opt_output_directory", 'qc') );
 
 
 
@@ -270,8 +306,7 @@ my $S = FASTX::ScriptHelper->new({
 });
 
 $S->verbose("$PROGRAM $VERSION");
-
-
+notify_message("Starting dadaist2");
 
 # If metadata is not supplied, check Metadata maker
 if (! $opt_metadata) {
@@ -280,11 +315,9 @@ if (! $opt_metadata) {
 
 # Check taxonomy database
 if ($opt_tax_db ne 'skip') {
-	
-	
-
 	if ($opt_tax_db =~/RData$/i ) {
-		# This is a Decipher database
+		$chooser->{'database'} = 'decipher';
+ 		# This is a Decipher database
 		$dependencies{'DECIPHER'} = 'echo "library(DECIPHER)" | R --no-save > /dev/null';
 		$dependencies{'DECIPHER-Run'} = "$RealBin/dadaist2-assigntax --version";
 		$decipher_db = $opt_tax_db;
@@ -293,6 +326,7 @@ if ($opt_tax_db ne 'skip') {
 	} else {
 		# This is a DADA2 Naive classifier database
 		if (valid_gzipped_fasta($opt_tax_db)) {
+			$chooser->{'database'} = 'dada2';
 			$dependencies{'Taxonomy'} = File::Spec->catfile($RealBin, 'dadaist2-assigntax') . ' --version';
 			$S->verbose("Taxonomy database found: $opt_tax_db");
 		} else {
@@ -341,68 +375,115 @@ for my $sample (sort keys %{ $files_hash } ) {
 	$counter_samples++;
 	$S->verbose("Processing $sample ($counter_samples/$tot)");
 	my $json_file = File::Spec->catfile($temp_dir, "${sample}.json");
-
 	my $filt_cmd;
-	if ($$files_hash{$sample}{rev}) {
-		# Paired reads
-		$filt_cmd = qq(fastp -w $fastp_threads -i "$$files_hash{$sample}{for}" -I "$$files_hash{$sample}{rev}" -o "$temp_dir"/for/${sample}_R1.fastq.gz -O  "$temp_dir"/rev/${sample}_R2.fastq.gz  ) .
-			    qq( --trim_front1 $fastp_trim_front1 --trim_front2  $fastp_trim_front2 ).
-			    qq( --detect_adapter_for_pe --disable_quality_filtering --n_base_limit  1  ).
-			    qq( --json "$json_file" --html /dev/null ).
-			    qq( --trim_tail1 $fastp_trim_tail1 --trim_tail2 $fastp_trim_tail2 --length_required $fastp_minlen );
+	my $out;
+
+	if ( $chooser->{'filtering'} eq 'fastp' and not defined $primer_for) {
+		if ($$files_hash{$sample}{rev}) {
+			# Paired reads
+			$filt_cmd = qq(fastp -w $fastp_threads -i "$$files_hash{$sample}{for}" -I "$$files_hash{$sample}{rev}" -o "$temp_dir"/for/${sample}_R1.fastq.gz -O  "$temp_dir"/rev/${sample}_R2.fastq.gz  ) .
+						qq( --trim_front1 $fastp_trim_front1 --trim_front2  $fastp_trim_front2 ).
+						qq( --detect_adapter_for_pe --disable_quality_filtering --n_base_limit  1  ).
+						qq( --json "$json_file" --html /dev/null ).
+						qq( --trim_tail1 $fastp_trim_tail1 --trim_tail2 $fastp_trim_tail2 --length_required $fastp_minlen );
+		} else {
+			# Single end
+			$filt_cmd = qq(fastp -w $fastp_threads -i "$$files_hash{$sample}{for}" -o "$temp_dir"/for/${sample}_R1.fastq.gz   ) .
+					qq( --trim_front1 $fastp_trim_front1  ).
+					qq( --disable_quality_filtering --n_base_limit  1  ).
+					qq( --json "$json_file" --html /dev/null ).
+					qq( --trim_tail1 $fastp_trim_tail1 - --length_required $fastp_minlen );
+					die " FATAL ERROR: Single end processing is not supported at the moment.\n";
+		}
+
+		# Run FASTP
+		$out = $S->run( $filt_cmd, { candie => 1 } );
+
+	# Use Amplicheck (SeqFu) 
+	} elsif ($chooser->{'filtering'} eq 'seqfu' and defined $primer_for) {
+		if ($$files_hash{$sample}{rev}) {
+			$filt_cmd = qq(fu-primers -1 "$$files_hash{$sample}{for}" -2 "$$files_hash{$sample}{rev}" ).
+									qq( --primer-for "$primer_for" --primer-rev "$primer_rev" | seqfu deinterleave --for-ext "_R1.fastq" --rev-ext "_R2.fastq" -o "$temp_dir"/for/${sample} -);
+			$S->verbose($filt_cmd) if ($opt_debug);
+			$out = $S->run( $filt_cmd, { candie => 1 } );
+			$S->run(qq(gzip "$temp_dir"/for/${sample}*));
+			move(
+				File::Spec->catfile(
+					File::Spec->catdir($temp_dir, 'for'),
+					"${sample}_R2.fastq.gz"),
+				File::Spec->catdir($temp_dir, 'rev')
+			);
+		} else {
+			die " Single end processing not supported at the moment.\n";
+		}
+	} elsif ( $chooser->{'filtering'} eq 'skip' ) {
+		copy(
+				$$files_hash{$sample}{for},
+				File::Spec->catdir($temp_dir, 'for')
+			);
+		copy(
+				$$files_hash{$sample}{rev},
+				File::Spec->catdir($temp_dir, 'rev')
+			);
 	} else {
-		# Single end
-		$filt_cmd = qq(fastp -w $fastp_threads -i "$$files_hash{$sample}{for}" -o "$temp_dir"/for/${sample}_R1.fastq.gz   ) .
-		    qq( --trim_front1 $fastp_trim_front1  ).
-		    qq( --disable_quality_filtering --n_base_limit  1  ).
-		    qq( --json "$json_file" --html /dev/null ).
-		    qq( --trim_tail1 $fastp_trim_tail1 - --length_required $fastp_minlen );
-		    die " FATAL ERROR: Single end processing is not supported at the moment.\n";
+		$S->verbose("Unexpected setting: filtering should be performed either via trimming (fastp) or primer removal (SeqFu).\n");
+		die;
 	}
 
-
-
-	my $out = $S->run( $filt_cmd, { candie => 1 } );
+	
 	if ($out->{exit} != 0) {
 		die " FATAL ERROR: 'fastp' failed processing sample $sample.\nCommand: $out->{cmd}\nOut: $out->{stdout}\nErr: $out->{stderr}";
 	}
-	copy($json_file, File::Spec->catdir("$opt_output_directory", 'qc')) or die " ERROR:\n Unable to copy JSON stats <$json_file> to <$opt_output_directory>.\n";
-	my $summary = load_json_from_file( $json_file );
-	my $raw_reads  = $summary->{summary}->{before_filtering}->{total_reads};
-	my $pass_reads = $summary->{summary}->{after_filtering}->{total_reads};
-	my $ins_size   = $summary->{insert_size}->{peak};
-	my $q30        = $summary->{summary}->{after_filtering}->{q30_rate};
-	my $passed     = 0;
-	my @qual_R1    = @{ $summary->{read1_after_filtering}->{quality_curves}->{mean} };
-  my $fastp_qc_pass = 1;
-	($trunc_start_1, $trunc_len_1, $total_len_1)  = get_qualified_positions(@qual_R1);
-  $fastp_qc_pass = 0 unless (defined $trunc_start_1);
 
-	my @qual_R2;
-	if ($$files_hash{$sample}{rev}) {
-		@qual_R2    = @{ $summary->{read2_after_filtering}->{quality_curves}->{mean} };
-		($trunc_start_2, $trunc_len_2, $total_len_2)  = get_qualified_positions(@qual_R2);
-    $fastp_qc_pass = 0 unless (defined $trunc_start_2);
+  if ( $chooser->{'filtering'} eq 'fastp' ) {
+		copy($json_file, 
+			File::Spec->catdir("$opt_output_directory", 'qc/')) or 
+			die " ERROR:\n Unable to copy JSON stats <$json_file> to <$opt_output_directory>.\n";
+		my $summary = load_json_from_file( $json_file );
+		my $raw_reads  = $summary->{summary}->{before_filtering}->{total_reads};
+		my $pass_reads = $summary->{summary}->{after_filtering}->{total_reads};
+		my $ins_size   = $summary->{insert_size}->{peak};
+		my $q30        = $summary->{summary}->{after_filtering}->{q30_rate};
+		my $passed     = 0;
+		my @qual_R1    = @{ $summary->{read1_after_filtering}->{quality_curves}->{mean} };
+		my $fastp_qc_pass = 1;
+		($trunc_start_1, $trunc_len_1, $total_len_1)  = get_qualified_positions(@qual_R1);
+		$fastp_qc_pass = 0 unless (defined $trunc_start_1);
+
+		my @qual_R2;
+		if ($$files_hash{$sample}{rev}) {
+			@qual_R2    = @{ $summary->{read2_after_filtering}->{quality_curves}->{mean} };
+			($trunc_start_2, $trunc_len_2, $total_len_2)  = get_qualified_positions(@qual_R2);
+			$fastp_qc_pass = 0 unless (defined $trunc_start_2);
+		}
+
+		if (not $fastp_qc_pass) {
+			$S->verbose("Sample failed QC: " . $sample);
+			push(@failed_samples, $sample);
+		}
+
+
+		$tot_reads += int( $pass_reads / 2);
+		$r1_len     = $summary->{read1_after_filtering}->{total_cycles}
+			if ($summary->{read1_after_filtering}->{total_cycles} < $r1_len);
+		$r2_len     = $summary->{read2_after_filtering}->{total_cycles}
+			if ($summary->{read2_after_filtering}->{total_cycles} < $r2_len);
+		$passed += sprintf("%.2f", 100*$pass_reads/$raw_reads) if ($raw_reads);
+		$S->verbose(qq($pass_reads/$raw_reads (${passed}%) reads kept.\n * Average insert size: $ins_size bp\n * Q30: $q30\n * Qualified region: [$trunc_start_1 - $trunc_len_1]/$total_len_1, [$trunc_start_2 - $trunc_len_2]/$total_len_2));
+
+	} elsif ($chooser->{'filtering'} = 'seqfu' ) {
+		$trunc_start_1 = 0;
+		$trunc_len_1 = 0;
+		$trunc_start_2 = 0;
+		$trunc_len_2 = 0;
+		$S->verbose($out->{stderr});
 	}
-
-  if (not $fastp_qc_pass) {
-    $S->verbose("Sample failed QC: " . $sample);
-    push(@failed_samples, $sample);
-  }
-
-
-	$tot_reads += int( $pass_reads / 2);
-	$r1_len     = $summary->{read1_after_filtering}->{total_cycles}
-		if ($summary->{read1_after_filtering}->{total_cycles} < $r1_len);
-	$r2_len     = $summary->{read2_after_filtering}->{total_cycles}
-		if ($summary->{read2_after_filtering}->{total_cycles} < $r2_len);
-	$passed += sprintf("%.2f", 100*$pass_reads/$raw_reads) if ($raw_reads);
-	$S->verbose(qq($pass_reads/$raw_reads (${passed}%) reads kept.\n * Average insert size: $ins_size bp\n * Q30: $q30\n * Qualified region: [$trunc_start_1 - $trunc_len_1]/$total_len_1, [$trunc_start_2 - $trunc_len_2]/$total_len_2));
-
 }
 
 $S->verbose(scalar @failed_samples . " failed samples: " . join(",", @failed_samples))
   if (scalar @failed_samples);
+
+notify_message("Read trimming finished, starting DADA2.");
 
 my $dada2_min_reads = $tot_reads < 10000 ? $tot_reads : 10000;
 my @dada_paired_parameter_labels = (
@@ -410,7 +491,7 @@ my @dada_paired_parameter_labels = (
 'filt_forward', 'filt_reverse', 'truncLenF', 'truncLenR',
 'trimLeftF', 'trimLeftR', 'maxEEF', 'maxEER',
 'truncQ', 'chimeraMethod', 'minFold','threads',
-'nreads_learn','baseDir', 'doPlots', 'taxonomyDb', 'saveRDS'
+'nreads_learn','baseDir', 'doPlots', 'taxonomyDb', 'saveRDS', 'noMerge'
 );
 
 
@@ -534,6 +615,7 @@ my @dada_paired_args = (
 $S->verbose("Running DADA2...");
 my $cmd_dada_paired = "Rscript --vanilla $RealBin/D2-dada.R " . join(" ", @dada_paired_args);
 
+$S->verbose($cmd_dada_paired) if ($opt_debug);
 if ($opt_debug) {
   $S->verbose("Dada2 script parameters:");
   my $i_index = 0;
@@ -544,6 +626,8 @@ if ($opt_debug) {
   }
 }
 my $dada2_execution = $S->run($cmd_dada_paired, { candie => 1 });
+notify_message("DADA2 finished. Finalizing...");
+
 
 # Check exit status of DADA2 wrapper
 if ( $dada2_execution->{'exit'} != 0 ) {
@@ -563,9 +647,11 @@ copy(File::Spec->catfile($dada2_temp, 'stats.tsv'),
 
 if (! $opt_skip_plots ) {
 	copy(File::Spec->catfile("$temp_dir", 'quality_R1.pdf'),
-		 File::Spec->catfile(File::Spec->catdir("$opt_output_directory", 'qc'), 'plot_R1.pdf')) || die " ERROR:\n Unable to copy plot_R1.pdf file from $temp_dir to $opt_output_directory.\n";
+		 File::Spec->catfile(File::Spec->catdir("$opt_output_directory", 'qc'), 'quality_R1.pdf')) || 
+		 	die " ERROR:\n Unable to copy quality_R1.pdf file from <$temp_dir> to <$opt_output_directory>.\n";
 	copy(File::Spec->catfile("$temp_dir", 'quality_R2.pdf'),
-		 File::Spec->catfile(File::Spec->catdir("$opt_output_directory", 'qc'), 'plot_R2.pdf')) || die " ERROR:\n Unable to copy plot_R2.pdf file from $temp_dir to $opt_output_directory.\n";
+		 File::Spec->catfile(File::Spec->catdir("$opt_output_directory", 'qc'), 'quality_R2.pdf')) || 
+		 	die " ERROR:\n Unable to copy quality_R2.pdf file from <$temp_dir> to <$opt_output_directory>.\n";
 
 }
 
@@ -574,6 +660,9 @@ my $dada2_tsv   = File::Spec->catfile($dada2_temp, 'dada2.tsv');
 my $dada2_file  = File::Spec->catfile($opt_output_directory, 'feature-table.tsv');
 my $repseq_file = File::Spec->catfile($opt_output_directory, 'rep-seqs.fasta');
 
+copy($dada2_tsv,
+	 File::Spec->catfile($opt_output_directory, 'dada2_raw.tsv')) || 
+	 die " ERROR:\n Unable to copy feature table file from $dada2_temp to $opt_output_directory.\n";
 
 my @header = ();
 open my $DADA_TSV,   '<', "$dada2_tsv"   || die " ERROR:\n Unable to open <$dada2_tsv>\n";
@@ -583,6 +672,14 @@ my $feature_counter = 0;
 $S->verbose("DADA2 Finished.");
 
 
+# Dada2 taxonomy
+if ($chooser->{'database'} eq 'dada2') {
+	my $f = File::Spec->catfile("$temp_dir", 'taxonomy.tsv');
+	$S->verbose("Converting " . $chooser->{'database'}.  " taxonomy output: " . $f);
+	die " Taxonomy not found: $f\n" unless (-e $f);
+  @taxonomy = loadTaxonomyArray($f);
+	die " Error loading taxonomy: $f\n"if (scalar @taxonomy == 0);
+}
 
 # Create OTU Table and FASTA file from TSV
 while ( my $line = readline($DADA_TSV) ) {
@@ -601,7 +698,7 @@ while ( my $line = readline($DADA_TSV) ) {
 			$name = md5_hex($sequence);
 		} else {
 			$name = $opt_seq_prefix . $feature_counter;
-      $comment = "\t" . $taxonomy[$feature_counter - 1] if ($opt_tax_db ne 'skip');
+      $comment = "\t" . $taxonomy[$feature_counter - 1] if ($chooser->{'database'} eq 'dada2'); ##TODO
 		}
 
 		say {$repseqs_FO} '>' , $name, $comment, "\n", $sequence;
@@ -610,7 +707,7 @@ while ( my $line = readline($DADA_TSV) ) {
 
 }
 
-if ( $decipher_db ) {
+if ( defined $decipher_db ) {
 	# Generate 'taxonomy.tsv' using the DECIPHER database
 	
 	$S->verbose("Assigning taxonomy using DECIPHER: " . $decipher_db);
@@ -621,8 +718,13 @@ if ( $decipher_db ) {
 	$S->run($decipher_cmd);
 }
 
-@taxonomy = loadTaxonomyArray(File::Spec->catfile("$temp_dir", 'taxonomy.tsv')) if ($opt_tax_db ne 'skip' or $decipher_db);
-
+if ($chooser->{'database'} eq 'decipher') {
+	my $f = File::Spec->catfile("$temp_dir", 'taxonomy.tsv');
+	$S->verbose("Converting " . $chooser->{'database'}.  " taxonomy output: " . $f);
+	die " Taxonomy not found: $f\n" unless (-e $f);
+  @taxonomy = loadTaxonomyArray($f);
+	die " Error loading taxonomy: $f\n"if (scalar @taxonomy == 0);
+}
 my %output_files = (
  'feature-table' => "$dada2_file",
  'rep-seqs'      => "$repseq_file",
@@ -632,12 +734,17 @@ my %output_files = (
 # Copy optional files
 if ($opt_tax_db ne 'skip' and not defined $decipher_db) {
 	# Taxonomy generated via DADA2
-  $output_files{'taxonomy-table'} = File::Spec->catfile("$opt_output_directory", 'taxonomy.txt');
+  $output_files{'dada-taxonomy-table'} = File::Spec->catfile("$opt_output_directory", 'taxonomy.txt');
+	$S->verbose("Copying DADA2 taxonomy: " . File::Spec->catfile("$temp_dir", 'taxonomy.tsv')) if $opt_debug;
 	copy(File::Spec->catfile("$temp_dir", 'taxonomy.tsv'),
-	     File::Spec->catfile("$opt_output_directory", 'taxonomy.txt')) || die " ERROR:\n Unable to copy taxonomy.txt file from " . File::Spec->catfile("$temp_dir", 'taxonomy.txt') . " to $opt_output_directory.\n";
+	     File::Spec->catfile("$opt_output_directory", 'taxonomy.txt')) || 
+			 die " ERROR:\n Unable to copy taxonomy.txt file from " . File::Spec->catfile("$temp_dir", 'taxonomy.txt') . " to $opt_output_directory.\n";
 } elsif (defined $decipher_db) {
 	# Taxonomy was generated via DECIPHER
-	$output_files{'taxonomy-table'} = File::Spec->catfile("$opt_output_directory", 'taxonomy.txt');
+	$output_files{'decipher-taxonomy-table'} = File::Spec->catfile("$opt_output_directory", 'taxonomy.txt');
+	copy(File::Spec->catfile("$temp_dir", 'taxonomy.tsv'),
+	     File::Spec->catfile("$opt_output_directory", 'taxonomy.txt')) || 
+			 die " ERROR:\n Unable to copy taxonomy.txt file from " . File::Spec->catfile("$temp_dir", 'taxonomy.txt') . " to $opt_output_directory.\n";
 }
 
 if ($save_rds eq 'save') {
@@ -684,6 +791,8 @@ my $exported = $S->run($export_cmd, { candie => 1});
 
 if ($exported->{'exit'} == 0) {
   $output_files{'mba-files'} = File::Spec->catdir($opt_output_directory, 'MicrobiomeAnalyst');
+} else {
+	$S->verbose("MicrobiomeAnalyst not ready.");
 }
 # Print relevant output files produced
 my $output_message = "Dadaist finished, output files saved:\n";
@@ -692,7 +801,9 @@ for my $f (keys %output_files) {
 }
 $S->verbose($output_message);
 
-
+if (notify_message("Dadaist2 finished.")) {
+	$S->run(qq(open "$opt_output_directory"), { candie => 1});
+}
 
 sub version {
 	say "$PROGRAM v$VERSION";
@@ -882,6 +993,31 @@ sub prepare_temporary_directories {
   return $temp_dir;
 }
 
+sub notify_message {
+	my ($message) = @_;
+	if ($opt_notify) {
+		my $timestamp = getLoggingTime();
+		my $cmd = "osascript -e \"display notification \\\"$message\\\" with title \\\"Dadaist2\\\" subtitle \\\"\\\" \" ";
+		$cmd .= "|| zenity --notification --text \"DADAIST2: $message\" ";
+		$cmd .= "|| notify-send \"DADAIST2: $message\"";
+		my $i = $S->run($cmd,
+		{candie => 1});
+
+		if ($i->{'exit'} == 0) {
+			return 1;
+		} else {
+			return 0;
+		}
+	} 
+}
+
+sub getLoggingTime {
+
+    my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst)=localtime(time);
+    my $nice_timestamp = sprintf ( "%04d%02d%02d %02d:%02d:%02d",
+                                   $year+1900,$mon+1,$mday,$hour,$min,$sec);
+    return $nice_timestamp;
+}
 __END__
 
 =pod
