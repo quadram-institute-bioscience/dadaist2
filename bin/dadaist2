@@ -2,7 +2,7 @@
 #ABSTRACT: A program to run DADA2 from the CLI
 use 5.012;
 use warnings;
-my $VERSION          = '0.7.2';
+my $VERSION          = '0.7.21';
 
 =pod
 
@@ -73,7 +73,7 @@ my $fastp_trim_front2 = 20;
 my $fastp_trim_tail1  = 0;
 my $fastp_trim_tail2  = 0;
 my $fastp_minlen      = 110;
-
+my $opt_skip_qc       = undef;
 # AmpliCheck
 my $opt_primers       = undef;
 my $primer_for        = undef;
@@ -138,6 +138,7 @@ my $parsed = GetOptions(
  'no-trunc'                        => \$opt_no_trunc,
  'tmp-dir=s'                       => \$opt_temp_dir,
  'skip-plots'                      => \$opt_skip_plots,
+ 'skip-qc'                         => \$opt_skip_qc,
  'quiet'                           => \$opt_quiet,
  'verbose'                         => \$opt_verbose,
  'debug'                           => \$opt_debug,
@@ -254,15 +255,7 @@ $do_plots    = 'skip' if ($opt_skip_plots);
 
 $opt_verbose = 1 if ($opt_debug);
 
-if ($opt_primers) {
-	($primer_for, $primer_rev) = split /:/, $opt_primers;
-	die " ERROR: Primers should be in the format --primers FORWARD:REVERSE. Semicolon not found.\n" 
-	  unless defined $primer_rev;
-  $chooser->{'filtering'}  = 'seqfu';
-}
-if ($opt_save_rds) {
-  $save_rds = 'save';
-}
+
 
 # Check essential parameters
 my $fastp_threads = $opt_threads > 8 ? 8 : $opt_threads;
@@ -307,6 +300,20 @@ my $S = FASTX::ScriptHelper->new({
 
 $S->verbose("$PROGRAM $VERSION");
 notify_message("Starting dadaist2");
+
+if ($opt_primers) {
+	($primer_for, $primer_rev) = split /:/, $opt_primers;
+	die " ERROR: Primers should be in the format --primers FORWARD:REVERSE. Semicolon not found.\n" 
+	  unless defined $primer_rev;
+  $chooser->{'filtering'}  = 'seqfu';
+} elsif ($opt_skip_qc) {
+	$chooser->{'filtering'}  = 'skip';
+
+	$S->verbose("Preparing to skip QC: " . $chooser->{'filtering'}) if ($opt_debug);
+}	
+if ($opt_save_rds) {
+  $save_rds = 'save';
+}
 
 # If metadata is not supplied, check Metadata maker
 if (! $opt_metadata) {
@@ -373,7 +380,7 @@ my $counter_samples = 0;
 my $tot = scalar keys %{ $files_hash };
 for my $sample (sort keys %{ $files_hash } ) {
 	$counter_samples++;
-	$S->verbose("Processing $sample ($counter_samples/$tot)");
+	$S->verbose("Processing $sample ($counter_samples/$tot) :" . $chooser->{'filtering'});
 	my $json_file = File::Spec->catfile($temp_dir, "${sample}.json");
 	my $filt_cmd;
 	my $out;
@@ -398,13 +405,15 @@ for my $sample (sort keys %{ $files_hash } ) {
 
 		# Run FASTP
 		$out = $S->run( $filt_cmd, { candie => 1 } );
-
+		if ($out->{exit} != 0) {
+			die " FATAL ERROR: 'fastp' failed processing sample $sample.\nCommand: $out->{cmd}\nOut: $out->{stdout}\nErr: $out->{stderr}";
+		}
 	# Use Amplicheck (SeqFu) 
 	} elsif ($chooser->{'filtering'} eq 'seqfu' and defined $primer_for) {
 		if ($$files_hash{$sample}{rev}) {
 			$filt_cmd = qq(fu-primers -1 "$$files_hash{$sample}{for}" -2 "$$files_hash{$sample}{rev}" ).
 									qq( --primer-for "$primer_for" --primer-rev "$primer_rev" | seqfu deinterleave --for-ext "_R1.fastq" --rev-ext "_R2.fastq" -o "$temp_dir"/for/${sample} -);
-			$S->verbose($filt_cmd) if ($opt_debug);
+			$S->verbose("\$" . $filt_cmd) if ($opt_debug);
 			$out = $S->run( $filt_cmd, { candie => 1 } );
 			$S->run(qq(gzip "$temp_dir"/for/${sample}*));
 			move(
@@ -417,6 +426,7 @@ for my $sample (sort keys %{ $files_hash } ) {
 			die " Single end processing not supported at the moment.\n";
 		}
 	} elsif ( $chooser->{'filtering'} eq 'skip' ) {
+		$S->verbose("Skipping QC:" . $sample);
 		copy(
 				$$files_hash{$sample}{for},
 				File::Spec->catdir($temp_dir, 'for')
@@ -425,16 +435,15 @@ for my $sample (sort keys %{ $files_hash } ) {
 				$$files_hash{$sample}{rev},
 				File::Spec->catdir($temp_dir, 'rev')
 			);
+		
 	} else {
-		$S->verbose("Unexpected setting: filtering should be performed either via trimming (fastp) or primer removal (SeqFu).\n");
+		$S->verbose("Unexpected setting: filtering should be performed either via trimming (fastp) or primer removal (SeqFu): <". $chooser->{'filtering'} .">\n");
 		die;
 	}
 
 	
-	if ($out->{exit} != 0) {
-		die " FATAL ERROR: 'fastp' failed processing sample $sample.\nCommand: $out->{cmd}\nOut: $out->{stdout}\nErr: $out->{stderr}";
-	}
 
+	
   if ( $chooser->{'filtering'} eq 'fastp' ) {
 		copy($json_file, 
 			File::Spec->catdir("$opt_output_directory", 'qc/')) or 
@@ -456,12 +465,12 @@ for my $sample (sort keys %{ $files_hash } ) {
 			($trunc_start_2, $trunc_len_2, $total_len_2)  = get_qualified_positions(@qual_R2);
 			$fastp_qc_pass = 0 unless (defined $trunc_start_2);
 		}
-
+ 
 		if (not $fastp_qc_pass) {
 			$S->verbose("Sample failed QC: " . $sample);
 			push(@failed_samples, $sample);
 		}
-
+	 
 
 		$tot_reads += int( $pass_reads / 2);
 		$r1_len     = $summary->{read1_after_filtering}->{total_cycles}
@@ -471,7 +480,7 @@ for my $sample (sort keys %{ $files_hash } ) {
 		$passed += sprintf("%.2f", 100*$pass_reads/$raw_reads) if ($raw_reads);
 		$S->verbose(qq($pass_reads/$raw_reads (${passed}%) reads kept.\n * Average insert size: $ins_size bp\n * Q30: $q30\n * Qualified region: [$trunc_start_1 - $trunc_len_1]/$total_len_1, [$trunc_start_2 - $trunc_len_2]/$total_len_2));
 
-	} elsif ($chooser->{'filtering'} = 'seqfu' ) {
+	} elsif ($chooser->{'filtering'} eq 'seqfu' ) {
 		$trunc_start_1 = 0;
 		$trunc_len_1 = 0;
 		$trunc_start_2 = 0;
@@ -698,7 +707,7 @@ while ( my $line = readline($DADA_TSV) ) {
 			$name = md5_hex($sequence);
 		} else {
 			$name = $opt_seq_prefix . $feature_counter;
-      $comment = "\t" . $taxonomy[$feature_counter - 1] if ($chooser->{'database'} eq 'dada2'); ##TODO
+      #$comment = "\t" . $taxonomy[$feature_counter - 1] if ($chooser->{'database'} eq 'dada2'); ##TODO
 		}
 
 		say {$repseqs_FO} '>' , $name, $comment, "\n", $sequence;

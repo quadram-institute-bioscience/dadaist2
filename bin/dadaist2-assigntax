@@ -24,12 +24,12 @@ my (
 	$opt_inputfile,
 	$opt_outdir,
 	$opt_reference,
-	$opt_version, $opt_help, $opt_verbose
+	$opt_version, $opt_help, $opt_verbose, $opt_force
 );
-my $opt_confidence = 80;
+my $opt_confidence = 70;
 my $opt_threads = 1;
-my $taxScript = File::Spec->catfile($RealBin, 'D2-decipher.R');
-
+my $DecipherTaxScript = File::Spec->catfile($RealBin, 'D2-decipher.R');
+my $DadaTaxScript = File::Spec->catfile($RealBin, 'D2-dada-taxonomy.R');
 GetOptions(
 	'i|input=s'      => \$opt_inputfile,
 	'o|outdir=s'     => \$opt_outdir,
@@ -37,6 +37,7 @@ GetOptions(
 	'c|confidence=f' => \$opt_confidence,
 	't|threads=i'    => \$opt_threads,
 	'version'        => \$opt_version,
+	'force'          => \$opt_force,
 	'help'           => \$opt_help,
 );
 
@@ -53,11 +54,17 @@ my $S = FASTX::ScriptHelper->new({
 
 die "Missing parameters. Use --help for full manual.\n" if (!$opt_inputfile or !$opt_reference);
 $opt_outdir = "./" unless ($opt_outdir);
-die "ERROR: Output directory not found ($opt_outdir)\n" unless (-d $opt_outdir);
 die "ERROR: Reference not found: $opt_reference\n" unless (-e $opt_reference);
 die "ERROR: Input file not found: $opt_inputfile\n" unless (-e $opt_inputfile);
-die "ERROR: Reference not in RData format: $opt_reference.\n" if ($opt_reference !~/RData$/i);
-die "ERROR: Missing script $taxScript.\n" unless (-e $taxScript);
+die "ERROR: Missing script $DadaTaxScript/$DecipherTaxScript.\n" unless (-e $DadaTaxScript or -e $DecipherTaxScript);
+if (! -d "$opt_outdir") {
+	if ($opt_force) {
+		say STDERR " - Attempting to create directory: $opt_outdir.\n";
+  	mkdir "$opt_outdir" || die "ERROR: Output directory not found / unable to write ($opt_outdir)\n";
+	} else {
+		say STDERR " - Output directory found: $opt_outdir (--force).";
+	}
+} 
 
 say STDERR "
  Input file:  $opt_inputfile
@@ -66,7 +73,7 @@ say STDERR "
  Threads:     $opt_threads\n";
 
 
-# Input from DADA2 table (experimental)
+## Load from DADA2 tsv
 if ($opt_inputfile =~/(tsv|csv)$/i) {
 	my $fasta_out = File::Spec->catfile($opt_outdir, "rep-seqs.fasta");
 	$S->verbose("Extracting FASTA file from $opt_inputfile");
@@ -83,74 +90,106 @@ if ($opt_inputfile =~/(tsv|csv)$/i) {
 	$opt_inputfile = $fasta_out;
 }
 
-my $exec =  $S->run(
-	qq(RScript --vanilla "$taxScript" "$opt_inputfile" "$opt_reference" "$opt_outdir" "$opt_threads"),
-	{ candie => 1 }
-);
+## Assign taxonomy
+if ( $opt_reference =~/RData$/i) {
+		say STDERR " * Using DECIPHER";
+		# DECIPHER
+		my $exec =  $S->run(
+			qq(Rscript --vanilla "$DecipherTaxScript" "$opt_inputfile" "$opt_reference" "$opt_outdir" "$opt_threads"),
+			{ candie => 1 }
+		);
 
-if ($exec->{exit} != 0) {
-	print STDERR $exec->{stderr}, "\n";
-	die "Taxonomy assignment failed.\n";
-}
+		if ($exec->{exit} != 0) {
+			print STDERR $exec->{stderr}, "\n";
+			die "Taxonomy assignment failed.\n";
+		}
 
-my $raw_output = File::Spec->catfile($opt_outdir, "taxonomy.decipher");
-my $clean_out  = File::Spec->catfile($opt_outdir, "taxonomy.tsv");
-if ( -e $raw_output) {
-	open (my $I, '<', $raw_output) || die "ERROR: Unable to read input file <$raw_output>.\n";
-	open (my $O, '>', $clean_out) || die "ERROR: Unable to write to $opt_outdir.\n";
-  #2 Bacteria Cyanobacteria Cyanobacteriia Chloroplast NA NA
-	say {$O} "Kingdom Phylum Class Order Family Genus";
-	my $c;
-	while (my $line = readline($I)) {
-		# Name \t Tax;ranks;.. \t Root [rootrank, 100.0%]; Bacteria [domain, 100.0%]; Firmicutes [phylum, 100.0%]; 		
-		my ($seqname, $rank_string, $rank_confidence) = split /\t/, $line;
-		next unless defined $rank_string;
-		$c++;
-		if (defined $rank_confidence) {
+		my $raw_output = File::Spec->catfile($opt_outdir, "taxonomy.decipher");
+		my $clean_out  = File::Spec->catfile($opt_outdir, "taxonomy.tsv");
+		if ( -e $raw_output) {
+			open (my $I, '<', $raw_output) || die "ERROR: Unable to read input file <$raw_output>.\n";
+			open (my $O, '>', $clean_out) || die "ERROR: Unable to write to $opt_outdir.\n";
+			#2 Bacteria Cyanobacteria Cyanobacteriia Chloroplast NA NA
+			say {$O} "Kingdom Phylum Class Order Family Genus";
+			my $c;
+			while (my $line = readline($I)) {
+				# Name \t Tax;ranks;.. \t Root [rootrank, 100.0%]; Bacteria [domain, 100.0%]; Firmicutes [phylum, 100.0%]; 		
+				my ($seqname, $rank_string, $rank_confidence) = split /\t/, $line;
+				next unless defined $rank_string;
+				$c++;
+				if (defined $rank_confidence) {
 
-			my @ranks = split/;/, $rank_string;
-			my $out = "$c ";
-			for (my $i = 0; $i <= 5; $i++) {
-				if ( $ranks[$i] ) {
-					$out .= "$ranks[$i]";
+					my @ranks = split/;/, $rank_string;
+					my $out = "$c ";
+					for (my $i = 1; $i <= 6; $i++) {
+						if ( $ranks[$i] ) {
+							$out .= "$ranks[$i]";
+						} else {
+							$out .= "NA";
+						}
+
+						if ($i == 6) {
+							say {$O} $out;
+						} else {
+							$out .= " ";
+						}
+					}
 				} else {
-					$out .= "NA";
-				}
+					#ASV1	Root [rootrank, 90.8%]; Bacteria [domain, 90.8%]; Proteobacteria [phylum, 90.8%]; Gammaproteobacteria [class, 90.8%]; Burkholderiales [order, 90.8%]; Burkholderiaceae [family, 74.7%]; Ralstonia [genus, 73.9%]
+					my @ranks = split/;/, $rank_string;
+					my $out = "$c ";
+					for (my $i = 1; $i <= 6; $i++) {
+						if ( $ranks[$i] ) {
+							my ($taxName, $rankName, $confidence) = $ranks[$i] =~/^(.*)\s+\[(\w+), ([0-9.]+)\%\]/;
+							if ( $confidence > $opt_confidence ) {
+								$out .= "$taxName";
+							} else {
+								$out .= "NA";
+							}
+						} else {
+							$out .= "NA";
+						}
 
-				if ($i == 5) {
-					say {$O} $out;
-				} else {
-					$out .= " ";
+						if ($i == 6) {
+							say {$O} $out;
+						} else {
+							$out .= " ";
+						}
+					}
 				}
 			}
 		} else {
-			#ASV1	Root [rootrank, 90.8%]; Bacteria [domain, 90.8%]; Proteobacteria [phylum, 90.8%]; Gammaproteobacteria [class, 90.8%]; Burkholderiales [order, 90.8%]; Burkholderiaceae [family, 74.7%]; Ralstonia [genus, 73.9%]
-			my @ranks = split/;/, $rank_string;
-			my $out = "$c ";
-			for (my $i = 0; $i <= 5; $i++) {
-				if ( $ranks[$i] ) {
-					my ($taxName, $rankName, $confidence) = $ranks[$i] =~/^(.*)\s+\[(\w+), ([0-9.]+)\%\]/;
-					if ($confidence > $opt_confidence) {
-						$out .= "$taxName";
-					} else {
-						$out .= "NA";
-					}
-					
-				} else {
-					$out .= "NA";
-				}
-
-				if ($i == 5) {
-					say {$O} $out;
-				} else {
-					$out .= " ";
-				}
-			}
+			die "Taxonomy assignment failed, output file not found.\n";
 		}
-	}
+
+} elsif ( $opt_reference =~/gz$/ ) {
+		say STDERR " * Using DADA2";
+		my $R = FASTX::Reader->new({ filename => "$opt_inputfile"});
+		
+		my $tmp = File::Temp->new( TEMPLATE => 'dadaist2-XXXXX',
+                       SUFFIX => '.txt');
+		say STDERR "Writing temporary file to $tmp.";
+		while (my $record = $R->getRead() ) {
+			say {$tmp} $record->{seq};
+		}
+
+		# DADA2
+		my $exec =  $S->run(
+			qq(Rscript --vanilla "$DadaTaxScript" "$tmp" "$opt_reference" "$opt_outdir" "$opt_threads"),
+			{ candie => 1 }
+		);
+
+		if ($exec->{exit} != 0) {
+			print STDERR $exec->{stderr}, "\n";
+			die "Taxonomy assignment failed.\n";
+		}
+
 } else {
-	die "Taxonomy assignment failed, output file not found.\n";
+	die "ERROR: Reference not in RData/fasta.gz format: $opt_reference.\n";
 }
+
+
+
 
 sub version {
 	say basename($0), " ", $VERSION;
