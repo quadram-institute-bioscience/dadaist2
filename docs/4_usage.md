@@ -1,9 +1,9 @@
 ---
-sort: 3
+sort: 4
 permalink: /usage
 ---
 
-# Short usage guide
+# Usage guide
 
 ## Input files
 

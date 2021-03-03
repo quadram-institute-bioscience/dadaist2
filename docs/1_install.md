@@ -5,7 +5,6 @@ permalink: /installation
 
 # Installation
 
-
 ## Install via Miniconda
 
 The easiest (and recommended) way to install **dadaist2** is from the BioConda repository.
