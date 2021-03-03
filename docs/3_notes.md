@@ -1,8 +1,10 @@
 ---
-sort: 3
-permalink: /about
+sort: 4
+permalink: /tutorial
 ---
 
-# About dadaist2
+# Dadaist2 tutorial
 
+
+## See also
 Check the complete documentation for each [tool]({{site.baseurl}}/pages).
