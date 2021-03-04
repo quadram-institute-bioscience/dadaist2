@@ -32,7 +32,7 @@ library("phyloseq")
 library("microbiome")
 
 # Load OTUs
-in_otu = as.matrix(read.table(file.path(paste(inp.dir, '/feature-table.tsv', sep='')), header=TRUE, sep="\t", row.names = 1, comment.char=""))
+in_otu = as.matrix(read.table(file.path(paste(ma.dir, 'table.csv', sep='')), header=TRUE, sep=",", row.names = 1, comment.char=""))
 cat (" * Loading feature table\n")
 
 # Load taxonomy
@@ -55,7 +55,7 @@ if(! file.exists(file.path(paste(inp.dir, '/rep-seqs.tree', sep='')) )) {
 }
 
 # Load metadata
-meta_file=file.path(paste(inp.dir, 'metadata.tsv', sep=''))
+meta_file=file.path(paste(inp.dir, '/metadata.tsv', sep=''))
 
 # import metadata
 # check if metadata file was provided 
