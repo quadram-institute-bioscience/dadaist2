@@ -27,6 +27,7 @@ In addition to this:
 * Ships an open source implementation of *[UNCROSS2](https://www.biorxiv.org/content/10.1101/400762v1.full)* by Robert Edgar.
 * Has a modular design that allows recycling parts of it in custom workflows.
 
+You can [read more](introduction) about the features.
 
 :package: See the **[repository](https://github.com/quadram-institute-bioscience/dadaist2)**
 
