@@ -8,3 +8,4 @@ set -euxo pipefail
 ./bin/dadaist2 -i data/16S/ -o output/tests/ref-decipher -d $DECIPHER_REF -t 8
 ./bin/dadaist2 -i data/16S/ -o output/tests/no-join-decipher -t 8 -d $DECIPHER_REF
 ./bin/dadaist2 -i data/16S/ -o output/tests/no-join-dada -t 8 -d $DADA_REF
+./bin/dadaist2 -i data/16S/ -o output/tests/ref-dada-skip-qc -t 8 -d $DADA_REF --skip-qc --popup
