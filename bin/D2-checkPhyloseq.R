@@ -59,5 +59,5 @@ cat("Maximum sum of counts per samples: ",maxC,"\n")
 
 #minimum counts per sample
 minC<-min(colSums(otu_table(my_physeq)))
-cat("Minimum sum of counts per samples: ",sampN,"\n")
+cat("Minimum sum of counts per samples: ",minC,"\n")
 
