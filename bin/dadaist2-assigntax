@@ -129,6 +129,7 @@ if ( $opt_reference =~/RData$/i) {
 						}
 
 						if ($i == 6) {
+							$out=~s/\s+/ /g;
 							say {$O} $out;
 						} else {
 							$out .= " ";
@@ -145,12 +146,13 @@ if ( $opt_reference =~/RData$/i) {
 								$out .= "$taxName";
 							} else {
 								$out .= "NA";
-							}
+							} 
 						} else {
 							$out .= "NA";
 						}
 
 						if ($i == 6) {
+							$out=~s/\s+/ /g;
 							say {$O} $out;
 						} else {
 							$out .= " ";

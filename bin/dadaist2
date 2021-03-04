@@ -3,7 +3,12 @@
 use 5.012;
 use warnings;
 my $VERSION          = '0.7.21';
-
+BEGIN { 
+		our $START_TIME = time(); 
+		my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst)=localtime(time);
+		our $EXECUTION_TIMESTAMP = sprintf ( "%04d%02d%02d %02d:%02d:%02d",
+                                   $year+1900,$mon+1,$mday,$hour,$min,$sec);
+}
 =pod
 
 =head1 NAME
@@ -49,7 +54,18 @@ use Digest::MD5 qw(md5_hex);
 use File::Temp;
 use Pod::Usage;
 
-my $PROGRAM          = basename($0);
+my $PROGRAM           = basename($0);
+
+# Log templating
+my  $unfilled         = '<p>Not available.</p>';
+our $TEMPLATE         = loadTemplate();
+our $LOG_TEMPLATE     = getSections($TEMPLATE);
+
+
+addToTemplate($LOG_TEMPLATE, 'CPU_CORES', getCpu());
+addToTemplate($LOG_TEMPLATE, 'RAM_GB', getRamGb());
+addToTemplate($LOG_TEMPLATE, 'UNAME', getSysinfo());
+
 my $opt_verbose      = 1;
 my $opt_quiet        = 0;
 my $opt_debug        = 0;
@@ -346,6 +362,12 @@ if ($opt_tax_db ne 'skip') {
 	$S->verbose("No taxonomy database specified: skipping.");
 }
 
+## Parameters
+addToTemplate($LOG_TEMPLATE, 'INPUT_PATH', File::Spec->rel2abs( $opt_input_directory));
+addToTemplate($LOG_TEMPLATE, 'OUTPUT_PATH', File::Spec->rel2abs( $opt_output_directory));
+addToTemplate($LOG_TEMPLATE, 'PARAMETERS', paramToHtml('Database', File::Spec->rel2abs( $opt_tax_db)), 'append');
+addToTemplate($LOG_TEMPLATE, 'PARAMETERS', paramToHtml('Metadata', File::Spec->rel2abs( $opt_metadata)), 'append');
+addToTemplate($LOG_TEMPLATE, 'PARAMETERS', paramToHtml('Threads', File::Spec->rel2abs( $opt_threads)), 'append');
 
 # Dependency check
 
@@ -407,6 +429,8 @@ for my $sample (sort keys %{ $files_hash } ) {
 		$out = $S->run( $filt_cmd, { candie => 1 } );
 		if ($out->{exit} != 0) {
 			die " FATAL ERROR: 'fastp' failed processing sample $sample.\nCommand: $out->{cmd}\nOut: $out->{stdout}\nErr: $out->{stderr}";
+		} else {
+			addToTemplate($LOG_TEMPLATE, 'TRIMMING_LOG', runToHtml($out), 1);
 		}
 	# Use Amplicheck (SeqFu) 
 	} elsif ($chooser->{'filtering'} eq 'seqfu' and defined $primer_for) {
@@ -415,6 +439,7 @@ for my $sample (sort keys %{ $files_hash } ) {
 									qq( --primer-for "$primer_for" --primer-rev "$primer_rev" | seqfu deinterleave --for-ext "_R1.fastq" --rev-ext "_R2.fastq" -o "$temp_dir"/for/${sample} -);
 			$S->verbose("\$" . $filt_cmd) if ($opt_debug);
 			$out = $S->run( $filt_cmd, { candie => 1 } );
+			addToTemplate($LOG_TEMPLATE, 'TRIMMING_LOG', runToHtml($out), 1);
 			$S->run(qq(gzip "$temp_dir"/for/${sample}*));
 			move(
 				File::Spec->catfile(
@@ -635,6 +660,7 @@ if ($opt_debug) {
   }
 }
 my $dada2_execution = $S->run($cmd_dada_paired, { candie => 1 });
+addToTemplate($LOG_TEMPLATE, 'DADA2_LOG', runToHtml($dada2_execution));
 notify_message("DADA2 finished. Finalizing...");
 
 
@@ -683,11 +709,11 @@ $S->verbose("DADA2 Finished.");
 
 # Dada2 taxonomy
 if ($chooser->{'database'} eq 'dada2') {
-	my $f = File::Spec->catfile("$temp_dir", 'taxonomy.tsv');
-	$S->verbose("Converting " . $chooser->{'database'}.  " taxonomy output: " . $f);
-	die " Taxonomy not found: $f\n" unless (-e $f);
-  @taxonomy = loadTaxonomyArray($f);
-	die " Error loading taxonomy: $f\n"if (scalar @taxonomy == 0);
+	my $taxonomy_file = File::Spec->catfile("$temp_dir", 'taxonomy.tsv');
+	$S->verbose("Converting " . $chooser->{'database'}.  " taxonomy output: " . $taxonomy_file);
+	die " Taxonomy not found: $taxonomy_file\n" unless (-e $taxonomy_file);
+  @taxonomy = loadTaxonomyArray($taxonomy_file);
+	die " Error loading taxonomy: $taxonomy_file\n"if (scalar @taxonomy == 0);
 }
 
 # Create OTU Table and FASTA file from TSV
@@ -724,7 +750,8 @@ if ( defined $decipher_db ) {
 	my $decipher_cmd = qq($RealBin/dadaist2-assigntax -i "$repseq_file" -o "$temp_dir" -r "$decipher_db" -t "$opt_threads");
 	
 
-	$S->run($decipher_cmd);
+	my $taxRun = $S->run($decipher_cmd, { candie => 1});
+	addToTemplate($LOG_TEMPLATE, 'TAXONOMY_LOG', runToHtml($taxRun));
 }
 
 if ($chooser->{'database'} eq 'decipher') {
@@ -734,10 +761,26 @@ if ($chooser->{'database'} eq 'decipher') {
   @taxonomy = loadTaxonomyArray($f);
 	die " Error loading taxonomy: $f\n"if (scalar @taxonomy == 0);
 }
+
+
 my %output_files = (
  'feature-table' => "$dada2_file",
  'rep-seqs'      => "$repseq_file",
 );
+
+## Generate TAX OTUS
+if (defined $chooser->{'database'}) {
+	my $repseq_tax_file = File::Spec->catfile($opt_output_directory, 'rep-seqs-tax.fasta');
+	my $Reader = FASTX::Reader->new({ filename => "$repseq_file" });
+	my $seq_counter = 0;
+	open my $O, '>', "$repseq_tax_file" || die " ERROR:\n Unable to write to <$repseq_tax_file>\n";
+	while (my $s = $Reader->getRead() ) {
+		my $seq_counter++;
+		my $comment = "\t" . $taxonomy[$seq_counter - 1];
+		say {$O} ">", $s->{name}, $comment, "\n", $s->{seq};
+	}
+	$output_files{'rep-seqs-annotated'} = "$repseq_tax_file";
+}
 
 
 # Copy optional files
@@ -981,10 +1024,16 @@ sub check_required_binaries {
 
 	for my $bin (sort keys  %{ $_[0]} ) {
 		my $run = $S->run("${ $_[0]}{$bin}", { candie => 1});
+		addToTemplate($LOG_TEMPLATE, 'INIT_LOG', runToHtml($run), 'append');
 		if ($run->{exit} == 0 and $run->{stdout} !~/not found/) {
 			$S->verbose("Checking $bin: $run->{stdout}");
 		} else {
-			die "FATAL ERROR:\nDependency '$bin' not found or returned non zero exit value.\n";
+			if ($run->{exit} != 0 ) {
+				die "FATAL ERROR:\nDependency '$bin' returned non zero exit value.\nShell: ${ $_[0]}{$bin}\n";
+			} else {
+				die "FATAL ERROR:\nDependency '$bin' not found or not.\nShell: ${ $_[0]}{$bin}\n";
+
+			}
 		}
 
 	}
@@ -1027,6 +1076,448 @@ sub getLoggingTime {
                                    $year+1900,$mon+1,$mday,$hour,$min,$sec);
     return $nice_timestamp;
 }
+sub getSections {
+	my $template = $_[0];
+	my $log_structure = {};
+	while ($template =~/\{\{([\w_]+)\}\}/g) {
+		my $key = $1;
+			$log_structure->{$key} = $unfilled;
+	}
+	return $log_structure;
+}
+sub num_cpu {
+  if ( $^O =~ m/linux/i ) {
+    my($num) = qx(grep -c ^processor /proc/cpuinfo);
+    return $1 if $num =~ m/^(\d+)/;
+  }
+  elsif ( $^O =~ m/darwin/i ) {
+    my($num) = qx(system_profiler SPHardwareDataType | grep Cores);
+    return $1 if $num =~ /.*Cores: (\d+)/;
+  }
+  return 1;
+}
+
+sub addToTemplate {
+	my ($template, $var, $value, $append) = @_;
+	if (defined $template->{"$var"}) {
+		if ($template->{"$var"} ne $unfilled and not defined $append) {
+			# Trying to overwrite variable without appending
+			say STDERR "WARNING: Replacing '$var' section in LOG.\n";
+		}
+		if (defined $append) {
+			if ($template->{"$var"} eq $unfilled) {
+					# Initialize
+					$template->{"$var"} = '<br>' . $value;
+			} else {
+					# Append
+					$template->{"$var"} .= '<br>' . $value;
+			}
+			
+		} else {
+			$template->{"$var"} = $value;
+		}
+		
+		return $template;
+	} else {
+		say STDERR Dumper $template;
+		die "Attempting to add to template '$var': not found.\n";
+	}
+}
+sub getRamGb {
+	if ($^O eq 'darwin') {
+		my $mac = `system_profiler SPHardwareDataType 2>/dev/null | grep  "Memory" `;
+		if (length($mac) > 0 and $? == 0) {
+			$mac =~/(\d+)/;
+			return $1;
+		}
+	} elsif ($^O eq 'linux')  {
+		my $linux = `free -m  | grep ^Mem`;
+		if (length($linux) > 0 and $? == 0) {
+			$linux =~/(\d+)/;
+			return $1 / 1024;
+		}
+	} else {
+	return 'Unsupported OS';
+	}
+}
+
+sub getSysinfo {
+	if ($^O eq 'darwin') {
+		my @mac = `system_profiler SPHardwareDataType 2>/dev/null | grep  ": " `;
+		my $data = '<table>';
+		if ($#mac > 0 and $? == 0) {
+			for my $line (@mac) {
+				chomp($line);
+				my ($key, $val) =  $line =~/\s*([^:]+)\s*:\s*([^:]+)/;
+				$data .= qq(<tr><td>$key</td><td>$val</td></tr>\n);
+			}
+			return "$data</table>\n";
+		}
+	} elsif ($^O eq 'linux')  {
+		my $linux = `uname -a`;
+		if (length($linux) > 0 and $? == 0) {
+			return $linux;
+		}
+	} else {
+	return 'Unsupported OS';
+	}
+}
+
+sub getCpu {
+	if ($^O eq 'darwin') {
+		my $mac = `system_profiler SPHardwareDataType 2>/dev/null | grep  "Total Number of Cores" `;
+		if (length($mac) > 0 and $? == 0) {
+			$mac =~/(\d+)/;
+			return $1;
+		}
+	} elsif ($^O eq 'linux')  {
+		my $linux = `cat /proc/cpuinfo 2>/dev/null | grep -c processor`;
+		if (length($linux) > 0 and $? == 0) {
+			$linux =~/(\d+)/;
+			return $1;
+		}
+	} else {
+	return 'Unsupported OS';
+	}
+}
+
+END {
+    # cleanup
+		my $END_TIME = time();
+		my $run_time = formatsec($END_TIME - our $START_TIME);
+
+		addToTemplate($LOG_TEMPLATE, 'EXECUTION_TIME', $run_time);
+		addToTemplate($LOG_TEMPLATE, 'EXECUTION_TIMESTAMP', our $EXECUTION_TIMESTAMP);
+		my $html_log = makeTemplate($TEMPLATE, $LOG_TEMPLATE);
+
+		if (defined $opt_output_directory) {
+			open (my $O, '>', "$opt_output_directory/dadaist2.html");
+			print {$O} $html_log;
+			close $O;
+		}
+		say STDERR "Dadaist2 execution finished (", formatsec($run_time),")";
+}
+
+sub formatsec { 
+  my $time = shift; 
+	if ($time =~/\D/) {
+		return $time;
+	}
+  my $days = int($time / 86400); 
+   $time -= ($days * 86400); 
+  my $hours = int($time / 3600); 
+   $time -= ($hours * 3600); 
+  my $minutes = int($time / 60); 
+  my $seconds = $minutes < 1 ? sprintf("%.2f", $time - ($minutes*60) ) : $time % 60;
+ 
+  $days = $days < 1 ? '' : $days .'d '; 
+  $hours = $hours < 1 ? '' : $hours .'h '; 
+  $minutes = $minutes < 1 ? '' : $minutes . 'm '; 
+ 
+  $time = $days . $hours . $minutes . $seconds . 's'; 
+  return $time; 
+}
+
+sub runToHtml {
+	my $run = $_[0];
+	my $answer = '<p>';
+	my $cmd = $run->{cmd} // '<em>not_defined</em>';
+	my @params = split /\s+/, $cmd;
+	my $bin = $params[0];
+	while ($cmd =~/(\s)(\-\w)(\s)/g) {
+		$cmd =~s/(\s)(\-\w)(\s)/ <br><b>$2<\/b> /;
+	}
+	while ($cmd =~/(\s)(\--[A-Za-z0-9_-]+)(\s)/g) {
+		$cmd =~s/(\s)(\--[A-Za-z0-9_-]+)(\s)/ <br><b>$2<\/b> /;
+	}
+	my $exitstatus = $run->{exit} // '<em>not_defined</em>';
+	my $span = formatsec($run->{duration}) // '<em>unknown</em>';
+	my $time = $run->{time} // '<em>unknown</em>';
+	$answer .= '<h3>Shell command <span style="color: #b44">' . $bin . '</span></h3>';
+	$answer .= qq(<p>Executed at <em>$time</em> for <em>$span</em> and  returned $exitstatus </p>');
+	$answer .= "<p><strong>Command</strong><pre>"  . $cmd . "</pre></p>\n";;
+	$answer .= "<p><strong>Standard output</strong><pre>" . $run->{stdout} // '<em>None.</em>' . "</pre></p>\n";
+	$answer .= "<p><strong>Standard error</strong><pre>" . $run->{stderr}  // '<em>None.</em>' . "</pre></p>\n";
+	$answer .= "</p>\n";
+}
+sub paramToHtml {
+	my ($param, $value) = @_;
+	return qq(<tr>
+    	<td>$param</td>
+    	<td>$value</td>
+  	</tr>);
+ 
+}
+sub makeTemplate {
+	my ($template, $keys)  = @_;
+	if (length($template) < 100) {
+		return '';
+	}
+	for my $placeholder (keys %{ $keys }) {
+		my $value = $keys->{$placeholder};
+		
+		$template =~s/\{\{$placeholder\}\}/$value/g;
+	}
+	return $template;
+}
+sub loadTemplate {
+	return q(<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+ 
+<style>
+* { font-family: Helvetica, Verdana, Arial; }
+pre { white-space: pre-wrap; 
+overflow-x: auto;
+background-color: lightyellow;
+font-family: Consolas, "Andale Mono WT", "Andale Mono", "Lucida Console", "Lucida Sans Typewriter", "DejaVu Sans Mono", "Bitstream Vera Sans Mono", "Liberation Mono", "Nimbus Mono L", Monaco, "Courier New", Courier, monospace; }
+h1{ color: #b44;}
+.accordion {
+  background-color: #eee;
+  color: #444;
+  cursor: pointer;
+  padding: 18px;
+  width: 100%;
+  border: none;
+  text-align: left;
+  outline: none;
+  font-size: 15px;
+  transition: 0.4s;
+}
+
+.active, .accordion:hover {
+  background-color: #ccc;
+}
+
+.accordion:after {
+  content: '\002B';
+  color: #777;
+  font-weight: bold;
+  float: right;
+  margin-left: 5px;
+}
+
+.active:after {
+  content: "\2212";
+}
+
+.panel {
+  padding: 0 18px;
+  background-color: white;
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.2s ease-out;
+}
+
+/* Table */
+
+table {
+  font-family: arial, sans-serif;
+  border-collapse: collapse;
+  width: 100%;
+}
+
+td, th {
+  border: 1px solid #eee;
+  text-align: left;
+  padding: 8px;
+}
+th {
+  background-color: #ddd;
+}
+tr:nth-child(odd) {
+  background-color: #eee;
+}
+
+.bar .bar-item{padding:8px 16px;float:left;width:auto;border:none;display:block;outline:0}
+.bar .button{white-space:normal}
+.bar .dropdown-hover,.bar .dropdown-click{position:static;float:left}
+.bar-block .bar-item{width:100%;display:block;padding:8px 16px;text-align:left;border:none;white-space:normal;float:none;outline:0}
+.bar-block .dropdown-hover .button,.bar-block .dropdown-click .button{width:100%;text-align:left;padding:8px 16px}
+.bar-block .dropdown-hover .dropdown-content,.bar-block .dropdown-click .dropdown-content{min-width:100%}
+.bar-block .dropdown-hover,.bar-block .dropdown-click{width:100%}
+.bar-block.center .bar-item{text-align:center}.block{display:block;width:100%}
+.bar-block.center .bar-item{text-align:center}.block{display:block;width:100%}
+.bar{width:100%;overflow:hidden}.center .bar{display:inline-block;width:auto}
+.bar{width:100%;overflow:hidden}.center .bar{display:inline-block;width:auto}
+.black,.hover-black:hover{color:#fff!important;background-color:#000!important}
+.btn,.button{-webkit-touch-callout:none;-webkit-user-select:none;-khtml-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none}   
+.btn,.button{border:none;display:inline-block;padding:8px 16px;vertical-align:middle;overflow:hidden;text-decoration:none;color:inherit;background-color:inherit;text-align:center;cursor:pointer;white-space:nowrap}
+.button:hover{color:#000!important;background-color:#ccc!important}
+.cell-row:before,.cell-row:after,.clear:after,.clear:before,.bar:before,.bar:after{content:"";display:table;clear:both}
+.cell-row:before,.cell-row:after,.clear:after,.clear:before,.bar:before,.bar:after{content:"";display:table;clear:both}
+.cell-row:before,.cell-row:after,.clear:after,.clear:before,.bar:before,.bar:after{content:"";display:table;clear:both} 
+.container:after,.container:before,.panel:after,.panel:before,.row:after,.row:before,.row-padding:after,.row-padding:before,
+.disabled,.btn:disabled,.button:disabled{cursor:not-allowed;opacity:0.3}.disabled *,:disabled *{pointer-events:none}
+.display-topleft{position:absolute;left:0;top:0}.display-topright{position:absolute;right:0;top:0}
+.dropdown-hover.mobile,.dropdown-hover.mobile .btn,.dropdown-hover.mobile .button,.dropdown-click.mobile,.dropdown-click.mobile .btn,.dropdown-click.mobile .button{width:100%}}
+.dropdown-hover:hover > .button:first-child,.dropdown-click:hover > .button:first-child{background-color:#ccc;color:#000}
+.hide-small{display:none!important}.mobile{display:block;width:100%!important}.bar-item.mobile,.dropdown-hover.mobile,.dropdown-click.mobile{text-align:center}
+.tooltip,.display-container{position:relative}.tooltip .text{display:none}.tooltip:hover .text{display:inline-block}
+
+.responsive {
+  width: 100%;
+  height: auto;
+}
+</style>
+</head>
+<body>
+<h1>Dadaist2 execution log</h1>
+<p>
+This is not a report with the results of the pipeline, but the log of the events occurred to generate it.
+</p>
+<button class="accordion">Summary</button>
+<div class="panel">
+
+<!--summary -->
+ 
+
+<div class="bar black">
+  <button class="bar-item button" onclick="openCity('Summary')">Summary</button>
+  <button class="bar-item button" onclick="openCity('Parameters')">Parameters</button>
+  <button class="bar-item button" onclick="openCity('Host')">Machine</button>
+</div>
+
+<div id="Summary" class="container display-container city">
+  <span onclick="this.parentElement.style.display='none'"
+  class="button large display-topright">&times;</span>
+
+  <h2>Summary</h2>
+  <p>This reports contain technical details on the execution of 
+  <a href="https://quadram-institute-bioscience.github.io/dadaist2">Dadaist2</a>.</p>
+
+<table>
+  <tr>
+    <th>Parameter</th>
+    <th>Value</th>
+  </tr>
+  <tr>
+    <td>Input</td>
+    <td>{{INPUT_PATH}}</td>
+  </tr>
+  <tr>
+    <td>Output</td>
+    <td>{{OUTPUT_PATH}}</td>
+  </tr>
+  <tr>
+    <td>Timestamp</td>
+    <td>{{EXECUTION_TIMESTAMP}}</td>
+  </tr>
+  <tr>
+    <td>Execution time</td>
+    <td>{{EXECUTION_TIME}}</td>
+  </tr>
+
+</table>
+
+
+</div>
+
+<div id="Parameters" class="container display-container city" style="display:none">
+  <span onclick="this.parentElement.style.display='none'"
+  class="button large display-topright">&times;</span>
+  <h2>Parameters</h2>  
+	<table>
+  <tr>
+    <th>Parameter</th>
+    <th>Value</th>
+  </tr>
+	{{PARAMETERS}}
+	</table>
+</div>
+
+<div id="Host" class="container display-container city" style="display:none">
+  <span onclick="this.parentElement.style.display='none'"
+  class="button large display-topright">&times;</span>
+  <h2>Machine details</h2>
+<table>
+  <tr>
+    <th>Timestamp</th>
+    <th>Event</th>
+  </tr>
+  <tr>
+    <td>Processors</td>
+    <td>{{CPU_CORES}}</td>
+  </tr>
+  <tr>
+    <td>RAM</td>
+    <td>{{RAM_GB}} Gb</td>
+  </tr>
+  <tr>
+    <td>OS</td>
+    <td>{{UNAME}}</td>
+  </tr>
+</table>
+</div>
+
+ <br>
+</div>
+<!--/summary-->
+
+
+
+
+
+<button class="accordion">Read trimming (process)</button>
+<div class="panel">
+  {{TRIMMING_LOG}}
+</div>
+
+<button class="accordion">DADA2 Denoising (process)</button>
+<div class="panel">
+  {{DADA2_LOG}}
+</div>
+
+<button class="accordion">Taxonomy (process)</button>
+<div class="panel">
+  {{TAXONOMY_LOG}}
+</div>
+
+
+<button class="accordion">Initial checks</button>
+<div class="panel">
+	{{INIT_LOG}}
+</div>
+
+
+<script>
+var acc = document.getElementsByClassName("accordion");
+var i;
+
+for (i = 0; i < acc.length; i++) {
+  acc[i].addEventListener("click", function() {
+    this.classList.toggle("active");
+    var panel = this.nextElementSibling;
+    if (panel.style.maxHeight) {
+      panel.style.maxHeight = null;
+    } else {
+      panel.style.maxHeight = panel.scrollHeight + "px";
+    } 
+  });
+}
+</script>
+
+
+<script>
+function openCity(cityName) {
+  var i;
+  var x = document.getElementsByClassName("city");
+  for (i = 0; i < x.length; i++) {
+    x[i].style.display = "none";  
+  }
+  document.getElementById(cityName).style.display = "block";  
+}
+</script>
+</body>
+
+
+
+</html>
+
+)
+}
+
 __END__
 
 =pod

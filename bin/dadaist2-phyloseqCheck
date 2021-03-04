@@ -1,0 +1,128 @@
+#!/usr/bin/env perl
+#ABSTRACT: Check phyloseq object
+
+use 5.012;
+use warnings;
+use Pod::Usage;
+my $VERSION = "1.0.5";
+
+use Getopt::Long;
+use Data::Dumper;
+use FindBin qw($RealBin);
+use File::Basename;
+use File::Spec;
+use File::Spec::Functions;
+use File::Copy;
+use Term::ANSIColor qw(color);
+use FASTX::Reader;
+use FASTX::ScriptHelper;
+use JSON::PP;
+use File::Temp;
+my  $opt_verbose = undef;
+my (
+	$opt_inputfile,
+	$opt_version, $opt_help, $opt_force, $opt_json
+); 
+my $checkPhyloScript = File::Spec->catfile($RealBin, 'D2-checkPhyloseq.R');
+ 
+GetOptions(
+	'i|input=s'      => \$opt_inputfile,
+	'j|json'         => \$opt_json,
+	'verbose'        => \$opt_verbose,
+	'version'        => \$opt_version,
+	'force'          => \$opt_force,
+	'help'           => \$opt_help,
+);
+
+say STDERR color('magenta bold'), " DADAIST2 Check PhyloSeq", color('reset');
+
+$opt_version && version();
+$opt_help    && pod2usage({-exitval => 0, -verbose => 2});
+
+
+my $S = FASTX::ScriptHelper->new({
+	verbose => $opt_verbose,
+}); 
+
+
+die "Missing parameters. Use --help for full manual.\n" if (!$opt_inputfile); 
+die "ERROR: Input file not found: $opt_inputfile\n" unless (-e $opt_inputfile);
+die "ERROR: Missing script $checkPhyloScript.\n" unless (-e $checkPhyloScript);
+  
+my $output = $S->run(qq(Rscript --vanilla --no-save $checkPhyloScript "$opt_inputfile"), {candie => 1});
+
+if ( $output->{exit} == 0 ) {
+	my $data;
+	my %parsed_log = ();
+	
+	my $rinfo = $output->{stdout} . "\n" . $output->{stderr}; 
+	while ($rinfo =~/(.+):\s+(.+)/g) {
+		$parsed_log{$1} = $2;
+
+	}
+	$data->{inputfile} = File::Spec->rel2abs($opt_inputfile);
+	($data->{metadata}->{msg}) = $rinfo =~/Metadata: (.*)/;
+	if ($data->{metadata}->{msg} =~/No metadata supplied/) {
+		$data->{metadata}->{found} = 0;
+	} else {
+		$data->{metadata}->{found} = 1;
+	}
+
+	my ($tips, $nodes)= $rinfo =~/Phylogenetic tree with (\d+) tips and (\d+) internal nodes./;
+	if ($tips > 0 and $nodes > 0) {
+		$data->{tree}->{found} = 1;
+		$data->{tree}->{tips} = $tips;
+		$data->{tree}->{nodes} = $nodes;
+	} else {
+
+		$data->{tree}->{found} = 0;
+	}
+
+  $data->{features} = $parsed_log{'Number of OTUs/ASVs'} // 0;
+	$data->{samples}  = $parsed_log{'Number of samples'} // 0;
+	$data->{sum_counts_per_sample}->{min}  = $parsed_log{'Minimum sum of counts per samples'} // 0;
+	$data->{sum_counts_per_sample}->{max}  = $parsed_log{'Maximum sum of counts per samples'} // 0;
+	if ($opt_json) {
+		my $json = JSON::PP->new->ascii->pretty->allow_nonref;
+		say $json->encode($data);
+	} else {
+		for my $k (sort keys %parsed_log) {
+			say "$k:\t$parsed_log{$k}";
+		}
+	}
+ 
+} else {
+	say STDERR $output->{stderr};
+	die "The input file is not a valid PhyloSeq object.";
+}
+__END__
+
+=head1 NAME
+
+B<dadaist2-phyloseqCheck> - Check PhyloSeq object from the command line
+
+=head1 AUTHOR
+
+Andrea Telatin and Rebecca Ansorge
+
+=head1 LIST AVAILABLE DATABASES
+
+  dadaist2-phyloseqCheck -i OBJEFILE [--json]
+
+
+=over 4
+
+=item I<-i>, I<--input> FILE
+
+Input file in in PhyloSeq object (R Object)
+
+=item I<-j>, I<--json>
+
+Output in JSON format
+
+=back
+
+=head1 SOURCE CODE AND DOCUMENTATION
+
+The program is freely available at L<https://quadram-institute-bioscience.github.io/dadaist2>
+released under the MIT licence. The website contains further DOCUMENTATION.

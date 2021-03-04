@@ -12,7 +12,7 @@ my $VERSION = '1.0.0';
 my $opt_input_dir;
 my $opt_output_dir;
 my ($opt_version, $opt_help);
-my @required_files = ('taxonomy.txt', 'metadata.tsv', 'feature-table.tsv', 'rep-seqs.fasta', 'rep-seqs.tree');
+my @required_files = ('taxonomy.txt', 'metadata.tsv', 'feature-table.tsv', 'rep-seqs-tax.fasta', 'rep-seqs.tree');
 my @optional_files = ('');
 
 
@@ -49,7 +49,7 @@ exportMetadata(
 
 # FASTA and Taxonomy
 exportSeqTax(
-  File::Spec->catfile($opt_input_dir, 'rep-seqs.fasta'),
+  File::Spec->catfile($opt_input_dir, 'rep-seqs-tax.fasta'),
   File::Spec->catfile($opt_output_dir, 'seqs.fa'),
   File::Spec->catfile($opt_output_dir, 'taxonomy.csv')
 );
