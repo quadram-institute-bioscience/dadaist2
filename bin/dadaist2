@@ -2,7 +2,7 @@
 #ABSTRACT: A program to run DADA2 from the CLI
 use 5.012;
 use warnings;
-my $VERSION          = '0.7.21';
+my $VERSION          = '0.7.3';
 BEGIN { 
 		our $START_TIME = time(); 
 		my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst)=localtime(time);
@@ -61,7 +61,7 @@ my  $unfilled         = '<p>Not available.</p>';
 our $TEMPLATE         = loadTemplate();
 our $LOG_TEMPLATE     = getSections($TEMPLATE);
 
-
+addToTemplate($LOG_TEMPLATE, 'VERSION', $VERSION);
 addToTemplate($LOG_TEMPLATE, 'CPU_CORES', getCpu());
 addToTemplate($LOG_TEMPLATE, 'RAM_GB', getRamGb());
 addToTemplate($LOG_TEMPLATE, 'UNAME', getSysinfo());
@@ -775,10 +775,10 @@ if (defined $chooser->{'database'}) {
 	my $seq_counter = 0;
 	open my $O, '>', "$repseq_tax_file" || die " ERROR:\n Unable to write to <$repseq_tax_file>\n";
 	while (my $s = $Reader->getRead() ) {
-		my $seq_counter++;
+		$seq_counter++;
 		my $comment = "\t" . $taxonomy[$seq_counter - 1];
 		say {$O} ">", $s->{name}, $comment, "\n", $s->{seq};
-	}
+		}
 	$output_files{'rep-seqs-annotated'} = "$repseq_tax_file";
 }
 
@@ -911,6 +911,7 @@ sub loadTaxonomyArray {
       push(@results, join(';', @fields));
     }
   }
+	
   return @results;
 }
 sub get_qualified_positions {
@@ -1267,7 +1268,7 @@ sub loadTemplate {
 <meta name="viewport" content="width=device-width, initial-scale=1">
  
 <style>
-* { font-family: Helvetica, Verdana, Arial; }
+h1, h2, h3, h4, h5, h6, table, td, p { font-family: Helvetica, Verdana, Arial; }
 pre { white-space: pre-wrap; 
 overflow-x: auto;
 background-color: lightyellow;
@@ -1363,7 +1364,7 @@ tr:nth-child(odd) {
 </style>
 </head>
 <body>
-<h1>Dadaist2 execution log</h1>
+<h1>Dadaist2 {{VERSION}} execution log</h1>
 <p>
 This is not a report with the results of the pipeline, but the log of the events occurred to generate it.
 </p>
