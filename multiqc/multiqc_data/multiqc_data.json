@@ -1,0 +1,529 @@
+{
+    "report_data_sources": {},
+    "report_general_stats_data": [],
+    "report_general_stats_headers": [],
+    "report_multiqc_command": "/Users/telatina/miniconda3/bin/multiqc -f .",
+    "report_plot_data": {
+        "taxa_plot_config": {
+            "plot_type": "bar_graph",
+            "samples": [
+                [
+                    "NHP2",
+                    "NHP16",
+                    "NHP13",
+                    "NHP7",
+                    "NHP4",
+                    "NHP3",
+                    "NHP5",
+                    "NHP14",
+                    "NHP17",
+                    "NHP20",
+                    "NHP6",
+                    "NHP18",
+                    "NHP15",
+                    "NHP11"
+                ]
+            ],
+            "datasets": [
+                [
+                    {
+                        "name": "Clostridia",
+                        "data": [
+                            93.6,
+                            12.8,
+                            27.3,
+                            78.6,
+                            41.7,
+                            87.2,
+                            48.4,
+                            41.2,
+                            32.2,
+                            17.8,
+                            56.0,
+                            0.238,
+                            24.0,
+                            31.7
+                        ]
+                    },
+                    {
+                        "name": "Bacteroidia",
+                        "data": [
+                            0.0101,
+                            46.8,
+                            37.9,
+                            2.4,
+                            33.9,
+                            0.0148,
+                            29.2,
+                            18.7,
+                            8.6,
+                            29.8,
+                            21.0,
+                            21.5,
+                            59.7,
+                            43.1
+                        ]
+                    },
+                    {
+                        "name": "(Unassigned)",
+                        "data": [
+                            0.427,
+                            0.213,
+                            4.44,
+                            0.218,
+                            0.531,
+                            0.926,
+                            3.35,
+                            8.14,
+                            1.12,
+                            2.09,
+                            7.45,
+                            0.0,
+                            1.88,
+                            4.67
+                        ]
+                    },
+                    {
+                        "name": "Negativicutes",
+                        "data": [
+                            0.0686,
+                            30.1,
+                            6.01,
+                            0.0823,
+                            15.8,
+                            0.0384,
+                            9.92,
+                            4.91,
+                            5.61,
+                            0.00228,
+                            6.85,
+                            0.0159,
+                            4.63,
+                            10.1
+                        ]
+                    },
+                    {
+                        "name": "Actinobacteria",
+                        "data": [
+                            0.0675,
+                            1.01,
+                            1.06,
+                            2.99,
+                            1.26,
+                            0.0276,
+                            3.07,
+                            1.57,
+                            13.8,
+                            19.4,
+                            2.86,
+                            11.1,
+                            0.816,
+                            1.22
+                        ]
+                    },
+                    {
+                        "name": "Gammaproteobacteria",
+                        "data": [
+                            0.0202,
+                            3.38,
+                            10.6,
+                            3.33,
+                            5.71,
+                            0.0138,
+                            4.79,
+                            17.2,
+                            28.7,
+                            10.6,
+                            4.39,
+                            30.9,
+                            4.56,
+                            7.73
+                        ]
+                    },
+                    {
+                        "name": "Bacilli",
+                        "data": [
+                            5.82,
+                            4.8,
+                            2.7,
+                            4.99,
+                            0.816,
+                            11.7,
+                            0.328,
+                            0.131,
+                            2.25,
+                            9.87,
+                            0.501,
+                            4.21,
+                            0.81,
+                            0.176
+                        ]
+                    },
+                    {
+                        "name": "Betaproteobacteria",
+                        "data": [
+                            0.00225,
+                            0.174,
+                            0.33,
+                            0.66,
+                            0.0617,
+                            0.00295,
+                            0.104,
+                            0.263,
+                            0.889,
+                            7.17,
+                            0.0526,
+                            0.0,
+                            0.852,
+                            0.174
+                        ]
+                    },
+                    {
+                        "name": "Erysipelotrichia",
+                        "data": [
+                            0.00225,
+                            0.19,
+                            0.589,
+                            2.26,
+                            0.074,
+                            0.0,
+                            0.172,
+                            0.961,
+                            3.29,
+                            0.1,
+                            0.106,
+                            10.6,
+                            1.17,
+                            0.104
+                        ]
+                    },
+                    {
+                        "name": "Spirochaetia",
+                        "data": [
+                            0.0,
+                            0.0315,
+                            1.36,
+                            0.0,
+                            0.0797,
+                            0.0,
+                            0.117,
+                            4.51,
+                            0.0,
+                            0.0,
+                            0.244,
+                            0.0,
+                            0.0,
+                            0.15
+                        ]
+                    },
+                    {
+                        "name": "Deltaproteobacteria",
+                        "data": [
+                            0.0,
+                            0.0139,
+                            0.316,
+                            0.0,
+                            0.00854,
+                            0.0,
+                            0.102,
+                            0.266,
+                            0.0,
+                            0.0,
+                            0.138,
+                            0.0,
+                            0.0965,
+                            0.126
+                        ]
+                    },
+                    {
+                        "name": "Epsilonproteobacteria",
+                        "data": [
+                            0.0,
+                            0.504,
+                            7.19,
+                            0.0,
+                            0.0807,
+                            0.0,
+                            0.302,
+                            0.804,
+                            0.876,
+                            0.0,
+                            0.197,
+                            0.0,
+                            1.32,
+                            0.532
+                        ]
+                    },
+                    {
+                        "name": "Alphaproteobacteria",
+                        "data": [
+                            0.0,
+                            0.00378,
+                            0.124,
+                            0.775,
+                            0.0,
+                            0.000985,
+                            0.00509,
+                            0.0727,
+                            0.0,
+                            0.0,
+                            0.00385,
+                            0.302,
+                            0.062,
+                            0.00769
+                        ]
+                    },
+                    {
+                        "name": "Flavobacteriia",
+                        "data": [
+                            0.0,
+                            0.00126,
+                            0.0,
+                            1.29,
+                            0.0019,
+                            0.0,
+                            0.0,
+                            0.0,
+                            0.34,
+                            3.15,
+                            0.0,
+                            2.33,
+                            0.0,
+                            0.0
+                        ]
+                    },
+                    {
+                        "name": "Verrucomicrobiae",
+                        "data": [
+                            0.0,
+                            0.0,
+                            0.0,
+                            0.0,
+                            0.0,
+                            0.000985,
+                            0.0,
+                            0.0,
+                            0.403,
+                            0.0,
+                            0.0,
+                            18.7,
+                            0.0327,
+                            0.0
+                        ]
+                    },
+                    {
+                        "name": "Methanobacteria",
+                        "data": [
+                            0.0,
+                            0.00126,
+                            0.105,
+                            0.0,
+                            0.0,
+                            0.0,
+                            0.00509,
+                            0.372,
+                            0.863,
+                            0.0,
+                            0.0115,
+                            0.0,
+                            0.0207,
+                            0.00256
+                        ]
+                    },
+                    {
+                        "name": "Elusimicrobia",
+                        "data": [
+                            0.0,
+                            0.0,
+                            0.00815,
+                            0.0,
+                            0.00664,
+                            0.0,
+                            0.0651,
+                            0.708,
+                            1.02,
+                            0.0,
+                            0.0602,
+                            0.0,
+                            0.0,
+                            0.101
+                        ]
+                    },
+                    {
+                        "name": "Fusobacteriia",
+                        "data": [
+                            0.00112,
+                            0.00378,
+                            0.0,
+                            0.505,
+                            0.0,
+                            0.00394,
+                            0.0,
+                            0.000956,
+                            0.0,
+                            0.0,
+                            0.0,
+                            0.0,
+                            0.00431,
+                            0.0
+                        ]
+                    },
+                    {
+                        "name": "Synergistia",
+                        "data": [
+                            0.0,
+                            0.0,
+                            0.0415,
+                            0.0,
+                            0.0,
+                            0.0,
+                            0.0,
+                            0.022,
+                            0.0,
+                            0.0,
+                            0.0,
+                            0.0,
+                            0.0,
+                            0.0
+                        ]
+                    },
+                    {
+                        "name": "Fibrobacteria",
+                        "data": [
+                            0.0,
+                            0.0063,
+                            0.0267,
+                            0.0,
+                            0.0237,
+                            0.0,
+                            0.0336,
+                            0.0679,
+                            0.0,
+                            0.0,
+                            0.0628,
+                            0.0,
+                            0.0,
+                            0.0539
+                        ]
+                    },
+                    {
+                        "name": "Acidobacteria_Gp4",
+                        "data": [
+                            0.0,
+                            0.0,
+                            0.0,
+                            0.0,
+                            0.0,
+                            0.0,
+                            0.0,
+                            0.0,
+                            0.0,
+                            0.0,
+                            0.0,
+                            0.138,
+                            0.0,
+                            0.0
+                        ]
+                    },
+                    {
+                        "name": "Mollicutes",
+                        "data": [
+                            0.0,
+                            0.0,
+                            0.00371,
+                            0.0,
+                            0.0,
+                            0.0,
+                            0.0,
+                            0.0201,
+                            0.0,
+                            0.0,
+                            0.0,
+                            0.0,
+                            0.0,
+                            0.0
+                        ]
+                    },
+                    {
+                        "name": "Chloroplast",
+                        "data": [
+                            0.0124,
+                            0.0,
+                            0.00296,
+                            1.87,
+                            0.000949,
+                            0.00985,
+                            0.00204,
+                            0.000956,
+                            0.0,
+                            0.0,
+                            0.0,
+                            0.0106,
+                            0.000861,
+                            0.0
+                        ]
+                    },
+                    {
+                        "name": "Planctomycetia",
+                        "data": [
+                            0.0,
+                            0.0,
+                            0.00445,
+                            0.0,
+                            0.0,
+                            0.0,
+                            0.00102,
+                            0.00574,
+                            0.0,
+                            0.0,
+                            0.00385,
+                            0.0,
+                            0.0,
+                            0.00128
+                        ]
+                    }
+                ]
+            ],
+            "config": {
+                "id": "taxa_plot_config",
+                "title": "Taxa summary",
+                "ylab": "Taxa abundance"
+            }
+        }
+    },
+    "report_saved_raw_data": {
+        "multiqc_download_results": {
+            "sample_1": {
+                "FastQC Report": "<a href=\"http://example.com/download/data/sample_1/sample_1_fastqc.zip\">sample_1_fastqc.zip</a>",
+                "BAM": "<a href=\"http://example.com/download/data/sample_1/sample_1.bam\">sample_1.bam</a>",
+                "VCF": "<a href=\"http://example.com/download/data/sample_1/sample_1.vcf\">sample_1.vcf</a>"
+            },
+            "sample_2": {
+                "FastQC Report": "<a href=\"http://example.com/download/data/sample_2/sample_2_fastqc.zip\">sample_2_fastqc.zip</a>",
+                "BAM": "<a href=\"http://example.com/download/data/sample_2/sample_2.bam\">sample_2.bam</a>",
+                "VCF": "<a href=\"http://example.com/download/data/sample_2/sample_2.vcf\">sample_2.vcf</a>"
+            },
+            "sample_3": {
+                "FastQC Report": "<a href=\"http://example.com/download/data/sample_3/sample_3_fastqc.zip\">sample_3_fastqc.zip</a>",
+                "BAM": "<a href=\"http://example.com/download/data/sample_3/sample_3.bam\">sample_3.bam</a>",
+                "VCF": "<a href=\"http://example.com/download/data/sample_3/sample_3.vcf\">sample_3.vcf</a>"
+            }
+        }
+    },
+    "config_analysis_dir_abs": [
+        "/Users/telatina/git/dadaist2/multiqc"
+    ],
+    "config_analysis_dir": [
+        "."
+    ],
+    "config_creation_date": "2021-03-03, 17:32",
+    "config_git_hash": null,
+    "config_intro_text": null,
+    "config_report_comment": null,
+    "config_report_header_info": null,
+    "config_script_path": "/Users/telatina/miniconda3/lib/python3.8/site-packages/multiqc/utils",
+    "config_short_version": "1.9",
+    "config_subtitle": null,
+    "config_title": null,
+    "config_version": "1.9"
+}

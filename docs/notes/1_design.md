@@ -17,6 +17,9 @@ The wrapper is written in _Perl_, and will run _R_ scripts via `Rscript --vanill
   - an other standard modules (notably Pod::Usage and Digest::MD5)
 * **R**, and some libraries:
   - dada2
-* **fastp** (for initial QC, no trimming is performed)
+  - phyloseq
+  - DECIPHER
+* **seqfu** (primer trimming)
+* **fastp** (alternative to SeqFu QC, no trimming is performed)
 * **clustalo** (for multiple sequence alignment)
 * **fasttree** (to generate a tree of the representative sequences)

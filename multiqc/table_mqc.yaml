@@ -1,0 +1,23 @@
+id: 'filt_reads'
+section_name: 'Filtering results'
+description: 'Using the links in this table, you can directly download result files from this analysis.'
+plot_type: 'table'
+pconfig:
+    id: 'filt_reads_conf'
+    namespace: 'Download links'
+    title: ''
+    scale: false
+data:
+    sample_1:
+        Total reads: 1000
+        Filtered reads: 1000
+        Average insert size: 1000
+    sample_2:
+        Total reads: 1000
+        Filtered reads: 1000
+        Average insert size: 1000
+    sample_3:
+        Total reads: 1000
+        Filtered reads: 1000
+        Average insert size: 1000
+

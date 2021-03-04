@@ -380,7 +380,7 @@ my $counter_samples = 0;
 my $tot = scalar keys %{ $files_hash };
 for my $sample (sort keys %{ $files_hash } ) {
 	$counter_samples++;
-	$S->verbose("Processing $sample ($counter_samples/$tot) :" . $chooser->{'filtering'});
+	$S->verbose("($counter_samples/$tot) Processing $sample: " . $chooser->{'filtering'});
 	my $json_file = File::Spec->catfile($temp_dir, "${sample}.json");
 	my $filt_cmd;
 	my $out;
