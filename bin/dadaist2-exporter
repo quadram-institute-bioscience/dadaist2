@@ -7,12 +7,17 @@ use File::Basename;
 use Data::Dumper;
 use Pod::Usage;
 use FASTX::Reader;
-
-my $VERSION = '1.0.0';
+use File::Copy;
+my $VERSION = '1.3.0';
 my $opt_input_dir;
 my $opt_output_dir;
 my ($opt_version, $opt_help);
-my @required_files = ('taxonomy.txt', 'metadata.tsv', 'feature-table.tsv', 'rep-seqs-tax.fasta', 'rep-seqs.tree');
+my @required_files = (
+  'taxonomy.txt', 
+  'metadata.tsv', 
+  'feature-table.tsv', 
+  'rep-seqs-tax.fasta', 
+  'rep-seqs.tree');
 my @optional_files = ('');
 
 
@@ -35,39 +40,58 @@ for my $fname (@required_files) {
 }
 
 # Make output directory
-$opt_output_dir = File::Spec->catdir($opt_input_dir, 'MicrobiomeAnalyst')
-  if (not defined $opt_output_dir);
+$opt_output_dir = $opt_input_dir if (not defined $opt_output_dir);
+my $opt_MA_dir = File::Spec->catdir($opt_output_dir, 'MicrobiomeAnalyst');
+my $opt_Rh_dir = File::Spec->catdir($opt_output_dir, 'Rhea');
 
-mkdir "$opt_output_dir"
-  if (not -e "$opt_output_dir");
+mkdir "$opt_output_dir" if (not -e "$opt_output_dir");
+mkdir "$opt_MA_dir" if (not -e "$opt_MA_dir");
+mkdir "$opt_Rh_dir" if (not -e "$opt_Rh_dir");;
 
 # Metadata
-exportMetadata(
+exportMetadataMA(
   File::Spec->catfile($opt_input_dir, 'metadata.tsv'),
-  File::Spec->catfile($opt_output_dir, 'metadata.csv')
+  File::Spec->catfile($opt_MA_dir, 'metadata.csv')
 );
+copy( File::Spec->catfile($opt_input_dir, 'metadata.tsv'),
+      File::Spec->catfile($opt_Rh_dir,    'mapping_file.tab')    );
+
 
 # FASTA and Taxonomy
-exportSeqTax(
+exportSeqTaxMA(
   File::Spec->catfile($opt_input_dir, 'rep-seqs-tax.fasta'),
-  File::Spec->catfile($opt_output_dir, 'seqs.fa'),
-  File::Spec->catfile($opt_output_dir, 'taxonomy.csv')
+  File::Spec->catfile($opt_MA_dir, 'seqs.fa'),
+  File::Spec->catfile($opt_MA_dir, 'taxonomy.csv')
+);
+copy( File::Spec->catfile($opt_input_dir, 'rep-seqs.fasta'),
+      File::Spec->catfile($opt_Rh_dir,    'OTUs-Seqs.fasta')    );
+  
+# Feature table
+exportTableMA(
+  File::Spec->catfile($opt_input_dir, 'feature-table.tsv'),
+  File::Spec->catfile($opt_MA_dir, 'table.csv')
+);
+my $rhea_table_temp = File::Spec->catfile($opt_Rh_dir,    'OTUs-Table.tab');
+exportTableRhea(
+  File::Spec->catfile($opt_input_dir, 'rep-seqs-tax.fasta'),
+  File::Spec->catfile($opt_input_dir, 'feature-table.tsv'),
+  $rhea_table_temp
 );
 
-# Feature table
-exportTable(
-  File::Spec->catfile($opt_input_dir, 'feature-table.tsv'),
-  File::Spec->catfile($opt_output_dir, 'table.csv')
-);
 
 # Copy tree
+copy( File::Spec->catfile($opt_input_dir, 'rep-seqs.tree'),
+      File::Spec->catfile($opt_MA_dir,    'rep-seqs.tree')    );
+
+copy( File::Spec->catfile($opt_input_dir, 'rep-seqs.tree'),
+      File::Spec->catfile($opt_Rh_dir,    'OTUs-Tree.tre')    );
 
 sub version {
   say basename($0), " ", $VERSION;
   exit;
 }
 
-sub exportTable {
+sub exportTableMA {
   my ($in, $out) = @_;
   my $c = 0;
   open (my $I, '<', "$in") || die " Unable to load table <$in>.\n";
@@ -83,7 +107,37 @@ sub exportTable {
 
   }
 }
-sub exportMetadata{
+
+
+sub exportTableRhea {
+  my ($fasta_tax, $table, $output) = @_;
+  open (my $FA, '<', "$fasta_tax") || die " Unable to load fasta taxonomy <$fasta_tax>.\n";
+  open (my $T,  '<', "$table") || die " Unable to load feature table <$table>.\n";
+  open (my $O,  '>', "$output")|| die " Unable to write exported file to <$output>.\n";
+  my %otuToTax = ();
+  while (my $line = readline($FA)) {
+    if ($line =~/^>/) {
+      chomp($line);
+      my ($name, $taxonomy) = split /\s+/, substr($line, 1);
+      # Bacteria;Firmicutes;Clostridia;Clostridiales;Ruminococcaceae;;
+      $taxonomy =~s/NA//g; # TODO Check boundaries?
+      $otuToTax{$name} = $taxonomy . ';';
+    }
+  }
+
+  while (my $line = readline($T)) {
+    chomp($line);
+    my @fields = split /\t/, $line;
+    if ($line =~/^#/) {
+      $fields[0] = '#OTUId';
+      push(@fields, 'taxonomy');
+    } else {
+      push(@fields, $otuToTax{ $fields[0] });
+    }
+    say {$O} join("\t", @fields);
+  }
+}
+sub exportMetadataMA{
   my ($in, $out) = @_;
   my $c = 0;
   open (my $I, '<', "$in") || die " Unable to load metadata <$in>.\n";
@@ -107,7 +161,7 @@ sub exportMetadata{
   }
 }
 
-sub exportSeqTax {
+sub exportSeqTaxMA {
   my ($in, $otus, $tax) = @_;
   my $null = '';
   my $READER = FASTX::Reader->new({filename => "$in"});
@@ -139,8 +193,9 @@ __END__
 =head1 NAME
 
 B<dadaist2-exporter> - tool to export dadaist2 output into MicrobiomeAnalyst
-compatible format. MicrobiomeAnalyst can be used as an B<R> module or
-via the user-friendly website L<https://www.microbiomeanalyst.ca/>.
+compatible format. I<MicrobiomeAnalyst> can be used as an B<R> module or
+via the user-friendly website L<https://www.microbiomeanalyst.ca/> and
+I<Rhea> (L<https://lagkouvardos.github.io/Rhea/>).
 
 =head1 AUTHOR
 
