@@ -1,26 +1,26 @@
 ---
-sort: 5
+sort: 3
 ---
-## dadaist2-getdb
-**dadaist2-getdb** - download reference databases for dadaist2
+## dadaist2-assigntax
+**dadaist2-assigntax** - Assign Taxonomy
 
 ## Author
 Andrea Telatin <andrea.telatin@quadram.ac.uk>
 
 ## List available databases
-    dadaist2-getdb --list
+    dadaist2-assigntax -i FASTA -o DIR -r REFERENCE [-t THREADS]
 
-## Download a database
-    dadaist2-getdb -d DATABASE_NAME [-o OUTPUT_DIR]
+- _-i_, _--input_ FASTA
 
-- _-d_, _--database_ ID
+    Input file in FASTA format (or in DADA2 table format)
 
-    Identifier of the database to be downloaded (list available database and their
-    identifier name using `dadaist2-getdb --list`).
-
-- _-o_, _--output-dir_ DIR
+- _-o_, _--outdir_ DIR
 
     Output directory, or the current working directory if not specified.
+
+- _-r_, _--reference_ FILE
+
+    RData file with the training set in DECIPHER format.
 
 ## Source code and documentation
 The program is freely available at [https://quadram-institute-bioscience.github.io/dadaist2](https://quadram-institute-bioscience.github.io/dadaist2)

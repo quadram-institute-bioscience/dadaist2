@@ -4,7 +4,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
  
 <style>
-* { font-family: Helvetica, Verdana, Arial; }
+h1, h2, h3, h4, h5, h6, table, td, p { font-family: Helvetica, Verdana, Arial; }
 pre { white-space: pre-wrap; 
 overflow-x: auto;
 background-color: lightyellow;
@@ -100,7 +100,7 @@ tr:nth-child(odd) {
 </style>
 </head>
 <body>
-<h1>Dadaist2 execution log</h1>
+<h1>Dadaist2 0.7.4 execution log</h1>
 <p>
 This is not a report with the results of the pipeline, but the log of the events occurred to generate it.
 </p>
@@ -131,19 +131,19 @@ This is not a report with the results of the pipeline, but the log of the events
   </tr>
   <tr>
     <td>Input</td>
-    <td>/Users/telatina/git/dadaist2/reads</td>
+    <td>/Users/telatina/git/dadaist2/data/16S</td>
   </tr>
   <tr>
     <td>Output</td>
-    <td>/Users/telatina/git/dadaist2/example</td>
+    <td>/Users/telatina/git/dadaist2/output/tests/ref-decipher</td>
   </tr>
   <tr>
     <td>Timestamp</td>
-    <td>20210304 14:38:45</td>
+    <td>20210305 11:28:57</td>
   </tr>
   <tr>
     <td>Execution time</td>
-    <td>1m 12s</td>
+    <td>1m 17s</td>
   </tr>
 
 </table>
@@ -223,7 +223,7 @@ This is not a report with the results of the pipeline, but the log of the events
 
 <button class="accordion">Read trimming (process)</button>
 <div class="panel">
-  <br><p><h3>Shell command <span style="color: #b44">fastp</span></h3><p>Executed at <em>2021-03-04 14:38:56</em> for <em>0.57s</em> and  returned ' . 0 . '</p>'<p><strong>Command</strong><pre>fastp <br><b>-w</b> 8 <br><b>-i</b> "/Users/telatina/git/dadaist2/reads/A01_S0_L001_R1_001.fastq.gz" <br><b>-I</b> "/Users/telatina/git/dadaist2/reads/A01_S0_L001_R2_001.fastq.gz" <br><b>-o</b> "/var/folders/qf/64kyljyn0njdfbz8nyrgjv8hxrrkbt/T/dadaist2_pPv5IN"/for/A01_R1.fastq.gz <br><b>-O</b>  "/var/folders/qf/64kyljyn0njdfbz8nyrgjv8hxrrkbt/T/dadaist2_pPv5IN"/rev/A01_R2.fastq.gz   <br><b>--trim_front1</b> 20 <br><b>--trim_front2</b>  20  <br><b>--detect_adapter_for_pe</b> <br><b>--disable_quality_filtering</b> <br><b>--n_base_limit</b>  1   <br><b>--json</b> "/var/folders/qf/64kyljyn0njdfbz8nyrgjv8hxrrkbt/T/dadaist2_pPv5IN/A01.json" <br><b>--html</b> /dev/null  <br><b>--trim_tail1</b> 0 <br><b>--trim_tail2</b> 0 <br><b>--length_required</b> 110 </pre></p>
+  <br><p><h3>Shell command <span style="color: #b44">fastp</span></h3><p>Executed at <em>2021-03-05 11:29:09</em> for <em>0.66s</em> and  returned 0 </p>'<p><strong>Command</strong><pre>fastp <br><b>-w</b> 8 <br><b>-i</b> "/Users/telatina/git/dadaist2/data/16S/A01_S0_L001_R1_001.fastq.gz" <br><b>-I</b> "/Users/telatina/git/dadaist2/data/16S/A01_S0_L001_R2_001.fastq.gz" <br><b>-o</b> "/var/folders/qf/64kyljyn0njdfbz8nyrgjv8hxrrkbt/T/dadaist2_8OXSgR"/for/A01_R1.fastq.gz <br><b>-O</b>  "/var/folders/qf/64kyljyn0njdfbz8nyrgjv8hxrrkbt/T/dadaist2_8OXSgR"/rev/A01_R2.fastq.gz   <br><b>--trim_front1</b> 20 <br><b>--trim_front2</b>  20  <br><b>--detect_adapter_for_pe</b> <br><b>--disable_quality_filtering</b> <br><b>--n_base_limit</b>  1   <br><b>--json</b> "/var/folders/qf/64kyljyn0njdfbz8nyrgjv8hxrrkbt/T/dadaist2_8OXSgR/A01.json" <br><b>--html</b> /dev/null  <br><b>--trim_tail1</b> 0 <br><b>--trim_tail2</b> 0 <br><b>--length_required</b> 110 </pre></p>
 <p><strong>Standard output</strong><pre><p><strong>Standard error</strong><pre>Detecting adapter sequence for read1...
 No adapter detected for read1
 
@@ -264,14 +264,14 @@ bases trimmed due to adapters: 64672
 
 Duplication rate: 7.27273%
 
-Insert size peak (evaluated by paired-end reads): 465
+Insert size peak (evaluated by paired-end reads): 0
 
-JSON report: /var/folders/qf/64kyljyn0njdfbz8nyrgjv8hxrrkbt/T/dadaist2_pPv5IN/A01.json
+JSON report: /var/folders/qf/64kyljyn0njdfbz8nyrgjv8hxrrkbt/T/dadaist2_8OXSgR/A01.json
 HTML report: /dev/null
 
-fastp -w 8 -i /Users/telatina/git/dadaist2/reads/A01_S0_L001_R1_001.fastq.gz -I /Users/telatina/git/dadaist2/reads/A01_S0_L001_R2_001.fastq.gz -o /var/folders/qf/64kyljyn0njdfbz8nyrgjv8hxrrkbt/T/dadaist2_pPv5IN/for/A01_R1.fastq.gz -O /var/folders/qf/64kyljyn0njdfbz8nyrgjv8hxrrkbt/T/dadaist2_pPv5IN/rev/A01_R2.fastq.gz --trim_front1 20 --trim_front2 20 --detect_adapter_for_pe --disable_quality_filtering --n_base_limit 1 --json /var/folders/qf/64kyljyn0njdfbz8nyrgjv8hxrrkbt/T/dadaist2_pPv5IN/A01.json --html /dev/null --trim_tail1 0 --trim_tail2 0 --length_required 110 
+fastp -w 8 -i /Users/telatina/git/dadaist2/data/16S/A01_S0_L001_R1_001.fastq.gz -I /Users/telatina/git/dadaist2/data/16S/A01_S0_L001_R2_001.fastq.gz -o /var/folders/qf/64kyljyn0njdfbz8nyrgjv8hxrrkbt/T/dadaist2_8OXSgR/for/A01_R1.fastq.gz -O /var/folders/qf/64kyljyn0njdfbz8nyrgjv8hxrrkbt/T/dadaist2_8OXSgR/rev/A01_R2.fastq.gz --trim_front1 20 --trim_front2 20 --detect_adapter_for_pe --disable_quality_filtering --n_base_limit 1 --json /var/folders/qf/64kyljyn0njdfbz8nyrgjv8hxrrkbt/T/dadaist2_8OXSgR/A01.json --html /dev/null --trim_tail1 0 --trim_tail2 0 --length_required 110 
 fastp v0.20.1, time used: 1 seconds</p>
-<br><p><h3>Shell command <span style="color: #b44">fastp</span></h3><p>Executed at <em>2021-03-04 14:38:57</em> for <em>0.55s</em> and  returned ' . 0 . '</p>'<p><strong>Command</strong><pre>fastp <br><b>-w</b> 8 <br><b>-i</b> "/Users/telatina/git/dadaist2/reads/A02_S0_L001_R1_001.fastq.gz" <br><b>-I</b> "/Users/telatina/git/dadaist2/reads/A02_S0_L001_R2_001.fastq.gz" <br><b>-o</b> "/var/folders/qf/64kyljyn0njdfbz8nyrgjv8hxrrkbt/T/dadaist2_pPv5IN"/for/A02_R1.fastq.gz <br><b>-O</b>  "/var/folders/qf/64kyljyn0njdfbz8nyrgjv8hxrrkbt/T/dadaist2_pPv5IN"/rev/A02_R2.fastq.gz   <br><b>--trim_front1</b> 20 <br><b>--trim_front2</b>  20  <br><b>--detect_adapter_for_pe</b> <br><b>--disable_quality_filtering</b> <br><b>--n_base_limit</b>  1   <br><b>--json</b> "/var/folders/qf/64kyljyn0njdfbz8nyrgjv8hxrrkbt/T/dadaist2_pPv5IN/A02.json" <br><b>--html</b> /dev/null  <br><b>--trim_tail1</b> 0 <br><b>--trim_tail2</b> 0 <br><b>--length_required</b> 110 </pre></p>
+<br><p><h3>Shell command <span style="color: #b44">fastp</span></h3><p>Executed at <em>2021-03-05 11:29:10</em> for <em>0.63s</em> and  returned 0 </p>'<p><strong>Command</strong><pre>fastp <br><b>-w</b> 8 <br><b>-i</b> "/Users/telatina/git/dadaist2/data/16S/A02_S0_L001_R1_001.fastq.gz" <br><b>-I</b> "/Users/telatina/git/dadaist2/data/16S/A02_S0_L001_R2_001.fastq.gz" <br><b>-o</b> "/var/folders/qf/64kyljyn0njdfbz8nyrgjv8hxrrkbt/T/dadaist2_8OXSgR"/for/A02_R1.fastq.gz <br><b>-O</b>  "/var/folders/qf/64kyljyn0njdfbz8nyrgjv8hxrrkbt/T/dadaist2_8OXSgR"/rev/A02_R2.fastq.gz   <br><b>--trim_front1</b> 20 <br><b>--trim_front2</b>  20  <br><b>--detect_adapter_for_pe</b> <br><b>--disable_quality_filtering</b> <br><b>--n_base_limit</b>  1   <br><b>--json</b> "/var/folders/qf/64kyljyn0njdfbz8nyrgjv8hxrrkbt/T/dadaist2_8OXSgR/A02.json" <br><b>--html</b> /dev/null  <br><b>--trim_tail1</b> 0 <br><b>--trim_tail2</b> 0 <br><b>--length_required</b> 110 </pre></p>
 <p><strong>Standard output</strong><pre><p><strong>Standard error</strong><pre>Detecting adapter sequence for read1...
 No adapter detected for read1
 
@@ -312,14 +312,14 @@ bases trimmed due to adapters: 23266
 
 Duplication rate: 14.6341%
 
-Insert size peak (evaluated by paired-end reads): 465
+Insert size peak (evaluated by paired-end reads): 0
 
-JSON report: /var/folders/qf/64kyljyn0njdfbz8nyrgjv8hxrrkbt/T/dadaist2_pPv5IN/A02.json
+JSON report: /var/folders/qf/64kyljyn0njdfbz8nyrgjv8hxrrkbt/T/dadaist2_8OXSgR/A02.json
 HTML report: /dev/null
 
-fastp -w 8 -i /Users/telatina/git/dadaist2/reads/A02_S0_L001_R1_001.fastq.gz -I /Users/telatina/git/dadaist2/reads/A02_S0_L001_R2_001.fastq.gz -o /var/folders/qf/64kyljyn0njdfbz8nyrgjv8hxrrkbt/T/dadaist2_pPv5IN/for/A02_R1.fastq.gz -O /var/folders/qf/64kyljyn0njdfbz8nyrgjv8hxrrkbt/T/dadaist2_pPv5IN/rev/A02_R2.fastq.gz --trim_front1 20 --trim_front2 20 --detect_adapter_for_pe --disable_quality_filtering --n_base_limit 1 --json /var/folders/qf/64kyljyn0njdfbz8nyrgjv8hxrrkbt/T/dadaist2_pPv5IN/A02.json --html /dev/null --trim_tail1 0 --trim_tail2 0 --length_required 110 
+fastp -w 8 -i /Users/telatina/git/dadaist2/data/16S/A02_S0_L001_R1_001.fastq.gz -I /Users/telatina/git/dadaist2/data/16S/A02_S0_L001_R2_001.fastq.gz -o /var/folders/qf/64kyljyn0njdfbz8nyrgjv8hxrrkbt/T/dadaist2_8OXSgR/for/A02_R1.fastq.gz -O /var/folders/qf/64kyljyn0njdfbz8nyrgjv8hxrrkbt/T/dadaist2_8OXSgR/rev/A02_R2.fastq.gz --trim_front1 20 --trim_front2 20 --detect_adapter_for_pe --disable_quality_filtering --n_base_limit 1 --json /var/folders/qf/64kyljyn0njdfbz8nyrgjv8hxrrkbt/T/dadaist2_8OXSgR/A02.json --html /dev/null --trim_tail1 0 --trim_tail2 0 --length_required 110 
 fastp v0.20.1, time used: 1 seconds</p>
-<br><p><h3>Shell command <span style="color: #b44">fastp</span></h3><p>Executed at <em>2021-03-04 14:38:58</em> for <em>0.53s</em> and  returned ' . 0 . '</p>'<p><strong>Command</strong><pre>fastp <br><b>-w</b> 8 <br><b>-i</b> "/Users/telatina/git/dadaist2/reads/F99_S0_L001_R1_001.fastq.gz" <br><b>-I</b> "/Users/telatina/git/dadaist2/reads/F99_S0_L001_R2_001.fastq.gz" <br><b>-o</b> "/var/folders/qf/64kyljyn0njdfbz8nyrgjv8hxrrkbt/T/dadaist2_pPv5IN"/for/F99_R1.fastq.gz <br><b>-O</b>  "/var/folders/qf/64kyljyn0njdfbz8nyrgjv8hxrrkbt/T/dadaist2_pPv5IN"/rev/F99_R2.fastq.gz   <br><b>--trim_front1</b> 20 <br><b>--trim_front2</b>  20  <br><b>--detect_adapter_for_pe</b> <br><b>--disable_quality_filtering</b> <br><b>--n_base_limit</b>  1   <br><b>--json</b> "/var/folders/qf/64kyljyn0njdfbz8nyrgjv8hxrrkbt/T/dadaist2_pPv5IN/F99.json" <br><b>--html</b> /dev/null  <br><b>--trim_tail1</b> 0 <br><b>--trim_tail2</b> 0 <br><b>--length_required</b> 110 </pre></p>
+<br><p><h3>Shell command <span style="color: #b44">fastp</span></h3><p>Executed at <em>2021-03-05 11:29:11</em> for <em>0.70s</em> and  returned 0 </p>'<p><strong>Command</strong><pre>fastp <br><b>-w</b> 8 <br><b>-i</b> "/Users/telatina/git/dadaist2/data/16S/F99_S0_L001_R1_001.fastq.gz" <br><b>-I</b> "/Users/telatina/git/dadaist2/data/16S/F99_S0_L001_R2_001.fastq.gz" <br><b>-o</b> "/var/folders/qf/64kyljyn0njdfbz8nyrgjv8hxrrkbt/T/dadaist2_8OXSgR"/for/F99_R1.fastq.gz <br><b>-O</b>  "/var/folders/qf/64kyljyn0njdfbz8nyrgjv8hxrrkbt/T/dadaist2_8OXSgR"/rev/F99_R2.fastq.gz   <br><b>--trim_front1</b> 20 <br><b>--trim_front2</b>  20  <br><b>--detect_adapter_for_pe</b> <br><b>--disable_quality_filtering</b> <br><b>--n_base_limit</b>  1   <br><b>--json</b> "/var/folders/qf/64kyljyn0njdfbz8nyrgjv8hxrrkbt/T/dadaist2_8OXSgR/F99.json" <br><b>--html</b> /dev/null  <br><b>--trim_tail1</b> 0 <br><b>--trim_tail2</b> 0 <br><b>--length_required</b> 110 </pre></p>
 <p><strong>Standard output</strong><pre><p><strong>Standard error</strong><pre>Detecting adapter sequence for read1...
 No adapter detected for read1
 
@@ -360,53 +360,53 @@ bases trimmed due to adapters: 21554
 
 Duplication rate: 10.8911%
 
-Insert size peak (evaluated by paired-end reads): 465
+Insert size peak (evaluated by paired-end reads): 0
 
-JSON report: /var/folders/qf/64kyljyn0njdfbz8nyrgjv8hxrrkbt/T/dadaist2_pPv5IN/F99.json
+JSON report: /var/folders/qf/64kyljyn0njdfbz8nyrgjv8hxrrkbt/T/dadaist2_8OXSgR/F99.json
 HTML report: /dev/null
 
-fastp -w 8 -i /Users/telatina/git/dadaist2/reads/F99_S0_L001_R1_001.fastq.gz -I /Users/telatina/git/dadaist2/reads/F99_S0_L001_R2_001.fastq.gz -o /var/folders/qf/64kyljyn0njdfbz8nyrgjv8hxrrkbt/T/dadaist2_pPv5IN/for/F99_R1.fastq.gz -O /var/folders/qf/64kyljyn0njdfbz8nyrgjv8hxrrkbt/T/dadaist2_pPv5IN/rev/F99_R2.fastq.gz --trim_front1 20 --trim_front2 20 --detect_adapter_for_pe --disable_quality_filtering --n_base_limit 1 --json /var/folders/qf/64kyljyn0njdfbz8nyrgjv8hxrrkbt/T/dadaist2_pPv5IN/F99.json --html /dev/null --trim_tail1 0 --trim_tail2 0 --length_required 110 
-fastp v0.20.1, time used: 0 seconds</p>
+fastp -w 8 -i /Users/telatina/git/dadaist2/data/16S/F99_S0_L001_R1_001.fastq.gz -I /Users/telatina/git/dadaist2/data/16S/F99_S0_L001_R2_001.fastq.gz -o /var/folders/qf/64kyljyn0njdfbz8nyrgjv8hxrrkbt/T/dadaist2_8OXSgR/for/F99_R1.fastq.gz -O /var/folders/qf/64kyljyn0njdfbz8nyrgjv8hxrrkbt/T/dadaist2_8OXSgR/rev/F99_R2.fastq.gz --trim_front1 20 --trim_front2 20 --detect_adapter_for_pe --disable_quality_filtering --n_base_limit 1 --json /var/folders/qf/64kyljyn0njdfbz8nyrgjv8hxrrkbt/T/dadaist2_8OXSgR/F99.json --html /dev/null --trim_tail1 0 --trim_tail2 0 --length_required 110 
+fastp v0.20.1, time used: 1 seconds</p>
 
 </div>
 
 <button class="accordion">DADA2 Denoising (process)</button>
 <div class="panel">
-  <p><h3>Shell command <span style="color: #b44">Rscript</span></h3><p>Executed at <em>2021-03-04 14:38:59</em> for <em>18.10s</em> and  returned ' . 0 . '</p>'<p><strong>Command</strong><pre>Rscript <br><b>--vanilla</b> /Users/telatina/git/dadaist2/bin/D2-dada.R /var/folders/qf/64kyljyn0njdfbz8nyrgjv8hxrrkbt/T/dadaist2_pPv5IN/for /var/folders/qf/64kyljyn0njdfbz8nyrgjv8hxrrkbt/T/dadaist2_pPv5IN/rev /var/folders/qf/64kyljyn0njdfbz8nyrgjv8hxrrkbt/T/dadaist2_pPv5IN/dada2/dada2.tsv /var/folders/qf/64kyljyn0njdfbz8nyrgjv8hxrrkbt/T/dadaist2_pPv5IN/dada2/stats.tsv /var/folders/qf/64kyljyn0njdfbz8nyrgjv8hxrrkbt/T/dadaist2_pPv5IN/for/filtered /var/folders/qf/64kyljyn0njdfbz8nyrgjv8hxrrkbt/T/dadaist2_pPv5IN/rev/filtered 265 207 0 0 1 1.5 10 consensus 1 8 10000 /var/folders/qf/64kyljyn0njdfbz8nyrgjv8hxrrkbt/T/dadaist2_pPv5IN do_plots skip no 0</pre></p>
+  <p><h3>Shell command <span style="color: #b44">Rscript</span></h3><p>Executed at <em>2021-03-05 11:29:12</em> for <em>21.16s</em> and  returned 0 </p>'<p><strong>Command</strong><pre>Rscript <br><b>--vanilla</b> /Users/telatina/git/dadaist2/bin/D2-dada.R /var/folders/qf/64kyljyn0njdfbz8nyrgjv8hxrrkbt/T/dadaist2_8OXSgR/for /var/folders/qf/64kyljyn0njdfbz8nyrgjv8hxrrkbt/T/dadaist2_8OXSgR/rev /var/folders/qf/64kyljyn0njdfbz8nyrgjv8hxrrkbt/T/dadaist2_8OXSgR/dada2/dada2.tsv /var/folders/qf/64kyljyn0njdfbz8nyrgjv8hxrrkbt/T/dadaist2_8OXSgR/dada2/stats.tsv /var/folders/qf/64kyljyn0njdfbz8nyrgjv8hxrrkbt/T/dadaist2_8OXSgR/for/filtered /var/folders/qf/64kyljyn0njdfbz8nyrgjv8hxrrkbt/T/dadaist2_8OXSgR/rev/filtered 265 207 0 0 1 1.5 10 consensus 1 8 10000 /var/folders/qf/64kyljyn0njdfbz8nyrgjv8hxrrkbt/T/dadaist2_8OXSgR do_plots skip no 0</pre></p>
 <p><strong>Standard output</strong><pre>R version 4.0.3 (2020-10-10) 
 #DADA2: 1.18.0 / Rcpp: 1.0.6 / RcppParallel: 5.0.3 
-2021-03-04 14:39:06 	[1] Filtering reads ...
-2021-03-04 14:39:14 	[2] Learning Error Rates
+2021-03-05 11:29:20 	[1] Filtering reads ...
+2021-03-05 11:29:30 	[2] Learning Error Rates
 1579400 total bases in 5960 reads from 3 samples will be used for learning the error rates.
 1233720 total bases in 5960 reads from 3 samples will be used for learning the error rates.
-2021-03-04 14:39:15 	[3] Denoise remaining samples ...
-2021-03-04 14:39:17	[4] Remove chimeras (method = consensus)
-2021-03-04 14:39:17 	[5.1] Taxonomy (SKIPPED)
-2021-03-04 14:39:17 	[6] Write output
-	 *  /var/folders/qf/64kyljyn0njdfbz8nyrgjv8hxrrkbt/T/dadaist2_pPv5IN/dada2/dada2.tsv <p><strong>Standard error</strong><pre>Loading required package: Rcpp</p>
+2021-03-05 11:29:32 	[3] Denoise remaining samples ...
+2021-03-05 11:29:33	[4] Remove chimeras (method = consensus)
+2021-03-05 11:29:33 	[5.1] Taxonomy (SKIPPED)
+2021-03-05 11:29:33 	[6] Write output
+	 *  /var/folders/qf/64kyljyn0njdfbz8nyrgjv8hxrrkbt/T/dadaist2_8OXSgR/dada2/dada2.tsv <p><strong>Standard error</strong><pre>Loading required package: Rcpp</p>
 
 </div>
 
 <button class="accordion">Taxonomy (process)</button>
 <div class="panel">
-  <p><h3>Shell command <span style="color: #b44">/Users/telatina/git/dadaist2/bin/dadaist2-assigntax</span></h3><p>Executed at <em>2021-03-04 14:39:17</em> for <em>38.00s</em> and  returned ' . 0 . '</p>'<p><strong>Command</strong><pre>/Users/telatina/git/dadaist2/bin/dadaist2-assigntax <br><b>-i</b> "/Users/telatina/git/dadaist2/example/rep-seqs.fasta" <br><b>-o</b> "/var/folders/qf/64kyljyn0njdfbz8nyrgjv8hxrrkbt/T/dadaist2_pPv5IN" <br><b>-r</b> "refs/silva.RData" <br><b>-t</b> "8"</pre></p>
+  <p><h3>Shell command <span style="color: #b44">/Users/telatina/git/dadaist2/bin/dadaist2-assigntax</span></h3><p>Executed at <em>2021-03-05 11:29:33</em> for <em>39.05s</em> and  returned 0 </p>'<p><strong>Command</strong><pre>/Users/telatina/git/dadaist2/bin/dadaist2-assigntax <br><b>-i</b> "/Users/telatina/git/dadaist2/output/tests/ref-decipher/rep-seqs.fasta" <br><b>-o</b> "/var/folders/qf/64kyljyn0njdfbz8nyrgjv8hxrrkbt/T/dadaist2_8OXSgR" <br><b>-r</b> "refs/SILVA_SSU_r138_2019.RData" <br><b>-t</b> "8"</pre></p>
 <p><strong>Standard output</strong><pre><p><strong>Standard error</strong><pre>[35;1m DADAIST2 Assign Taxonomy[0m
 
- Input file:  /Users/telatina/git/dadaist2/example/rep-seqs.fasta
- Reference:   refs/silva.RData
- Output dir:  /var/folders/qf/64kyljyn0njdfbz8nyrgjv8hxrrkbt/T/dadaist2_pPv5IN
+ Input file:  /Users/telatina/git/dadaist2/output/tests/ref-decipher/rep-seqs.fasta
+ Reference:   refs/SILVA_SSU_r138_2019.RData
+ Output dir:  /var/folders/qf/64kyljyn0njdfbz8nyrgjv8hxrrkbt/T/dadaist2_8OXSgR
  Threads:     8
 
  * Using DECIPHER
-[2021-03-04 14:39:17] Shell> Rscript --vanilla "/Users/telatina/git/dadaist2/bin/D2-decipher.R" "/Users/telatina/git/dadaist2/example/rep-seqs.fasta" "refs/silva.RData" "/var/folders/qf/64kyljyn0njdfbz8nyrgjv8hxrrkbt/T/dadaist2_pPv5IN" "8"
-[2021-03-04 14:39:55]     +> Elapsed time: 37.77s; Exit status: 0;</p>
+[2021-03-05 11:29:33] Shell> Rscript --vanilla "/Users/telatina/git/dadaist2/bin/D2-decipher.R" "/Users/telatina/git/dadaist2/output/tests/ref-decipher/rep-seqs.fasta" "refs/SILVA_SSU_r138_2019.RData" "/var/folders/qf/64kyljyn0njdfbz8nyrgjv8hxrrkbt/T/dadaist2_8OXSgR" "8"
+[2021-03-05 11:30:12]     +> Elapsed time: 38.84s; Exit status: 0;</p>
 
 </div>
 
 
 <button class="accordion">Initial checks</button>
 <div class="panel">
-	<br><p><h3>Shell command <span style="color: #b44">echo</span></h3><p>Executed at <em>2021-03-04 14:38:46</em> for <em>2.72s</em> and  returned ' . 0 . '</p>'<p><strong>Command</strong><pre>echo "library(DECIPHER)" | R <br><b>--no-save</b> > /dev/null</pre></p>
+	<br><p><h3>Shell command <span style="color: #b44">echo</span></h3><p>Executed at <em>2021-03-05 11:28:58</em> for <em>2.91s</em> and  returned 0 </p>'<p><strong>Command</strong><pre>echo "library(DECIPHER)" | R <br><b>--no-save</b> > /dev/null</pre></p>
 <p><strong>Standard output</strong><pre><p><strong>Standard error</strong><pre>Loading required package: Biostrings
 Loading required package: BiocGenerics
 Loading required package: parallel
@@ -451,23 +451,23 @@ The following object is masked from ‘package:base’:
     strsplit
 
 Loading required package: RSQLite</p>
-<br><p><h3>Shell command <span style="color: #b44">/Users/telatina/git/dadaist2/bin/dadaist2-assigntax</span></h3><p>Executed at <em>2021-03-04 14:38:49</em> for <em>0.17s</em> and  returned ' . 0 . '</p>'<p><strong>Command</strong><pre>/Users/telatina/git/dadaist2/bin/dadaist2-assigntax --version</pre></p>
+<br><p><h3>Shell command <span style="color: #b44">/Users/telatina/git/dadaist2/bin/dadaist2-assigntax</span></h3><p>Executed at <em>2021-03-05 11:29:01</em> for <em>0.19s</em> and  returned 0 </p>'<p><strong>Command</strong><pre>/Users/telatina/git/dadaist2/bin/dadaist2-assigntax --version</pre></p>
 <p><strong>Standard output</strong><pre>dadaist2-assigntax 1.0.5<p><strong>Standard error</strong><pre>[35;1m DADAIST2 Assign Taxonomy[0m</p>
-<br><p><h3>Shell command <span style="color: #b44">Rscript</span></h3><p>Executed at <em>2021-03-04 14:38:49</em> for <em>0.01s</em> and  returned ' . 0 . '</p>'<p><strong>Command</strong><pre>Rscript  <br><b>--version</b> 2>&1</pre></p>
+<br><p><h3>Shell command <span style="color: #b44">Rscript</span></h3><p>Executed at <em>2021-03-05 11:29:01</em> for <em>0.01s</em> and  returned 0 </p>'<p><strong>Command</strong><pre>Rscript  <br><b>--version</b> 2>&1</pre></p>
 <p><strong>Standard output</strong><pre>R scripting front-end version 4.0.3 (2020-10-10)<p><strong>Standard error</strong><pre></p>
-<br><p><h3>Shell command <span style="color: #b44">clustalo</span></h3><p>Executed at <em>2021-03-04 14:38:49</em> for <em>0.01s</em> and  returned ' . 0 . '</p>'<p><strong>Command</strong><pre>clustalo <br><b>--version</b> 2>&1</pre></p>
+<br><p><h3>Shell command <span style="color: #b44">clustalo</span></h3><p>Executed at <em>2021-03-05 11:29:01</em> for <em>0.03s</em> and  returned 0 </p>'<p><strong>Command</strong><pre>clustalo <br><b>--version</b> 2>&1</pre></p>
 <p><strong>Standard output</strong><pre>1.2.4<p><strong>Standard error</strong><pre></p>
-<br><p><h3>Shell command <span style="color: #b44">echo</span></h3><p>Executed at <em>2021-03-04 14:38:49</em> for <em>7.32s</em> and  returned ' . 0 . '</p>'<p><strong>Command</strong><pre>echo "library(dada2)" | R <br><b>--no-save</b> > /dev/null</pre></p>
+<br><p><h3>Shell command <span style="color: #b44">echo</span></h3><p>Executed at <em>2021-03-05 11:29:01</em> for <em>7.73s</em> and  returned 0 </p>'<p><strong>Command</strong><pre>echo "library(dada2)" | R <br><b>--no-save</b> > /dev/null</pre></p>
 <p><strong>Standard output</strong><pre><p><strong>Standard error</strong><pre>Loading required package: Rcpp</p>
-<br><p><h3>Shell command <span style="color: #b44">/Users/telatina/git/dadaist2/bin/dadaist2-exporter</span></h3><p>Executed at <em>2021-03-04 14:38:56</em> for <em>0.08s</em> and  returned ' . 0 . '</p>'<p><strong>Command</strong><pre>/Users/telatina/git/dadaist2/bin/dadaist2-exporter --version</pre></p>
+<br><p><h3>Shell command <span style="color: #b44">/Users/telatina/git/dadaist2/bin/dadaist2-exporter</span></h3><p>Executed at <em>2021-03-05 11:29:08</em> for <em>0.12s</em> and  returned 0 </p>'<p><strong>Command</strong><pre>/Users/telatina/git/dadaist2/bin/dadaist2-exporter --version</pre></p>
 <p><strong>Standard output</strong><pre>dadaist2-exporter 1.0.0<p><strong>Standard error</strong><pre></p>
-<br><p><h3>Shell command <span style="color: #b44">fastp</span></h3><p>Executed at <em>2021-03-04 14:38:56</em> for <em>0.02s</em> and  returned ' . 0 . '</p>'<p><strong>Command</strong><pre>fastp <br><b>--version</b> 2>&1</pre></p>
+<br><p><h3>Shell command <span style="color: #b44">fastp</span></h3><p>Executed at <em>2021-03-05 11:29:09</em> for <em>0.02s</em> and  returned 0 </p>'<p><strong>Command</strong><pre>fastp <br><b>--version</b> 2>&1</pre></p>
 <p><strong>Standard output</strong><pre>fastp 0.20.1<p><strong>Standard error</strong><pre></p>
-<br><p><h3>Shell command <span style="color: #b44">fasttree</span></h3><p>Executed at <em>2021-03-04 14:38:56</em> for <em>0.02s</em> and  returned ' . 0 . '</p>'<p><strong>Command</strong><pre>fasttree 2>&1 | head <br><b>-n</b> 1 | cut <br><b>-c</b> 11-</pre></p>
+<br><p><h3>Shell command <span style="color: #b44">fasttree</span></h3><p>Executed at <em>2021-03-05 11:29:09</em> for <em>0.14s</em> and  returned 0 </p>'<p><strong>Command</strong><pre>fasttree 2>&1 | head <br><b>-n</b> 1 | cut <br><b>-c</b> 11-</pre></p>
 <p><strong>Standard output</strong><pre>FastTree version 2.1.10 Double precision (No SSE3):<p><strong>Standard error</strong><pre></p>
-<br><p><h3>Shell command <span style="color: #b44">fu-primers</span></h3><p>Executed at <em>2021-03-04 14:38:56</em> for <em>0.03s</em> and  returned ' . 0 . '</p>'<p><strong>Command</strong><pre>fu-primers <br><b>--version</b> 2>&1</pre></p>
+<br><p><h3>Shell command <span style="color: #b44">fu-primers</span></h3><p>Executed at <em>2021-03-05 11:29:09</em> for <em>0.05s</em> and  returned 0 </p>'<p><strong>Command</strong><pre>fu-primers <br><b>--version</b> 2>&1</pre></p>
 <p><strong>Standard output</strong><pre>fu-primers 1.0<p><strong>Standard error</strong><pre></p>
-<br><p><h3>Shell command <span style="color: #b44">/Users/telatina/git/dadaist2/bin/makeSampleSheet</span></h3><p>Executed at <em>2021-03-04 14:38:56</em> for <em>0.07s</em> and  returned ' . 0 . '</p>'<p><strong>Command</strong><pre>/Users/telatina/git/dadaist2/bin/makeSampleSheet --version</pre></p>
+<br><p><h3>Shell command <span style="color: #b44">/Users/telatina/git/dadaist2/bin/makeSampleSheet</span></h3><p>Executed at <em>2021-03-05 11:29:09</em> for <em>0.21s</em> and  returned 0 </p>'<p><strong>Command</strong><pre>/Users/telatina/git/dadaist2/bin/makeSampleSheet --version</pre></p>
 <p><strong>Standard output</strong><pre>makeSampleSheet 1.0.0<p><strong>Standard error</strong><pre></p>
 
 </div>

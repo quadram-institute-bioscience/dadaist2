@@ -356,11 +356,8 @@ if ($opt_tax_db ne 'skip') {
 			$S->verbose("Taxonomy database not valid: $opt_tax_db. Taxonomy will be skipped.");
 			$opt_tax_db = 'skip';
 		}
-	}
-	
-} else {
-	$S->verbose("No taxonomy database specified: skipping.");
-}
+	}	
+}  
 
 ## Parameters
 addToTemplate($LOG_TEMPLATE, 'INPUT_PATH', File::Spec->rel2abs( $opt_input_directory));
@@ -369,8 +366,18 @@ addToTemplate($LOG_TEMPLATE, 'PARAMETERS', paramToHtml('Database', File::Spec->r
 addToTemplate($LOG_TEMPLATE, 'PARAMETERS', paramToHtml('Metadata', File::Spec->rel2abs( $opt_metadata)), 'append');
 addToTemplate($LOG_TEMPLATE, 'PARAMETERS', paramToHtml('Threads', File::Spec->rel2abs( $opt_threads)), 'append');
 
-# Dependency check
+if ($opt_verbose) {
+	say STDERR " * ", color('reset'), "Input directory: ", color('blue'), $opt_input_directory, color('reset');
+	say STDERR " * ", color('reset'), "Output directory: ", color('blue'),  $opt_output_directory, color('reset');	
+	say STDERR " * ", color('reset'), "Metadata: ", color('blue'),  $opt_metadata // '<not provided>', color('reset');
+	say STDERR " * ", color('reset'), "Reference database: ", color('blue'),  $opt_tax_db, color('reset');
+	say STDERR " * ", color('reset'), "Threads: ", color('blue'),  $opt_threads, color('reset');
+	say STDERR " * ", color('reset'), "Temporary directory: ", color('blue'),  $temp_dir, color('reset');
+	say STDERR " * ", color('reset'), "QC strategy: ", color('blue'),  $chooser->{'filtering'}, color('reset');
+}
 
+# Dependency check
+$S->verbose("Checking dependencies");
 check_required_binaries(\%dependencies);
 
 # Metadata?
@@ -437,7 +444,7 @@ for my $sample (sort keys %{ $files_hash } ) {
 		if ($$files_hash{$sample}{rev}) {
 			$filt_cmd = qq(fu-primers -1 "$$files_hash{$sample}{for}" -2 "$$files_hash{$sample}{rev}" ).
 									qq( --primer-for "$primer_for" --primer-rev "$primer_rev" | seqfu deinterleave --for-ext "_R1.fastq" --rev-ext "_R2.fastq" -o "$temp_dir"/for/${sample} -);
-			$S->verbose("\$" . $filt_cmd) if ($opt_debug);
+			$S->verbose("\$ " . $filt_cmd) if ($opt_debug);
 			$out = $S->run( $filt_cmd, { candie => 1 } );
 			addToTemplate($LOG_TEMPLATE, 'TRIMMING_LOG', runToHtml($out), 1);
 			$S->run(qq(gzip "$temp_dir"/for/${sample}*));
@@ -451,7 +458,7 @@ for my $sample (sort keys %{ $files_hash } ) {
 			die " Single end processing not supported at the moment.\n";
 		}
 	} elsif ( $chooser->{'filtering'} eq 'skip' ) {
-		$S->verbose("Skipping QC:" . $sample);
+
 		copy(
 				$$files_hash{$sample}{for},
 				File::Spec->catdir($temp_dir, 'for')
@@ -510,7 +517,7 @@ for my $sample (sort keys %{ $files_hash } ) {
 		$trunc_len_1 = 0;
 		$trunc_start_2 = 0;
 		$trunc_len_2 = 0;
-		$S->verbose($out->{stderr});
+		$S->verbose($out->{stderr}) if ($out->{stderr});
 	}
 }
 

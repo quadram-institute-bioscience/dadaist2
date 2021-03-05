@@ -105,10 +105,7 @@ B<dadaist2-phyloseqCheck> - Check PhyloSeq object from the command line
 
 Andrea Telatin and Rebecca Ansorge
 
-=head1 LIST AVAILABLE DATABASES
-
-  dadaist2-phyloseqCheck -i OBJEFILE [--json]
-
+=head1 PARAMETERS
 
 =over 4
 
