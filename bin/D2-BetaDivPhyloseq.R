@@ -14,14 +14,23 @@ getN <- function(x) sum(getUniques(x))
 args <- commandArgs(TRUE)
 if (length(args) < 1) {
   errQuit("No arguments provided - required: phyloseq rds object\n
-Usage: D2-04_abundance_plots.R phyloseq.rds [output_directory (optional)]")
+Usage: D2-04_abundance_plots.R phyloseq.rds [output_directory (optional)] [label/nolabel(label ordination points)]")
 } else if (length(args) == 1) {
   inp.phy     <- args[[1]]  # Input phyloseq rds object (filtered or unfiltered)
   out.dir     <- "./"  # output directory
+  lab.ord     <- "nolabel" # switch to label ordination points; default: no label
 } else {
   inp.phy     <- args[[1]]  # Input phyloseq rds object (filtered or unfiltered)
   out.dir     <- args[[2]]  # output directory
+  lab.ord     <- args[[3]]  # switch to label ordination points
 }
+
+if (lab.ord == "label") {
+  label.switch<-2.5
+} else {
+  label.switch<-0
+  }
+
 
 phy <- file.path(inp.phy)
 
@@ -97,7 +106,6 @@ pdf(paste(out.dir,"/my_ordinations.pdf",sep=""))
 for ( dist in distlist) {
   ord_meths = c("CCA", "DCA", "RDA", "NMDS", "MDS") # call different ordination methods
 
-  
 # excluded "DPCoA"
 # excluded PCoA because it is identical to MDS
  for ( n in 1:(i-2) ) {
@@ -119,20 +127,23 @@ for ( dist in distlist) {
 
     if (y == "NoMetadata" | y == "Files") {
       my_ord_combo = ggplot(pdataframe, aes_string("Axis_1", "Axis_2"), alpha = 0.7) +
-        geom_point(size=3, alpha = 0.7) + #geom_polygon(alpha=0.5) +
-        facet_wrap(~method, scales="free") +
+        geom_point(size=2, alpha = 0.7, aes_string(label="sampleID"))  +
+        geom_text(aes(label=sampleID),vjust = "inward", hjust = "inward", size=label.switch) +
+        facet_wrap(~method, scales="free") + 
         ggtitle(ggtitle(print(dist)))
       print(my_ord_combo)
     } else {
       if (class(pdataframe[[x]]) == "integer") {
         my_ord_combo = ggplot(pdataframe, aes_string("Axis_1", "Axis_2", color=x, fill=x), alpha = 0.7) +
-          geom_point(size=3, alpha = 0.7) + #geom_polygon(alpha=0.5) +
+          geom_point(size=3, alpha = 0.7, aes_string(label="sampleID"))  +
+          geom_text(aes(label=sampleID),vjust = "inward", hjust = "inward", size=label.switch) +
           facet_wrap(~method, scales="free")+
           ggtitle(ggtitle(print(dist)))
         print(my_ord_combo)
       } else {
         my_ord_combo = ggplot(pdataframe, aes_string("Axis_1", "Axis_2", color=x, fill=x), alpha = 0.7) +
-          geom_point(size=3, alpha = 0.7) + #geom_polygon(alpha=0.5) +
+          geom_point(size=3, alpha = 0.7, aes_string(label="sampleID")) + 
+          geom_text(aes(label=sampleID),vjust = "inward", hjust = "inward", size=label.switch) +
           facet_wrap(~method, scales="free") +
           scale_fill_brewer(type="qual", palette="Set2") +
           scale_colour_brewer(type="qual", palette="Set2")+
