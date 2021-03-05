@@ -1,7 +1,8 @@
 ## dadaist2-exporter
 **dadaist2-exporter** - tool to export dadaist2 output into MicrobiomeAnalyst
-compatible format. MicrobiomeAnalyst can be used as an **R** module or
-via the user-friendly website [https://www.microbiomeanalyst.ca/](https://www.microbiomeanalyst.ca/).
+compatible format. _MicrobiomeAnalyst_ can be used as an **R** module or
+via the user-friendly website [https://www.microbiomeanalyst.ca/](https://www.microbiomeanalyst.ca/) and
+_Rhea_ ([https://lagkouvardos.github.io/Rhea/](https://lagkouvardos.github.io/Rhea/)).
 
 ## Author
 Andrea Telatin <andrea.telatin@quadram.ac.uk>
@@ -43,5 +44,5 @@ The output directory will contain:
     Not used in MicrobiomeAnalyst, but kept for reference.
 
 ## Source code and documentation
-The program is freely available at https://github.com/quadram-institute-bioscience/dadaist2
+The program is freely available at [https://quadram-institute-bioscience.github.io/dadaist2](https://quadram-institute-bioscience.github.io/dadaist2)
 released under the MIT licence. The website contains further DOCUMENTATION.

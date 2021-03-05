@@ -6,9 +6,11 @@ a feature table starting from Illumina Paired End reads.
 Andrea Telatin <andrea.telatin@quadram.ac.uk>
 
 ## Synopsis
-dadaist2 \[options\] -i INPUT\_DIR -o OUTPUT\_DIR
+    dadaist2 [options] -i INPUT_DIR -o OUTPUT_DIR
 
 ## Parameters
+## Main Parameters
+
 - _-i_, _--input-directory_ DIRECTORY
 
     Directory containing the paired end files in FASTQ format, gzipped or not.
@@ -27,9 +29,32 @@ dadaist2 \[options\] -i INPUT\_DIR -o OUTPUT\_DIR
     Reference database in gzipped FASTA format, specify 'skip' not to assign
     taxonomy (default: skip)
 
+- _-t_, _--threads_ INT
+
+    Number of threads (default: 2)
+
+- _--primers_ FOR:REV
+
+    Strip primers with amplicheck, otherwise trim the primer regions
+    with fastp.
+
+- _-j_, _--just-concat_
+
+    Do not try merging paired end reads, just concatenate.
+
+## Metabarcoding processing
+
 - _-q_, _--min-qual_ FLOAT
 
     Minimum average quality for DADA2 truncation (default: 28)
+
+- _--no-trunc_
+
+    Do not truncate reads (required for non-overlapping amplicons, like ITS)
+
+- _--maxee1_, and _--maxee2_ FLOAT
+
+    Maximum Expected Errors in R1 and R2, respectively (default: 1.0 and 1.5)
 
 - _s1_, _--trim-primer-for_ INT
 
@@ -45,6 +70,8 @@ dadaist2 \[options\] -i INPUT\_DIR -o OUTPUT\_DIR
 
     String identifying the forward (and reverse) pairs. Default are \_R1 and \_R2.
 
+## Other parameters
+
 - _-s_, _--id-separator_ STRING
 
     String used to separate the "sample name" from the filename. Default "\_".
@@ -58,6 +85,10 @@ dadaist2 \[options\] -i INPUT\_DIR -o OUTPUT\_DIR
 
     Filename for the program log.
 
+- _--popup_
+
+    Display popup notifications (tested on MacOS and Ubuntu)
+
 ## Source code and documentation
-The program is freely available at https://github.com/quadram-institute-bioscience/dadaist2
+The program is freely available at [https://quadram-institute-bioscience.github.io/dadaist2](https://quadram-institute-bioscience.github.io/dadaist2)
 released under the MIT licence. The website contains further DOCUMENTATION.
