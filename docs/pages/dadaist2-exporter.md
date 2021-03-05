@@ -1,3 +1,6 @@
+---
+sort: 4
+---
 ## dadaist2-exporter
 **dadaist2-exporter** - tool to export dadaist2 output into MicrobiomeAnalyst
 compatible format. _MicrobiomeAnalyst_ can be used as an **R** module or

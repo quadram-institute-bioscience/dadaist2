@@ -1,3 +1,6 @@
+---
+sort: 3
+---
 ## dadaist2-assigntax
 **dadaist2-assigntax** - Assign Taxonomy
 

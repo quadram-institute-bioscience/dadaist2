@@ -1,3 +1,6 @@
+---
+sort: 8
+---
 ## makeSampleSheet
 **makeSampleSheet** - create a sample sheet from a list of Paired End FASTQ files,
 that can be used as a template to add further columns.

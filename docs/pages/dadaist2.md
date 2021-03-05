@@ -1,3 +1,6 @@
+---
+sort: 1
+---
 ## dadaist2
 **dadaist2** - a shell wrapper for DADA2, to detect representative sequences and generate
 a feature table starting from Illumina Paired End reads.

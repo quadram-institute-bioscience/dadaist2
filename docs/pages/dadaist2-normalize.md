@@ -1,3 +1,6 @@
+---
+sort: 6
+---
 ## dadaist2-normalize
 **dadaist2-normalize** - Normalize OTU table using the Rhea protocol.
 The Rhea protocol ([https://lagkouvardos.github.io/Rhea/](https://lagkouvardos.github.io/Rhea/)) is a complete

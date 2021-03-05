@@ -1,3 +1,6 @@
+---
+sort: 7
+---
 ## dadaist2-phyloseqCheck
 **dadaist2-phyloseqCheck** - Check PhyloSeq object from the command line
 
