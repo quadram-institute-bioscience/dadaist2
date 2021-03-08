@@ -1,5 +1,5 @@
 ---
-sort: 6
+sort: 5
 ---
 ## dadaist2-exporter
 **dadaist2-exporter** - tool to export dadaist2 output into MicrobiomeAnalyst

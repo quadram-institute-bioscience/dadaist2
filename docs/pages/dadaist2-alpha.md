@@ -1,5 +1,5 @@
 ---
-sort: 4
+sort: 3
 ---
 ## dadaist2-alpha
 **dadaist2-normalize** - Normalize OTU table using the **Rhea** protocol.

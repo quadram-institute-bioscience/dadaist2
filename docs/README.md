@@ -32,6 +32,10 @@ You can [read more](introduction) about the features.
 :package: See the **[repository](https://github.com/quadram-institute-bioscience/dadaist2)**
 
 
+## The workflow
+
+<img src="img/scheme_small.png">
+
 ## Contents
 
 {% include list.liquid all=true %}

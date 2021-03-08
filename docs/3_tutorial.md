@@ -3,7 +3,7 @@ sort: 3
 permalink: /tutorial
 ---
 
-# Dadaist2: a quick and short tutorial
+# Dadaist2: a short tutorial
 
 ## Get ready
 

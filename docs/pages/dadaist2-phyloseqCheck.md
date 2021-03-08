@@ -1,5 +1,5 @@
 ---
-sort: 9
+sort: 8
 ---
 ## dadaist2-phyloseqCheck
 **dadaist2-phyloseqCheck** - Check PhyloSeq object from the command line

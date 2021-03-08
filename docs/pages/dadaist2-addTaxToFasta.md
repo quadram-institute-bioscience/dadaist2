@@ -1,5 +1,5 @@
 ---
-sort: 3
+sort: 2
 ---
 ## dadaist2-addTaxToFasta
 **dadaist2-addTaxToFasta** - Add taxonomy annotation to the FASTA file with

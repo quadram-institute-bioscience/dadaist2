@@ -13,7 +13,7 @@ algorithm for reads denoising.
 
 What makes Dadaist an interesting alternative to other suites is the focus on reproducible downstream analyses (thanks to the automatic generation of a PhyloSeq object and the preparation of files ready to be analysed with MicrobiomeAnalyst or Rhea)
 
-<img src="img/scheme_small.png">
+<img src="img/flow.png">
 
 ## Long amplicons workflow
 

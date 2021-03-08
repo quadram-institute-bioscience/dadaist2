@@ -1,5 +1,5 @@
 ---
-sort: 7
+sort: 6
 ---
 ## dadaist2-getdb
 **dadaist2-getdb** - download reference databases for dadaist2

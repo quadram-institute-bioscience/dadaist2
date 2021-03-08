@@ -1,5 +1,5 @@
 ---
-sort: 5
+sort: 4
 ---
 ## dadaist2-assigntax
 **dadaist2-assigntax** - Assign Taxonomy

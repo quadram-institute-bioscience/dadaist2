@@ -1,5 +1,5 @@
 ---
-sort: 10
+sort: 9
 ---
 ## makeSampleSheet
 **makeSampleSheet** - create a sample sheet from a list of Paired End FASTQ files,
