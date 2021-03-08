@@ -1,6 +1,3 @@
----
-sort: 100
----
 ## dadaist2-mergeseqs
 
 This tool merges the two paired end denoised sequences as they appear in 
@@ -45,4 +42,6 @@ The output is a similar table after joining the reads, when possible.
 If using `--verbose` a summary will be printed to the standard error at
 the end.
 
-  Total:8;Split:8;Joined:8
+```text
+Total:8;Split:8;Joined:8
+```
