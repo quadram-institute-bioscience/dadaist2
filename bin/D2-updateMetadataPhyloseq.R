@@ -10,7 +10,7 @@ getN <- function(x) sum(getUniques(x))
 args <- commandArgs(TRUE)
 if (length(args) < 3) {
   errQuit("Missing arguments - required: phyloseq rds object, metadata file and output directory\n
-Usage: D2-updateMetadataPhyloseq.R phyloseq.rds tab-sep-metadata output_directory [r/e (otional - default: r)]")
+Usage: D2-updateMetadataPhyloseq.R phyloseq.rds tab-sep-metadata output_directory [r/e (optional - default: r)]")
 } else if (length(args) == 3) {
   inp.phy     <- args[[1]]  # Input phyloseq rds object
   inp.met     <- args[[2]]  # tab-separated metadata file
