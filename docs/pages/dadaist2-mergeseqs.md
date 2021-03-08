@@ -1,5 +1,5 @@
 ---
-sort: 10
+sort: 11
 ---
 ## dadaist2-mergeseqs
 This tool merges the two paired end denoised sequences as they appear in 
