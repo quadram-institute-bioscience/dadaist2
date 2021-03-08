@@ -44,9 +44,10 @@ def denoiseTable(data, threshold_ratio = 0.1, min_low_samples = 3, min_sample_ra
     Zi = cross_talk_median * row_tot / data.shape[1]
 
     t = 0
-    if data.divide(Zi, axis=0) < 100:
-        t = 2 / (1 + numpy.exp(data.divide(Zi, axis=0)))
+    dividedData = data.divide(Zi, axis=0)
+    t = 2 / (1 + numpy.exp(dividedData.clip(upper=100)))
 
+    
     denoised_data = data.where(t < threshold_ratio, 0)
 
     if opt.output is None:
@@ -92,12 +93,7 @@ if __name__ == '__main__':
     opt_parser.add_argument('-i', '--input',
                             help='OTU table filename',
                             required=True)
-
-    opt_parser.add_argument('-r', '--reference',
-                            help='Reference cleaned OTU table filename'
-                            )
-
-    opt_parser.add_argument('-o', '--output',
+     opt_parser.add_argument('-o', '--output',
                             help='Cleaned OTU table filename',
                             )
     opt_parser.add_argument('-v', '--verbose',
