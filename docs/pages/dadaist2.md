@@ -3,7 +3,9 @@ sort: 1
 ---
 ## dadaist2
 **dadaist2** - a shell wrapper for DADA2, to detect representative sequences and generate
-a feature table starting from Illumina Paired End reads.
+a feature table starting from Illumina Paired End reads. This is the main program of the
+_dadaist2 toolkit_ that includes several wrappers and utilities to streamline the analysis
+of metabarcoding reads from the Linux shell to R.
 
 ## Author
 Andrea Telatin <andrea.telatin@quadram.ac.uk>
@@ -38,12 +40,18 @@ Andrea Telatin <andrea.telatin@quadram.ac.uk>
 
 - _--primers_ FOR:REV
 
-    Strip primers with amplicheck, otherwise trim the primer regions
-    with fastp.
+    Strip primers with _amplicheck_ (from SeqFU), otherwise trim the primer regions
+    with _fastp_ (see below).
 
 - _-j_, _--just-concat_
 
-    Do not try merging paired end reads, just concatenate.
+    Do not try merging paired end reads, just concatenate. 
+    _Experimental_.
+
+- _--skip-qc_
+
+    Do not perform any filtering. 
+    _Experimental_.
 
 ## Metabarcoding processing
 
@@ -75,6 +83,11 @@ Andrea Telatin <andrea.telatin@quadram.ac.uk>
 
 ## Other parameters
 
+- _--crosstalk_ 
+
+    Remove crosstalk using the UNCROSS2 algorithm 
+    as described here [https://doi.org/10.1101/400762](https://doi.org/10.1101/400762).
+
 - _-s_, _--id-separator_ STRING
 
     String used to separate the "sample name" from the filename. Default "\_".
@@ -94,4 +107,5 @@ Andrea Telatin <andrea.telatin@quadram.ac.uk>
 
 ## Source code and documentation
 The program is freely available at [https://quadram-institute-bioscience.github.io/dadaist2](https://quadram-institute-bioscience.github.io/dadaist2)
-released under the MIT licence. The website contains further DOCUMENTATION.
+released under the MIT licence. The website contains the full _DOCUMENTATION_ and we recommend 
+checking for updates.

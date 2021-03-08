@@ -1,10 +1,13 @@
 ---
-sort: 2
+sort: 4
 ---
 ## dadaist2-alpha
-**dadaist2-normalize** - Normalize OTU table using the Rhea protocol.
+**dadaist2-normalize** - Normalize OTU table using the **Rhea** protocol.
 The Rhea protocol ([https://lagkouvardos.github.io/Rhea/](https://lagkouvardos.github.io/Rhea/)) is a complete
 set of scripts to analyse microbiome files. 
+
+This wrapper is part of the _AutoRhea_ script bundled with _Dadaist2_. 
+If used, please, cite the Rhea paper (see below).
 
 ## Authors
 Andrea Telatin and Rebecca Ansorge
@@ -14,27 +17,25 @@ Andrea Telatin and Rebecca Ansorge
 
 - _-i_, _--input-table_ FILE
 
-    Input file in in PhyloSeq object (R Object)
+    Input file, the **normalized** OTU table
 
 - _-o_, _--output-outdir_ DIR
 
     Output directory
 
-- _-r_, _--random-subsampling_
+- _-e_, _--effective-richness_ FLOAT
 
-    Use random subsampling (default: off)
+    Effective richness (default: 0.0025)
 
-- _-f_, _fixed-value_
+- _-s_, _--standard-richness_ INT
 
-    Normalized using a fixed value (default: minimum)
+    Standard richness (default: 1000)
 
-- _-c_, _--cutoff_ INT
+## Output files
+- _alpha-diversity.tab_
 
-    Normalization cutoff (if _--fixed-value_ is used)
-
-- _-n_, _--n-labels_ INT
-
-    Highlight the INT  most undersampled samples
+    Table with: Richness, Shannon.Index, Shannon.Effective, Simpson.Index, Simpson.Effective, and Evenness
+    for each sample
 
 ## Citation
 If you use **Rhea** in your work please cite/attribute the original publication:

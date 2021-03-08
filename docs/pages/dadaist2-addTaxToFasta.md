@@ -1,19 +1,19 @@
 ---
-sort: 5
+sort: 3
 ---
-## dadaist2-assigntax
-**dadaist2-assigntax** - Assign Taxonomy
+## dadaist2-addTaxToFasta
+**dadaist2-addTaxToFasta** - Add taxonomy annotation to the FASTA file with
+the representative sequences
 
 ## Author
 Andrea Telatin <andrea.telatin@quadram.ac.uk>
 
 ## Usage
-    dadaist2-assigntax [options] -i FASTA -o DIR -r REFERENCE 
+    dadaist2-assigntax -i FASTA -o DIR -r REFERENCE [-t THREADS]
 
 - _-m_, _--method_
 
-    Taxonomy assignment method, either DECIPHER or DADA2
-    (default: DECIPHER)
+    Taxonomy assignment method (default: DECIPHER)
 
 - _-i_, _--input_ FASTA
 
@@ -26,10 +26,6 @@ Andrea Telatin <andrea.telatin@quadram.ac.uk>
 - _-r_, _--reference_ FILE
 
     RData file with the training set in DECIPHER format.
-
-- _-t_, _--threads_ INT
-
-    Number of threads to use.
 
 - _-u_, _--underscore-join_
 
