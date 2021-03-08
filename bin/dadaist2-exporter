@@ -19,11 +19,14 @@ my @required_files = (
   'rep-seqs-tax.fasta', 
   'rep-seqs.tree');
 my @optional_files = ('');
-
+my $opt_skip_ma;
+my $opt_skip_rhea;
 
 GetOptions(
  'i|input-directory=s'  => \$opt_input_dir,
  'o|output-directory=s' => \$opt_output_dir,
+ 'skip-rhea'            => \$opt_skip_rhea,
+ 'skip-ma'              => \$opt_skip_ma,
  'version' => \$opt_version,
  'help'    => \$opt_help,
 ) || die " Parameters error. Use --help to display the manual.\n";
@@ -45,16 +48,16 @@ my $opt_MA_dir = File::Spec->catdir($opt_output_dir, 'MicrobiomeAnalyst');
 my $opt_Rh_dir = File::Spec->catdir($opt_output_dir, 'Rhea');
 
 mkdir "$opt_output_dir" if (not -e "$opt_output_dir");
-mkdir "$opt_MA_dir" if (not -e "$opt_MA_dir");
-mkdir "$opt_Rh_dir" if (not -e "$opt_Rh_dir");;
+mkdir "$opt_MA_dir" if (not -e "$opt_MA_dir" and not defined $opt_skip_ma);
+mkdir "$opt_Rh_dir" if (not -e "$opt_Rh_dir" and not defined $opt_skip_rhea);
 
 # Metadata
 exportMetadataMA(
   File::Spec->catfile($opt_input_dir, 'metadata.tsv'),
   File::Spec->catfile($opt_MA_dir, 'metadata.csv')
-);
+) if (not defined $opt_skip_ma);
 copy( File::Spec->catfile($opt_input_dir, 'metadata.tsv'),
-      File::Spec->catfile($opt_Rh_dir,    'mapping_file.tab')    );
+      File::Spec->catfile($opt_Rh_dir,    'mapping_file.tab')    ) if (not defined $opt_skip_rhea);
 
 
 # FASTA and Taxonomy
@@ -62,29 +65,31 @@ exportSeqTaxMA(
   File::Spec->catfile($opt_input_dir, 'rep-seqs-tax.fasta'),
   File::Spec->catfile($opt_MA_dir, 'seqs.fa'),
   File::Spec->catfile($opt_MA_dir, 'taxonomy.csv')
-);
+) if (not defined $opt_skip_ma);
+
 copy( File::Spec->catfile($opt_input_dir, 'rep-seqs.fasta'),
-      File::Spec->catfile($opt_Rh_dir,    'OTUs-Seqs.fasta')    );
+      File::Spec->catfile($opt_Rh_dir,    'OTUs-Seqs.fasta')    ) if (not defined $opt_skip_rhea);
   
 # Feature table
 exportTableMA(
   File::Spec->catfile($opt_input_dir, 'feature-table.tsv'),
   File::Spec->catfile($opt_MA_dir, 'table.csv')
-);
+) if (not defined $opt_skip_ma);
+
 my $rhea_table_temp = File::Spec->catfile($opt_Rh_dir,    'OTUs-Table.tab');
 exportTableRhea(
   File::Spec->catfile($opt_input_dir, 'rep-seqs-tax.fasta'),
   File::Spec->catfile($opt_input_dir, 'feature-table.tsv'),
   $rhea_table_temp
-);
+) if (not defined $opt_skip_rhea);
 
 
 # Copy tree
 copy( File::Spec->catfile($opt_input_dir, 'rep-seqs.tree'),
-      File::Spec->catfile($opt_MA_dir,    'rep-seqs.tree')    );
+      File::Spec->catfile($opt_MA_dir,    'rep-seqs.tree')    ) if (not defined $opt_skip_ma);
 
 copy( File::Spec->catfile($opt_input_dir, 'rep-seqs.tree'),
-      File::Spec->catfile($opt_Rh_dir,    'OTUs-Tree.tre')    );
+      File::Spec->catfile($opt_Rh_dir,    'OTUs-Tree.tre')    ) if (not defined $opt_skip_rhea);
 
 sub version {
   say basename($0), " ", $VERSION;
@@ -217,6 +222,16 @@ Directory containing the paired end files in FASTQ format, gzipped or not.
 
 Output directory, by default will be a subdirectory called C<MicrobiomeAnalyst>
 inside the input directory.
+
+=item I<--skip-rhea>
+
+Do not create the B<Rhea> subdirectory and its files.
+
+
+=item I<--skip-ma>
+
+Do not create the B<MicrobiomeAnalyst> subdirectory and its files.
+
 
 =item I<--version>
 

@@ -11,32 +11,26 @@ use File::Spec::Functions;
 use File::Copy;
 use Term::ANSIColor qw(color);
 my  $opt_verbose = undef;
-  # 1. Working Directory
-  # 2. Input Tab
-  # 3. Method (0=No random subsampling; 1=Random subsampling;
-  # 4. Level  (0=Minimum subsampling; 1=Fixed Value)
-  # 5. Cutoff (if level=1 -> normalization level)
-  # 6. Label  (# samples to label in plot)\n")
-my $opt_labels = 5;
-my $opt_cutoff = 1000;
+
+# opt_wd         <- args[[1]] 
+# opt_normtab    <- args[[2]] 
+# opt_eff        <- args[[3]] # Effective Richness; 0.0025
+# opt_norm       <- args[[4]] # Standard Richness; 1000 
+my $opt_eff = 0.0025;
+my $opt_norm = 1000;
 my (
-	$opt_outdir, $opt_input_table, $opt_fixed, $opt_random_subsampling,
+	$opt_outdir, $opt_input_table,  
 	$opt_version, $opt_help, $opt_force, $opt_json
 ); 
-my @output_files = ('OTUs_Table-norm-rel-tax.tab',
-'OTUs_Table-norm-rel.tab',
-'OTUs_Table-norm-tax.tab',
-'OTUs_Table-norm.tab');
+my @output_files = ('alpha-diversity.tab');
 
-my $rhea_normalize_script = File::Spec->catfile($RealBin, 'rhea-normalize.R');
+my $rhea_alpha_script = File::Spec->catfile($RealBin, 'rhea-alpha.R');
  
 GetOptions(
 	'o|output-directory=s'      => \$opt_outdir,
 	'i|input-table=s'           => \$opt_input_table,
-  'r|random-subsampling'      => \$opt_random_subsampling,
-  'f|fixed-value'             => \$opt_fixed,
-  'c|cutoff=i'                => \$opt_cutoff,
-  'n|n-labels=i'              => \$opt_labels,
+  'e|effective-richness=f'    => \$opt_eff,
+  's|standard-richness=i'     => \$opt_norm,
 	'verbose'        => \$opt_verbose,
 	'version'        => \$opt_version,
 	'force'          => \$opt_force,
@@ -50,20 +44,23 @@ $opt_help    && pod2usage({-exitval => 0, -verbose => 2});
 
 
 # Check parameters
-die "ERROR: Missing script $rhea_normalize_script.\n" unless (-e $rhea_normalize_script);
+die "ERROR: Missing script $rhea_alpha_script.\n" unless (-e $rhea_alpha_script);
 die "Missing parameters. Use --help for full manual.\n" if (!$opt_input_table or !$opt_outdir); 
 die "ERROR: Input file not found: $opt_input_table\n" if  (not -e $opt_input_table or not -d $opt_outdir);
-die "ERROR: --n-labels INT (got $opt_labels)\n" if ($opt_labels !~/^\d+$/);
-die "ERROR: --cutoff INT (got $opt_cutoff)\n" if ($opt_cutoff !~/^\d+$/);
+die "ERROR: --standard-richness INT (got $opt_norm)\n" if ($opt_norm !~/^\d+$/);
 
 # Set defaults, convert paths
 $opt_input_table = File::Spec->rel2abs($opt_input_table);
 $opt_outdir      = File::Spec->rel2abs($opt_outdir);
 $opt_outdir .= '/' if ($opt_outdir !~/\/$/);
-my $param_method = $opt_random_subsampling ? 1 : 0;
-my $param_level  = $opt_fixed ? 1 : 0;
 
-my $cmd = qq(Rscript --vanilla $rhea_normalize_script "$opt_outdir" "$opt_input_table" $param_method $param_level $opt_cutoff $opt_labels ); 
+# CHECK INPUT INTEGRITY
+# Is the OTU table normalized?
+
+if (not is_normalized($opt_input_table)) {
+  die " FATAL ERROR: Please supply the normalized table (use dadaist2-normalize)\n";
+}
+my $cmd = qq(Rscript --vanilla $rhea_alpha_script "$opt_outdir" "$opt_input_table" $opt_eff $opt_norm); 
 
 if ($opt_verbose) {
   say STDERR "$cmd";
@@ -71,6 +68,7 @@ if ($opt_verbose) {
 my $captured = `$cmd 2>&1`;
 
 if ($?) {
+  say STDERR color('magenta'), $captured, color('reset'), "\n";
   die " ERROR: Execution of Rhea script failed.\n";
 } else {
   for my $file (@output_files) {
@@ -80,13 +78,42 @@ if ($?) {
   }
 }
 
+sub is_normalized {
+  my $filename = $_[0];
+#     18.SPF.CD       11.CON.HFD      20.SPF.HFD      24.SPF.HFD      2.CON.HFD       23.SPF.HFD      17.SPF.CD       1.CON.CD        3.CON.CD        13.SPF.CD
+# OTU_1   1338.87733372951        1256.04164676664        1872.85754757071        3308.04863390504        2403.57544063529        2919.7857336588 1407.81019041822
+# OTU_3   1727.44515426138        253.278727672175        1402.76689173238        811.647635338172        124.824714313384        1259.36172136335        804.10399095730
+# OTU_12  817.208933788937        20.7039831884612        252.4434581425  
+
+  open (my $I, '<', $filename) || return 0;
+  my $c = 0;
+  my @sums = ();
+  while (my $l = readline($I)) {
+    chomp($l);
+    $c++;
+    my @fields = split /\t/, $l;
+    if ($c > 1) {
+      for (my $i = 1; $i < scalar @fields; $i++) {
+        $sums[$i-1] += $fields[$i];
+      }
+    }
+    
+  }
+  if ($sums[0]/$sums[-1] > 1.1 or $sums[0]/$sums[-1] < 0.9) {
+    return 0;
+  }
+  return 1;
+}
 __END__
 
 =head1 NAME
 
-B<dadaist2-normalize> - Normalize OTU table using the Rhea protocol.
+B<dadaist2-normalize> - Normalize OTU table using the B<Rhea> protocol.
 The Rhea protocol (L<https://lagkouvardos.github.io/Rhea/>) is a complete
 set of scripts to analyse microbiome files. 
+
+This wrapper is part of the I<AutoRhea> script bundled with I<Dadaist2>. 
+If used, please, cite the Rhea paper (see below).
 
 =head1 AUTHORS
 
@@ -100,27 +127,31 @@ Andrea Telatin and Rebecca Ansorge
 
 =item I<-i>, I<--input-table> FILE
 
-Input file in in PhyloSeq object (R Object)
+Input file, the B<normalized> OTU table
 
 =item I<-o>, I<--output-outdir> DIR
 
 Output directory
 
-=item I<-r>, I<--random-subsampling>
+=item I<-e>, I<--effective-richness> FLOAT
 
-Use random subsampling (default: off)
+Effective richness (default: 0.0025)
 
-=item I<-f>, I<fixed-value>
+=item I<-s>, I<--standard-richness> INT
 
-Normalized using a fixed value (default: minimum)
+Standard richness (default: 1000)
 
-=item I<-c>, I<--cutoff> INT
+=back
 
-Normalization cutoff (if I<--fixed-value> is used)
 
-=item I<-n>, I<--n-labels> INT
+=head1 OUTPUT FILES
 
-Highlight the INT  most undersampled samples
+=over 4
+
+=item I<alpha-diversity.tab>
+
+Table with: Richness, Shannon.Index, Shannon.Effective, Simpson.Index, Simpson.Effective, and Evenness
+for each sample
 
 =back
 

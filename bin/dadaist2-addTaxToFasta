@@ -1,0 +1,149 @@
+#!/usr/bin/env perl
+#ABSTRACT: Assign taxonomy using R Decipher
+
+
+use 5.012;
+use warnings;
+use Pod::Usage;
+my $VERSION = "1.0.5"; 
+use Getopt::Long;
+use Data::Dumper;
+use FindBin qw($RealBin);
+use File::Basename;
+use File::Spec;
+use File::Spec::Functions;
+use File::Copy;
+use Term::ANSIColor qw(color);
+use FASTX::Reader;
+use FASTX::ScriptHelper;
+use JSON::PP;
+use File::Temp;
+
+my $opt_separator ="\t";
+my (
+	$opt_fasta,
+	$opt_taxonomy,
+	$opt_output,
+	$opt_version, $opt_help, $opt_verbose, $opt_force, $opt_underscore
+);
+my $opt_format = 'TXT';
+my $opt_confidence = 70;
+my $opt_threads = 1;
+GetOptions(
+ 
+	'f|fasta=s'      => \$opt_fasta,
+	't|taxonomy=s'   => \$opt_taxonomy,
+	'o|output=s'     => \$opt_output,
+	'c|confidence=f' => \$opt_confidence,
+ 	'version'        => \$opt_version,
+	'force'          => \$opt_force,
+	'help'           => \$opt_help,
+);
+
+say STDERR color('magenta bold'), " DADAIST2 Add Taxonomy to Fasta", color('reset');
+
+$opt_version && version();
+$opt_help    && pod2usage({-exitval => 0, -verbose => 2});
+
+ 
+my $S = FASTX::ScriptHelper->new({
+	verbose => $opt_verbose,
+});
+
+die "Missing parameters (see --help)\n" if (not $opt_fasta or not $opt_taxonomy);
+
+open (my $TAX, '<', "$opt_taxonomy") || die "Unable to open taxonomy from <$opt_taxonomy>.\n";
+my $FASTA = FASTX::Reader->new({ filename => "$opt_fasta" });
+
+if ($opt_format eq 'TXT') {
+	my $c = 0;
+	while (my $line = readline($TAX)) {
+		chomp($line);
+		$c++;
+		next if ($c == 1);
+		my @ranks = ();
+		while ($line =~/(".*?"|\S+)/g ){
+			push(@ranks, $1);
+		}
+		my $id = shift(@ranks);
+		die "Expected 6 ranks in Dadaist2 format: ", scalar @ranks, " found at line $c:\n$line\n"
+		 if (scalar @ranks != 6);
+		
+		my $seq = $FASTA->getRead();
+		say '>', $seq->{name}, $opt_separator, join(";", @ranks);
+		say $seq->{seq};
+	}
+}
+
+
+sub quote_tax {
+	my $name = shift @_;
+	if ($name !~/\s/) {
+		return $name;
+	}
+	if ($opt_underscore) {
+		$name =~s/\s/_/g;
+	} else {
+		$name = '"' . $name . '"';
+	}
+	return $name;
+}
+
+
+sub version {
+	say basename($0), " ", $VERSION;
+	exit;
+}
+sub usage {
+	my $PROG = basename($0);
+	say "USAGE:";
+	say "$PROG -i rep-seqs.fasta -o outdir/ -r reference.RData [-t threads]";
+ 
+	exit;
+}
+
+__END__
+
+=head1 NAME
+
+B<dadaist2-addTaxToFasta> - Add taxonomy annotation to the FASTA file with
+the representative sequences
+
+=head1 AUTHOR
+
+Andrea Telatin <andrea.telatin@quadram.ac.uk>
+
+=head1 USAGE
+
+  dadaist2-assigntax -i FASTA -o DIR -r REFERENCE [-t THREADS]
+
+
+=over 4
+
+=item I<-m>, I<--method>
+
+Taxonomy assignment method (default: DECIPHER)
+
+=item I<-i>, I<--input> FASTA
+
+Input file in FASTA format (or in DADA2 table format)
+
+=item I<-o>, I<--outdir> DIR
+
+Output directory, or the current working directory if not specified.
+
+=item I<-r>, I<--reference> FILE
+
+RData file with the training set in DECIPHER format.
+
+=item I<-u>, I<--underscore-join>
+
+Join taxa names that have spaces with an underscore (default:
+use double quotes)
+
+=back
+
+=head1 SOURCE CODE AND DOCUMENTATION
+
+The program is freely available at L<https://quadram-institute-bioscience.github.io/dadaist2>
+released under the MIT licence. The website contains further DOCUMENTATION.

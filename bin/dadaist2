@@ -14,7 +14,9 @@ BEGIN {
 =head1 NAME
 
 B<dadaist2> - a shell wrapper for DADA2, to detect representative sequences and generate
-a feature table starting from Illumina Paired End reads.
+a feature table starting from Illumina Paired End reads. This is the main program of the
+I<dadaist2 toolkit> that includes several wrappers and utilities to streamline the analysis
+of metabarcoding reads from the Linux shell to R.
 
 =head1 AUTHOR
 
@@ -82,6 +84,7 @@ my $opt_save_rds     = 0;
 my $save_rds         = "no";
 my $opt_metadata_separator = "\t";
 my $opt_notify       = 0;
+
 # FASTP Preprocess
 # To be autocalculated:
 my $fastp_trim_front1 = 20;
@@ -196,12 +199,18 @@ Number of threads (default: 2)
 
 =item I<--primers> FOR:REV
 
-Strip primers with amplicheck, otherwise trim the primer regions
-with fastp.
+Strip primers with I<amplicheck> (from SeqFU), otherwise trim the primer regions
+with I<fastp> (see below).
 
 =item I<-j>, I<--just-concat>
 
-Do not try merging paired end reads, just concatenate.
+Do not try merging paired end reads, just concatenate. 
+I<Experimental>.
+
+=item I<--skip-qc>
+
+Do not perform any filtering. 
+I<Experimental>.
 
 =back
 
@@ -458,15 +467,28 @@ for my $sample (sort keys %{ $files_hash } ) {
 			die " Single end processing not supported at the moment.\n";
 		}
 	} elsif ( $chooser->{'filtering'} eq 'skip' ) {
-
+		my $for_dir = File::Spec->catdir($temp_dir, 'for');
+		my $rev_dir = File::Spec->catdir($temp_dir, 'rev');
+		my $for_name = basename($$files_hash{$sample}{for});
+		my $rev_name = basename($$files_hash{$sample}{rev});
+		$for_name =~s/\.(fq|FQ|FASTQ)/.fastq/;
+		$rev_name =~s/\.(fq|FQ|FASTQ)/.fastq/;
+		my $dest_for = File::Spec->catfile($for_dir, $for_name);
+		my $dest_rev = File::Spec->catfile($rev_dir, $rev_name);
 		copy(
 				$$files_hash{$sample}{for},
-				File::Spec->catdir($temp_dir, 'for')
+				$dest_for
 			);
 		copy(
 				$$files_hash{$sample}{rev},
-				File::Spec->catdir($temp_dir, 'rev')
+				$dest_rev
 			);
+		if ($for_name !~ /gz$/) {
+			$S->run( qq(gzip "$dest_for") );
+		}
+		if ($rev_name !~ /gz$/) {
+			$S->run( qq(gzip "$dest_rev") );
+		}
 		
 	} else {
 		$S->verbose("Unexpected setting: filtering should be performed either via trimming (fastp) or primer removal (SeqFu): <". $chooser->{'filtering'} .">\n");
@@ -756,7 +778,7 @@ if ( defined $decipher_db ) {
 	
 	$S->verbose("Assigning taxonomy using DECIPHER: " . $decipher_db);
 	die  "$repseq_file?\n" if not -e "$repseq_file";
-	my $decipher_cmd = qq($RealBin/dadaist2-assigntax -i "$repseq_file" -o "$temp_dir" -r "$decipher_db" -t "$opt_threads");
+	my $decipher_cmd = qq($RealBin/dadaist2-assigntax --mode -i "$repseq_file" -o "$temp_dir" -r "$decipher_db" -t "$opt_threads");
 	
 
 	my $taxRun = $S->run($decipher_cmd, { candie => 1});
@@ -1555,6 +1577,7 @@ __END__
 =head1 SOURCE CODE AND DOCUMENTATION
 
 The program is freely available at L<https://quadram-institute-bioscience.github.io/dadaist2>
-released under the MIT licence. The website contains further DOCUMENTATION.
+released under the MIT licence. The website contains the full I<DOCUMENTATION> and we recommend 
+checking for updates.
 
 =cut

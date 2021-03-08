@@ -6,7 +6,7 @@ use 5.012;
 use warnings;
 use Pod::Usage;
 my $VERSION = "1.0.5";
-
+my %methods_avail = ('DECIPHER' => 1, 'DADA2' => 1);
 use Getopt::Long;
 use Data::Dumper;
 use FindBin qw($RealBin);
@@ -20,22 +20,26 @@ use FASTX::ScriptHelper;
 use JSON::PP;
 use File::Temp;
 
+
 my (
 	$opt_inputfile,
 	$opt_outdir,
 	$opt_reference,
-	$opt_version, $opt_help, $opt_verbose, $opt_force
+	$opt_version, $opt_help, $opt_verbose, $opt_force, $opt_underscore
 );
+my $opt_method = 'DECIPHER';
 my $opt_confidence = 70;
 my $opt_threads = 1;
 my $DecipherTaxScript = File::Spec->catfile($RealBin, 'D2-decipher.R');
 my $DadaTaxScript = File::Spec->catfile($RealBin, 'D2-dada-taxonomy.R');
 GetOptions(
+	'm|method=s'     => \$opt_method,
 	'i|input=s'      => \$opt_inputfile,
 	'o|outdir=s'     => \$opt_outdir,
 	'r|reference=s'  => \$opt_reference,
 	'c|confidence=f' => \$opt_confidence,
 	't|threads=i'    => \$opt_threads,
+	'u|underscore-join'   => \$opt_underscore,
 	'version'        => \$opt_version,
 	'force'          => \$opt_force,
 	'help'           => \$opt_help,
@@ -46,7 +50,12 @@ say STDERR color('magenta bold'), " DADAIST2 Assign Taxonomy", color('reset');
 $opt_version && version();
 $opt_help    && pod2usage({-exitval => 0, -verbose => 2});
 
-
+$opt_method = uc($opt_method);
+if (not defined $methods_avail{$opt_method}) {
+	say STDERR "Method not available $opt_method.";
+	say STDERR "Available methods: ", join(', ', keys %methods_avail);
+	exit 1;
+}
 my $S = FASTX::ScriptHelper->new({
 	verbose => $opt_verbose,
 });
@@ -141,9 +150,9 @@ if ( $opt_reference =~/RData$/i) {
 					my $out = "$c ";
 					for (my $i = 1; $i <= 6; $i++) {
 						if ( $ranks[$i] ) {
-							my ($taxName, $rankName, $confidence) = $ranks[$i] =~/^(.*)\s+\[(\w+), ([0-9.]+)\%\]/;
+							my ($taxName, $rankName, $confidence) = $ranks[$i] =~/^\s*(.*)\s+\[(\w+), ([0-9.]+)\%\]/;
 							if ( $confidence > $opt_confidence ) {
-								$out .= "$taxName";
+									$out .= quote_tax($taxName);
 							} else {
 								$out .= "NA";
 							} 
@@ -191,6 +200,18 @@ if ( $opt_reference =~/RData$/i) {
 }
 
 
+sub quote_tax {
+	my $name = shift @_;
+	if ($name !~/\s/) {
+		return $name;
+	}
+	if ($opt_underscore) {
+		$name =~s/\s/_/g;
+	} else {
+		$name = '"' . $name . '"';
+	}
+	return $name;
+}
 
 
 sub version {
@@ -215,12 +236,17 @@ B<dadaist2-assigntax> - Assign Taxonomy
 
 Andrea Telatin <andrea.telatin@quadram.ac.uk>
 
-=head1 LIST AVAILABLE DATABASES
+=head1 USAGE
 
-  dadaist2-assigntax -i FASTA -o DIR -r REFERENCE [-t THREADS]
+  dadaist2-assigntax [options] -i FASTA -o DIR -r REFERENCE 
 
 
 =over 4
+
+=item I<-m>, I<--method>
+
+Taxonomy assignment method, either DECIPHER or DADA2
+(default: DECIPHER)
 
 =item I<-i>, I<--input> FASTA
 
@@ -233,6 +259,15 @@ Output directory, or the current working directory if not specified.
 =item I<-r>, I<--reference> FILE
 
 RData file with the training set in DECIPHER format.
+
+=item I<-t>, I<--threads> INT
+
+Number of threads to use.
+
+=item I<-u>, I<--underscore-join>
+
+Join taxa names that have spaces with an underscore (default:
+use double quotes)
 
 =back
 

@@ -5,11 +5,18 @@
 
 suppressWarnings(suppressMessages(library("dada2")))
 args <- commandArgs(TRUE)
+
+if (length(args) != 3) {
+  stop("Arguments: inputList dbPath outputDir [Threads]\n")
+}
 inputList       <- args[[1]]
 dbPath          <- args[[2]]
 outputDir       <- args[[3]]
-THREADS         <- as.integer(args[[4]])
-
+if (length(args) < 4)  {
+ THREADS         <- 1
+} else {
+ THREADS         <- as.integer(args[[4]])
+}
 
 # Check parameters
 if (! ( file.exists(inputList))) {

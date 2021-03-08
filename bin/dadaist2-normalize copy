@@ -127,6 +127,24 @@ Highlight the INT  most undersampled samples
 
 =back
 
+=head1 OUTPUT FILES
+
+=item I<OTUs_Table-norm.tab>
+
+Normalized OTU table
+
+=item I<OTUs_Table-norm-rel.tab>
+
+Normalized OTU table, with relative abundances
+
+=item I<OTUs_Table-norm-tax.tab>
+
+Normalized OTU table annotated with taxonomy labels
+
+=item I<OTUs_Table-norm-rel-tax.tab>
+
+Normalized OTU table, with relative abundances, annotated with taxonomy labels
+
 =head1 CITATION
 
 If you use B<Rhea> in your work please cite/attribute the original publication:
