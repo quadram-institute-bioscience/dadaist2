@@ -69,14 +69,21 @@ if (isTRUE(all.equal(sort(old_metad$sampleID),sort(in_metad$sampleID)))) {
   if (rep.ext == "r") {
     cat(" * OK: old and new metada have matching sample IDs\n")
     sample_data(my_physeq)<-in_metad
-    cat(" * Replacing old metadata wit new metadata - new metadata are: \n\n")
+    cat(" * Replacing old metadata with new metadata - new metadata are: \n\n")
     print(sample_data(my_physeq))
     cat("\n * Overview of new phyloseq object: \n\n")
     print(my_physeq)
     saveRDS(my_physeq, file = out.file)
     cat(paste("\n * New phyloseq object saved as: ",out.file,"\n\n"))
   } else if (rep.ext == "e") {
-    errQuit(" * TO DO STILL: EXTEND METADATA\n")
+    cat(" * OK: old and new metada have matching sample IDs\n")
+    my_physeq<-merge_phyloseq(my_physeq, in_metad)
+    cat(" * Extending old metadata with new metadata - new extended metadata are: \n\n")
+    print(sample_data(my_physeq))
+    cat("\n * Overview of new phyloseq object: \n\n")
+    print(my_physeq)
+    saveRDS(my_physeq, file = out.file)
+    cat(paste("\n * New phyloseq object saved as: ",out.file,"\n\n"))
   }
 } else {
   errQuit("Sample IDs in old and new metadata don't match up - please provide correct metadata file")
