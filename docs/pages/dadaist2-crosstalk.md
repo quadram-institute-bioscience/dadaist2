@@ -1,5 +1,5 @@
 ---
-sort: 10
+sort: 12
 ---
 ## dadaist2-crosstalk
 **dadaist2-crosstalk** is an open source implementation of the

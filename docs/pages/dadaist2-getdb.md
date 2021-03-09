@@ -8,7 +8,9 @@ sort: 6
 Andrea Telatin <andrea.telatin@quadram.ac.uk>
 
 ## List available databases
-    dadaist2-getdb --list
+    dadaist2-getdb --list [query]
+
+If a `query` keyword is specified, only matching entries will be printed.
 
 ## Download a database
     dadaist2-getdb -d DATABASE_NAME [-o OUTPUT_DIR]

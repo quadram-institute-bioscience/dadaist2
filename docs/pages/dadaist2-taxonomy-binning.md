@@ -1,8 +1,8 @@
 ---
-sort: 8
+sort: 11
 ---
-## dadaist2-normalize
-**dadaist2-normalize** - Normalize OTU table using the **Rhea** protocol.
+## dadaist2-taxonomy-binning
+**dadaist2-taxonomy-binning** - Normalize OTU table using the **Rhea** protocol.
 The Rhea protocol ([https://lagkouvardos.github.io/Rhea/](https://lagkouvardos.github.io/Rhea/)) is a complete
 set of scripts to analyse microbiome files. 
 
@@ -13,31 +13,49 @@ If used, please, cite the Rhea paper (see below).
 Andrea Telatin and Rebecca Ansorge
 
 ## Usage
-    dadaist2-normalize [options] -i TABLE -o OUTDIR 
+    dadaist2-taxonomy-binning -i TABLE -o OUTDIR 
 
 - _-i_, _--input-table_ FILE
 
-    Input file in in PhyloSeq object (R Object)
+    Input OTU table, the **normalized** and with **taxonomy column**.
+    The default name is `OTUs_Table-norm-rel-tax.tab`.
 
 - _-o_, _--output-outdir_ DIR
 
-    Output directory
+    Output directory. 
 
-- _-r_, _--random-subsampling_
+## Output files
+- _0.Kingdom.all.tab_
 
-    Use random subsampling (default: off)
+    Relative abundances a the Kingdom level
 
-- _-f_, _fixed-value_
+- _1.Phyla.all.tab_
 
-    Normalized using a fixed value (default: minimum)
+    Relative abundances a the Phylum level
 
-- _-c_, _--cutoff_ INT
+- _2.Classes.all.tab_
 
-    Normalization cutoff (if _--fixed-value_ is used)
+    Relative abundances a the Class level
 
-- _-n_, _--n-labels_ INT
+- _3.Orders.all.tab_
 
-    Highlight the INT  most undersampled samples
+    Relative abundances a the Order level
+
+- _4.Families.all.tab_
+
+    Relative abundances a the Family level
+
+- _5.Genera.all.tab_
+
+    Relative abundances a the Genus level
+
+- _tax.summary.all.tab_
+
+    Summary table (all ranks)
+
+- _taxonomic-overview.pdf_
+
+    Stacked bar plots in PDF format
 
 ## Citation
 If you use **Rhea** in your work please cite/attribute the original publication:

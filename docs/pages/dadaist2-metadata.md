@@ -1,8 +1,8 @@
 ---
-sort: 9
+sort: 7
 ---
-## makeSampleSheet
-**makeSampleSheet** - create a sample sheet from a list of Paired End FASTQ files,
+## dadaist2-metadata
+**dadaist2-metadata** - create a sample sheet from a list of Paired End FASTQ files,
 that can be used as a template to add further columns.
 This is automatically called by `dadaist2`, but it can be used to generate a valid
 templeate to be extended with more columns.
@@ -36,7 +36,7 @@ Andrea Telatin <andrea.telatin@quadram.ac.uk>
 
 - _-h_, _--header-first-col_ COLNAME
 
-    makeSampleSheet of the first column header (default: #SampleID)
+    dadaist2-metadata of the first column header (default: #SampleID)
 
 - _--add-full-path_
 
