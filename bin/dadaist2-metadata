@@ -106,7 +106,7 @@ __END__
 
 =head1 NAME
 
-B<makeSampleSheet> - create a sample sheet from a list of Paired End FASTQ files,
+B<dadaist2-metadata> - create a sample sheet from a list of Paired End FASTQ files,
 that can be used as a template to add further columns.
 This is automatically called by C<dadaist2>, but it can be used to generate a valid
 templeate to be extended with more columns.

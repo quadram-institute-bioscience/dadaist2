@@ -1,0 +1,192 @@
+#!/usr/bin/env perl
+
+use 5.012;
+use warnings;
+use Pod::Usage;
+use Getopt::Long;
+use FindBin qw($RealBin);
+use File::Basename;
+use File::Spec;
+use File::Spec::Functions;
+use File::Copy;
+use Term::ANSIColor qw(color);
+my  $opt_verbose = undef;
+my (
+	$opt_outdir, $opt_input_table,  
+	$opt_version, $opt_help, $opt_force, $opt_json
+); 
+
+my @output_files = (
+  '0.Kingdom.all.tab',
+  '1.Phyla.all.tab',
+  '2.Classes.all.tab',
+  '3.Orders.all.tab',
+  '4.Families.all.tab',
+  '5.Genera.all.tab',
+  'tax.summary.all.tab',
+  'taxonomic-overview.pdf'
+);
+
+my $rhea_binning = File::Spec->catfile($RealBin, 'rhea-binning.R');
+ 
+GetOptions(
+	'o|output-directory=s'      => \$opt_outdir,
+	'i|input-table=s'           => \$opt_input_table,
+  
+	'verbose'        => \$opt_verbose,
+	'version'        => \$opt_version,
+	'force'          => \$opt_force,
+	'help'           => \$opt_help,
+);
+
+say STDERR color('magenta bold'), " DADAIST2 Summarize by Taxonomy", color('reset');
+
+$opt_version && version();
+$opt_help    && pod2usage({-exitval => 0, -verbose => 2});
+
+
+# Check parameters
+die "ERROR: Missing script $rhea_binning.\n" unless (-e $rhea_binning);
+die "Missing parameters. Use --help for full manual.\n" if (!$opt_input_table or !$opt_outdir); 
+die "ERROR: Input file not found: $opt_input_table\n" if  (not -e $opt_input_table or not -d $opt_outdir);
+ 
+# Set defaults, convert paths
+$opt_input_table = File::Spec->rel2abs($opt_input_table);
+$opt_outdir      = File::Spec->rel2abs($opt_outdir);
+$opt_outdir .= '/' if ($opt_outdir !~/\/$/);
+
+# CHECK INPUT INTEGRITY
+# Is the OTU table normalized?
+
+if (not is_normalized($opt_input_table)) {
+  die " FATAL ERROR: Please supply the normalized table (use dadaist2-taxonomy-binning)\n";
+}
+my $cmd = qq(Rscript --vanilla $rhea_binning "$opt_outdir" "$opt_input_table" ); 
+
+if ($opt_verbose) {
+  say STDERR "$cmd";
+}
+my $captured = `$cmd 2>&1`;
+
+if ($?) {
+  say STDERR color('magenta'), $captured, color('reset'), "\n";
+  die " ERROR: Execution of Rhea script failed.\n";
+} else {
+  for my $file (@output_files) {
+    if (-e File::Spec->catfile($opt_outdir, $file) ) {
+      say STDERR " * Generated: $file";
+    }
+  }
+}
+
+sub is_normalized {
+  my $filename = $_[0];
+#     18.SPF.CD       11.CON.HFD      20.SPF.HFD      24.SPF.HFD      2.CON.HFD       23.SPF.HFD      17.SPF.CD       1.CON.CD        3.CON.CD        13.SPF.CD
+# OTU_1   1338.87733372951        1256.04164676664        1872.85754757071        3308.04863390504        2403.57544063529        2919.7857336588 1407.81019041822
+# OTU_3   1727.44515426138        253.278727672175        1402.76689173238        811.647635338172        124.824714313384        1259.36172136335        804.10399095730
+# OTU_12  817.208933788937        20.7039831884612        252.4434581425  
+
+  open (my $I, '<', $filename) || return 0;
+  my $c = 0;
+  my @sums = ();
+  while (my $l = readline($I)) {
+    chomp($l);
+    $c++;
+    my @fields = split /\t/, $l;
+    pop(@fields);
+    if ($c > 1) {
+      for (my $i = 1; $i < scalar @fields; $i++) {
+        $sums[$i-1] += $fields[$i];
+      }
+    }
+    
+  }
+  if ($sums[0]/$sums[-1] > 1.1 or $sums[0]/$sums[-1] < 0.9) {
+    return 0;
+  }
+  return 1;
+}
+__END__
+
+=head1 NAME
+
+B<dadaist2-taxonomy-binning> - Normalize OTU table using the B<Rhea> protocol.
+The Rhea protocol (L<https://lagkouvardos.github.io/Rhea/>) is a complete
+set of scripts to analyse microbiome files. 
+
+This wrapper is part of the I<AutoRhea> script bundled with I<Dadaist2>. 
+If used, please, cite the Rhea paper (see below).
+
+=head1 AUTHORS
+
+Andrea Telatin and Rebecca Ansorge
+
+=head1 USAGE
+
+  dadaist2-taxonomy-binning -i TABLE -o OUTDIR 
+
+=over 4
+
+=item I<-i>, I<--input-table> FILE
+
+Input OTU table, the B<normalized> and with B<taxonomy column>.
+The default name is C<OTUs_Table-norm-rel-tax.tab>.
+
+=item I<-o>, I<--output-outdir> DIR
+
+Output directory. 
+
+=back
+
+
+=head1 OUTPUT FILES
+
+=over 4
+
+=item I<0.Kingdom.all.tab>
+
+Relative abundances a the Kingdom level
+
+=item I<1.Phyla.all.tab>
+
+Relative abundances a the Phylum level
+
+=item I<2.Classes.all.tab>
+
+Relative abundances a the Class level
+
+=item I<3.Orders.all.tab>
+
+Relative abundances a the Order level
+
+=item I<4.Families.all.tab>
+
+Relative abundances a the Family level
+
+=item I<5.Genera.all.tab>
+
+Relative abundances a the Genus level
+
+=item I<tax.summary.all.tab>
+
+Summary table (all ranks)
+
+=item I<taxonomic-overview.pdf>
+
+Stacked bar plots in PDF format
+
+=back
+
+=head1 CITATION
+
+If you use B<Rhea> in your work please cite/attribute the original publication:
+
+  Lagkouvardos I, Fischer S, Kumar N, Clavel T. (2017) 
+  Rhea: a transparent and modular R pipeline for microbial profiling based on 16S rRNA gene amplicons. 
+  PeerJ 5:e2836 https://doi.org/10.7717/peerj.2836
+ 
+=head1 SOURCE CODE AND DOCUMENTATION
+
+This wrapper is part of B<Dadaist2> freely available at 
+L<https://quadram-institute-bioscience.github.io/dadaist2>
+released under the MIT licence. The website contains further DOCUMENTATION.

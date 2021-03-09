@@ -6,8 +6,7 @@ import numpy
 import pandas
 import argparse
  
-# Program defaults
-from typing import Any
+
 
 def denoiseTable(data, threshold_ratio = 0.1, min_low_samples = 3, min_sample_ratio = 0.15, min_otu_counts  = 1000, min_candidates  = 10, max_cross_index = 0.02):
     """
@@ -93,7 +92,8 @@ if __name__ == '__main__':
     opt_parser.add_argument('-i', '--input',
                             help='OTU table filename',
                             required=True)
-     opt_parser.add_argument('-o', '--output',
+ 
+    opt_parser.add_argument('-o', '--output',
                             help='Cleaned OTU table filename',
                             )
     opt_parser.add_argument('-v', '--verbose',
@@ -103,7 +103,7 @@ if __name__ == '__main__':
     opt_parser.add_argument('-d', '--debug',
                             help='Print debug information',
                             action='store_true')
-
+    opt_parser.add_argument('--version', action='version', version='%(prog)s 1.0')
 
 
     opt = opt_parser.parse_args()
@@ -116,7 +116,7 @@ if __name__ == '__main__':
         eprint("FATAL ERROR: Unable to open {}. {}".format(opt.input, e))
         exit(1)
 
-    if opt.reference != None:
+    if False:
         referenceTable = pandas.read_csv(opt.reference, sep='\t', header=0, index_col=0)
         x0 = numpy.array([0.1, 3, 0.15, 0.02])
         bounds = ([0, 2], [1.0, 6.0], [0.05, 0.3], [0.01, 0.05])

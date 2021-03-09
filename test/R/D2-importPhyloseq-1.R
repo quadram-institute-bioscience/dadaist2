@@ -82,5 +82,5 @@ if (exists("in_tree")) {
 } else {
   my_physeq = phyloseq(my_OTU, my_TAX, in_metad)
 }
-
+cat("Saving to: ", out.file, "\n")
 saveRDS(my_physeq,out.file)

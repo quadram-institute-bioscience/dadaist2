@@ -49,6 +49,13 @@ my $url_db = {
 		cite => 'Cole, J. R., Q. Wang, J. A. Fish, B. Chai, D. M. McGarrell, Y. Sun, C. T. Brown, A. Porras-Alfaro, C. R. Kuske, and J. M. Tiedje. 2014. Ribosomal Database Project: data and tools for high throughput rRNA analysis Nucl. Acids Res. 42(Database issue):D633-D642; doi: 10.1093/nar/gkt1244 ',
 		ver  => '16',
 	},
+	'dada2-unite' => {
+		desc => 'UNITE database for ITS',
+		url  => 'https://github.com/quadram-institute-bioscience/dadaist2/releases/download/v0.7.3/uniref.fa.gz',
+		md5  => 'ac09ed60363790ffbd2c0fa67f681107',
+		cite => 'Nilsson RH, Larsson K-H, Taylor AFS, Bengtsson-Palme J, Jeppesen TS, Schigel D, Kennedy P, Picard K, Glöckner FO, Tedersoo L, Saar I, Kõljalg U, Abarenkov K. 2018. The UNITE database for molecular identification of fungi: handling dark taxa and parallel taxonomic classifications. Nucleic Acids Research',
+		ver  => '2020'
+	},
 	#http://www2.decipher.codes/Downloads.html
 	'decipher-silva-138' => {
 		desc => 'SILVA release 138 (Decipher)',
@@ -62,7 +69,7 @@ my $url_db = {
 		url  => 'http://www2.decipher.codes/Classification/TrainingSets/UNITE_v2020_February2020.RData',
 		md5  => '72a18bf939bcd30bedf7a7edd2d907f1',
 		cite => 'Nilsson RH, Larsson K-H, Taylor AFS, Bengtsson-Palme J, Jeppesen TS, Schigel D, Kennedy P, Picard K, Glöckner FO, Tedersoo L, Saar I, Kõljalg U, Abarenkov K. 2018. The UNITE database for molecular identification of fungi: handling dark taxa and parallel taxonomic classifications. Nucleic Acids Research',
-		ver  => '2020'
+		ver  => '2020',
 	},
 	'decipher-gtdb95' => {
 		desc => 'GTDB',
@@ -95,6 +102,7 @@ GetOptions(
 	'version'        => \$opt_version,
 	'help'         => \$opt_help,
 );
+my $query = shift @ARGV;
 
 say STDERR color('magenta bold'), " DADAIST2 Database Downloader", color('reset');
 
@@ -114,7 +122,7 @@ validate_db($url_db);
 
 if ($opt_list) {
 	# LIST DATABASES
-	list_dbs($url_db);
+	list_dbs($url_db, $query);
 } elsif ($opt_db[0]) {
 	# DOWNLOAD DATABASES
 	$opt_output_dir //= $ENV{PWD};
@@ -138,9 +146,10 @@ if ($opt_list) {
 }
 
 sub list_dbs {
-	my $db = shift @_;
+	my( $db, $query )  = @_;
 	for my $record (sort keys %{ $db }) {
-		say STDERR color('bold'), $record, color('reset'), ": ${ $db }{ $record }{desc}";
+		say STDERR color('bold'), $record, color('reset'), ": ${ $db }{ $record }{desc}"
+		  if (not $query or ( $record =~/$query/i or ${ $db }{ $record }{desc} =~/$query/i ));
 	}
 }
 sub load_db_from_file {
@@ -186,8 +195,9 @@ Andrea Telatin <andrea.telatin@quadram.ac.uk>
 
 =head1 LIST AVAILABLE DATABASES
 
-  dadaist2-getdb --list
+  dadaist2-getdb --list [query]
 
+If a C<query> keyword is specified, only matching entries will be printed.
 
 =head1 DOWNLOAD A DATABASE
 
