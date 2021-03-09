@@ -11,7 +11,7 @@ getN <- function(x) sum(getUniques(x))
 args <- commandArgs(TRUE)
 if (length(args) < 1) {
   errQuit("No arguments provided - required: phyloseq rds object\n
-Usage: D2-04_abundance_plots.R phyloseq.rds [output_directory (optional)]")
+Usage: D2-AbundancesPhyloseq.R phyloseq.rds [output_directory (optional)]")
 } else if (length(args) == 1) {
   inp.phy     <- args[[1]]  # Input phyloseq rds object (filtered or unfiltered)
   out.dir     <- "./"  # output directory
