@@ -19,6 +19,7 @@ if(! (dir.exists(inp.dir) && dir.exists( ma.dir ))  ) {
 }
 
 library("phyloseq")
+library("ape")
 
 # Load OTUs
 in_otu = as.matrix(read.table(file.path(paste(ma.dir, 'table.csv', sep='')), header=TRUE, sep=",", row.names = 1, comment.char=""))
