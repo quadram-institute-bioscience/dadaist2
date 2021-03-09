@@ -1,7 +1,7 @@
 ---
-sort: 3
+sort: 2
 ---
-## dadaist2-alpha
+## dadaist2-U
 **dadaist2-normalize** - Normalize OTU table using the **Rhea** protocol.
 The Rhea protocol ([https://lagkouvardos.github.io/Rhea/](https://lagkouvardos.github.io/Rhea/)) is a complete
 set of scripts to analyse microbiome files. 
@@ -17,25 +17,44 @@ Andrea Telatin and Rebecca Ansorge
 
 - _-i_, _--input-table_ FILE
 
-    Input file, the **normalized** OTU table
+    Input file in in PhyloSeq object (R Object)
 
 - _-o_, _--output-outdir_ DIR
 
     Output directory
 
-- _-e_, _--effective-richness_ FLOAT
+- _-r_, _--random-subsampling_
 
-    Effective richness (default: 0.0025)
+    Use random subsampling (default: off)
 
-- _-s_, _--standard-richness_ INT
+- _-f_, _fixed-value_
 
-    Standard richness (default: 1000)
+    Normalized using a fixed value (default: minimum)
+
+- _-c_, _--cutoff_ INT
+
+    Normalization cutoff (if _--fixed-value_ is used)
+
+- _-n_, _--n-labels_ INT
+
+    Highlight the INT  most undersampled samples
 
 ## Output files
-- _alpha-diversity.tab_
+- _OTUs\_Table-norm.tab_
 
-    Table with: Richness, Shannon.Index, Shannon.Effective, Simpson.Index, Simpson.Effective, and Evenness
-    for each sample
+    Normalized OTU table
+
+- _OTUs\_Table-norm-rel.tab_
+
+    Normalized OTU table, with relative abundances
+
+- _OTUs\_Table-norm-tax.tab_
+
+    Normalized OTU table annotated with taxonomy labels
+
+- _OTUs\_Table-norm-rel-tax.tab_
+
+    Normalized OTU table, with relative abundances, annotated with taxonomy labels
 
 ## Citation
 If you use **Rhea** in your work please cite/attribute the original publication:
@@ -49,3 +68,14 @@ If you use **Rhea** in your work please cite/attribute the original publication:
 This wrapper is part of **Dadaist2** freely available at 
 [https://quadram-institute-bioscience.github.io/dadaist2](https://quadram-institute-bioscience.github.io/dadaist2)
 released under the MIT licence. The website contains further DOCUMENTATION.
+
+## Pod errors
+Hey! **The above document had some coding errors, which are explained below:**
+
+- Around line 132:
+
+    '=item' outside of any '=over'
+
+- Around line 148:
+
+    You forgot a '=back' before '=head1'

@@ -1,5 +1,5 @@
 ---
-sort: 4
+sort: 5
 ---
 ## dadaist2-exporter
 **dadaist2-exporter** - tool to export dadaist2 output into MicrobiomeAnalyst
@@ -22,6 +22,14 @@ dadaist2-exporter \[options\] -i INPUT\_DIR
 
     Output directory, by default will be a subdirectory called `MicrobiomeAnalyst`
     inside the input directory.
+
+- _--skip-rhea_
+
+    Do not create the **Rhea** subdirectory and its files.
+
+- _--skip-ma_
+
+    Do not create the **MicrobiomeAnalyst** subdirectory and its files.
 
 - _--version_
 
