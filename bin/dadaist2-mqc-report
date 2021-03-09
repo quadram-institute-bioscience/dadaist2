@@ -1,0 +1,48 @@
+#!/usr/bin/env python3
+
+import argparse
+import pandas
+
+# read taxonomy
+def load_taxa(path):
+	with open(path, 'rt') as f:
+		header = f.readline()
+		sep = '\t' if '\t' in header else ' '
+		columns = header.split(sep)
+		return pandas.read_csv(f, sep=sep, index_col=0, names=['ROW'] + columns, quotechar='"', dtype=str)
+
+def get_taxa_slice(tax_df, i, j=None):
+	start, stop = (0, i) if j is None else (i, j)
+	assert start < stop
+	return tax_df.fillna('NA').apply(lambda r: '-'.join(r[start:stop]), raw=True, axis=1)
+
+if __name__ == '__main__':
+	parser = argparse.ArgumentParser(description='Produce multiqc report')
+	parser.add_argument('-i', '--input-dir', required=True)
+	parser.add_argument('-t', '--toptaxa', type=int, default=3)
+	#parser.add_argument('--output', type=int, required=True)
+	args = parser.parse_args()
+
+	feat_df = pandas.read_csv(args.input_dir + '/feature-table.tsv', sep='\t', index_col=0)
+
+	tax_df = load_taxa(args.input_dir + '/taxonomy.txt')
+	assert len(tax_df) == len(feat_df)
+	tax_df.index = feat_df.index
+
+	max_taxa=5
+	tax_df['FULL_TAXA'] = get_taxa_slice(tax_df, args.toptaxa)
+	for start in range(args.toptaxa, 0, -1):
+		tax_df['SHORT_TAXA'] = get_taxa_slice(tax_df, start - 1, args.toptaxa)
+		short2full = tax_df.groupby('SHORT_TAXA')['FULL_TAXA'].agg(set)
+		if all(short2full.str.len() == 1):
+			break
+	feat_df['TAXA'] = tax_df['SHORT_TAXA']
+	feat_by_taxa_df = feat_df.groupby('TAXA').sum()
+	main_taxa = feat_by_taxa_df.sum(axis=1).sort_values(ascending=False).index
+	if len(main_taxa) > max_taxa:
+		feat_df.loc[feat_df['TAXA'].isin(main_taxa[max_taxa - 1:]), 'TAXA'] = 'OTHER'
+		main_taxa = main_taxa[:max_taxa - 1].tolist() + ['OTHER']
+	feat_by_taxa_df = feat_df.groupby('TAXA').sum().loc[main_taxa]
+
+	feat_by_taxa_df.T.to_csv('giovanni_mqc.tsv', sep='\t')
+
