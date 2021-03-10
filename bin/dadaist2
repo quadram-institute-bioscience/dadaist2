@@ -2,7 +2,7 @@
 #ABSTRACT: A program to run DADA2 from the CLI
 use 5.012;
 use warnings;
-my $VERSION          = '0.7.4';
+my $VERSION          = '0.7.5';
 BEGIN { 
 		our $START_TIME = time(); 
 		my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst)=localtime(time);
@@ -478,7 +478,7 @@ for my $sample (sort keys %{ $files_hash } ) {
 		my $for_rc = iupac_rc($primer_for);
 
 		$filt_cmd = qq(cutadapt -a "$primer_for...$rev_rc" -A "$primer_rev...$for_rc" ).
-		qq(--discard-untrimmed -o "$temp_dir"/for/${sample}_R1.fastq.gz -p $temp_dir"/rev/${sample}_R2.fastq.gz "$$files_hash{$sample}{for}" "$$files_hash{$sample}{rev}");
+		qq(--discard-untrimmed -o "$temp_dir"/for/${sample}_R1.fastq.gz -p "$temp_dir"/rev/${sample}_R2.fastq.gz "$$files_hash{$sample}{for}" "$$files_hash{$sample}{rev}");
 
 		my $cutadapt = $S->run($filt_cmd, { candie => 1});
 		if ($cutadapt->{exit} != 0) {
