@@ -1,0 +1,60 @@
+#!/usr/bin/env python3
+
+import argparse
+import pandas
+
+# read taxonomy
+def load_taxa(path):
+	with open(path, 'rt') as f:
+		header = f.readline()
+		sep = '\t' if '\t' in header else ' '
+		columns = header.split(sep)
+		return pandas.read_csv(f, sep=sep, index_col=0, names=['ROW'] + columns, quotechar='"', dtype=str)
+
+def get_taxa_slice(tax_df, i, j=None):
+	start, stop = (0, i) if j is None else (i, j)
+	assert start < stop
+	return tax_df.fillna('NA').apply(lambda r: '-'.join(r[start:stop]), raw=True, axis=1)
+
+if __name__ == '__main__':
+	parser = argparse.ArgumentParser(description='Produce multiqc report')
+	parser.add_argument('-i', '--input-dir', required=True)
+	parser.add_argument('-t', '--toptaxa', type=int, default=10)
+	parser.add_argument('-l', '--level', type=int, default=3)
+	parser.add_argument('-o', '--output', required=True)
+	args = parser.parse_args()
+
+	feat_df = pandas.read_csv(args.input_dir + '/feature-table.tsv', sep='\t', index_col=0)
+	samples = feat_df.columns
+
+	tax_df = load_taxa(args.input_dir + '/taxonomy.txt')
+	assert len(tax_df) == len(feat_df)
+	tax_df.index = feat_df.index
+
+	max_groups = args.toptaxa + 1
+	tax_df['FULL_TAXA'] = get_taxa_slice(tax_df, args.level)
+	for start in range(args.level, 0, -1):
+		tax_df['SHORT_TAXA'] = get_taxa_slice(tax_df, start - 1, args.level)
+		short2full = tax_df.groupby('SHORT_TAXA')['FULL_TAXA'].agg(set)
+		if all(short2full.str.len() == 1):
+			break
+	feat_df['TAXA'] = tax_df['SHORT_TAXA']
+	feat_by_taxa_df = feat_df.groupby('TAXA').sum()
+	main_taxa = feat_by_taxa_df.sum(axis=1).sort_values(ascending=False).index
+	if len(main_taxa) > max_groups:
+		feat_df.loc[feat_df['TAXA'].isin(main_taxa[max_groups - 1:]), 'TAXA'] = 'OTHER'
+		main_taxa = main_taxa[:max_groups - 1].tolist() + ['OTHER']
+	feat_by_taxa_df = feat_df.groupby('TAXA').sum().loc[main_taxa]
+
+	# OUTPUT
+	feat_by_taxa_df.T.to_csv(args.output + 'gcounts_mqc.tsv', sep='\t')
+
+	if False:
+		# prova matrice similarita'
+		del feat_df['TAXA']
+		import numpy
+		numpy.log(feat_df[samples] + 100)
+		norm_feat_df = numpy.log(feat_df[samples] + 100) # 100 
+		#.std(axis=1).corr(feat_df[samples].sum(axis=1))
+		feat_df.T.to_csv('giovanni_corr_mqc.tsv', sep='\t')
+
