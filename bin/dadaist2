@@ -2,7 +2,7 @@
 #ABSTRACT: A program to run DADA2 from the CLI
 use 5.012;
 use warnings;
-my $VERSION          = '0.7.4';
+my $VERSION          = '0.7.5';
 BEGIN { 
 		our $START_TIME = time(); 
 		my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst)=localtime(time);
@@ -363,11 +363,12 @@ if ($opt_crosstalk ) {
 }
 # Check taxonomy database
 if ($opt_tax_db ne 'skip') {
+	$dependencies{'assign-taxonomy'} = "$RealBin/dadaist2-assigntax --version";
 	if ($opt_tax_db =~/RData$/i ) {
 		$chooser->{'database'} = 'decipher';
  		# This is a Decipher database
 		$dependencies{'DECIPHER'} = 'echo "library(DECIPHER)" | R --no-save > /dev/null';
-		$dependencies{'DECIPHER-Run'} = "$RealBin/dadaist2-assigntax --version";
+		
 		$decipher_db = $opt_tax_db;
 		$opt_tax_db = 'skip';
 		$S->verbose("DECIPHER Taxonomy database found: $decipher_db");
@@ -408,6 +409,10 @@ check_required_binaries(\%dependencies);
 # Metadata?
 my $meta_samples;
 if ($opt_metadata) {
+	if (not -e "$opt_metadata") {
+		$S->verbose("Metadata file (-m) not found: $opt_metadata");
+		die "ERROR: Metadata file not found: $opt_metadata\n";
+	}
   $meta_samples = check_metadata($opt_metadata);
   copy($opt_metadata,
 		 File::Spec->catfile($opt_output_directory,'metadata.tsv')) || die " ERROR:\n Unable to copy metadù file to $opt_output_directory.\n";
@@ -473,10 +478,10 @@ for my $sample (sort keys %{ $files_hash } ) {
 		my $for_rc = iupac_rc($primer_for);
 
 		$filt_cmd = qq(cutadapt -a "$primer_for...$rev_rc" -A "$primer_rev...$for_rc" ).
-		qq(--discard-untrimmed -o "$temp_dir"/for/${sample}_R1.fastq.gz -p $temp_dir"/rev/${sample}_R2.fastq.gz "$$files_hash{$sample}{for}" "$$files_hash{$sample}{rev}");
+		qq(--discard-untrimmed -o "$temp_dir"/for/${sample}_R1.fastq.gz -p "$temp_dir"/rev/${sample}_R2.fastq.gz "$$files_hash{$sample}{for}" "$$files_hash{$sample}{rev}");
 
 		my $cutadapt = $S->run($filt_cmd, { candie => 1});
-		if ($cutadapt->{exitstatus} != 0) {
+		if ($cutadapt->{exit} != 0) {
 			$S->verbose("Cutadapt error: ", $cutadapt->{stdout}, "\n", $cutadapt->{stderr});
 			die;
 		}
@@ -554,6 +559,7 @@ for my $sample (sort keys %{ $files_hash } ) {
 		if (not $fastp_qc_pass) {
 			$S->verbose("Sample failed QC: " . $sample);
 			push(@failed_samples, $sample);
+			#TODO
 		}
 	 
 
@@ -1072,8 +1078,12 @@ sub get_file_reads {
 	my $counter_rev = 0;
 	for my $file (sort @files) {
 		next if (substr($file, 0, 1) eq '.');
+		next if ($file !~/\.(fastq|fq)/i);
 		my ($id) = split /$opt_id_separator/, basename($file);
 
+		if ($id=~/^\d/) {
+			$S->verbose("Warning: Sample id ($id) starting with a digit can introduce discrepancies in R analyses.");
+		}
 		if ( $samples{$id}{'for'} and $samples{$id}{'rev'} ) {
 			$S->verbose("Error: Sample ID <$id> was already found. The delimiter ($opt_id_separator) is probably contained in the filename ID.");
 			die "FATAL ERROR: Duplicateed SampleID <$id> in file $file.\n";

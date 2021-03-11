@@ -16,3 +16,6 @@ Sample2_R2.fq.gz
 refs/*.RData
 data/mock*
 otusfocus
+data/16S-filt/
+multiqc
+Rhea
