@@ -15,10 +15,16 @@ What makes Dadaist an interesting alternative to other suites is the focus on re
 
 <img src="img/flow.png">
 
-## Long amplicons workflow
+## Mitigation of Cross-talk noise
+
+Using [dadaist2-crosstalk]({{ '/pages/dadaist2-crosstalk.html' | relative_url }}) it is possible to reduce
+the noise introduced by the spillover of reads from one sample to another sample in the same sequencing lane,
+using the [_UNCROSS2_ algorithm](https://www.biorxiv.org/content/10.1101/400762v1.full).
+
+## Long targets workflow
 
 A custom DADA2 workflow that does not rely on read merging to identify molecular species
-longer than the sequencing reads length.
+longer than the sequencing reads length. See some [ITS notes]({{ '/notes/2_ITS.html' | relative_url }}).
 
 ## Advanced logs and notifications
 
@@ -26,7 +32,7 @@ Dadaist2 is both a collection of tools (to create your own pipeline, for example
 pipeline designed to be easy to run from a local computer. 
 
 
-<img src="img/popup.png">
+![popup](img/popup.png)
 
 * Colored terminal output to follow the progress of the pipeline
 * Optional notification popups to follow the progress of the major steps while doing something else
