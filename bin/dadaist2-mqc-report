@@ -3,6 +3,21 @@
 import argparse
 import pandas
 
+
+def read_fasta(path):
+	import gzip
+	name = None
+	with (gzip.open if path.endswith('.gz') else open)(path, 'rt') as fasta:
+		for line in fasta:
+			if line.startswith('>'):
+				if name is not None:
+					yield name, seq
+				name = line[1:].rstrip()
+				seq = ''
+			else:
+				seq += line.rstrip()
+	yield name, seq
+
 # read taxonomy
 def load_taxa(path):
 	with open(path, 'rt') as f:
@@ -47,7 +62,32 @@ if __name__ == '__main__':
 	feat_by_taxa_df = feat_df.groupby('TAXA').sum().loc[main_taxa]
 
 	# OUTPUT
-	feat_by_taxa_df.T.to_csv(args.output + 'gcounts_mqc.tsv', sep='\t')
+	feat_by_taxa_df.T.to_csv(args.output + '_taxacounts_mqc.tsv', sep='\t')
+
+	# FASTA REPORT
+	max_seqs = 3
+	top_feats = feat_df.sum(axis=1).sort_values(ascending=False)
+	top_feats_unassigned = top_feats.index[feat_df.loc[top_feats.index, 'TAXA'].str.endswith('NA')][:max_seqs]
+	top_feats_assigned = top_feats.index.difference(top_feats_unassigned)[:max_seqs]
+	top_feats_union = top_feats_assigned.union(top_feats_unassigned)
+	seqs = {name: seq for name, seq in read_fasta(args.input_dir + '/rep-seqs.fasta') if name in top_feats_union}
+	with open(args.output + '_seqs_mqc.html', 'wt') as f:
+		def feat2html(feat):
+			print('<li>{name} ({tot}, {ratio:.1%})<div style="background-color: light-gray; width: 80em;">{seq}</div></li>'.format(name=feat, seq=seqs[feat], tot=top_feats.at[feat], ratio=top_feats.at[feat]/top_feats.sum()), file=f)
+
+		print('<h2>Most common OTUs</h2>', file=f)
+		print('<ul>', file=f)
+		for feat in top_feats_assigned:
+			feat2html(feat)
+		print('</ul>', file=f)
+
+		print('<h2>Most common unassigned OTUs</h2>', file=f)
+		print('<ul>', file=f)
+		for feat in top_feats_unassigned:
+			feat2html(feat)
+		print('</ul>', file=f)
+			
+		
 
 	if False:
 		# prova matrice similarita'
