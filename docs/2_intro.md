@@ -13,6 +13,12 @@ algorithm for reads denoising.
 
 What makes Dadaist an interesting alternative to other suites is the focus on reproducible downstream analyses (thanks to the automatic generation of a PhyloSeq object and the preparation of files ready to be analysed with MicrobiomeAnalyst or Rhea)
 
+* Generation of a [*PhyloSeq*](https://joey711.github.io/phyloseq/) object, for immediate usage in R
+* Possibility to run in the pipeline a _custom R script_ that starts from the PhyloSeq object
+* Generation of [*MicrobiomeAnalyst*](https://www.microbiomeanalyst.ca)-compatible files. MicrobiomeAnalyst provides a _web-interface_ to perform a broad range of visualizations and analyses.
+* Generation of [*Rhea*](https://lagkouvardos.github.io/Rhea/)-compatible files. Rhea is a standardized set of scripts "_designed to help easy implementation by users_".
+
+
 <img src="img/flow.png">
 
 ## Mitigation of Cross-talk noise

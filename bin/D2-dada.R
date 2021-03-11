@@ -241,10 +241,10 @@ for(j in seq(length(filtsF))) {
   drpR <- derepFastq(filtsR[[j]])
   ddR <- dada(drpR, err=errR, multithread=multithread, verbose=FALSE)
   mergers[[j]] <- mergePairs(
-	ddF, drpF, 
-	ddR, drpR,
-	justConcatenate=paramConcat,
-	trimOverhang=TRUE)
+                ddF, drpF, 
+                ddR, drpR,
+                justConcatenate=paramConcat,
+                trimOverhang=TRUE)
   denoisedF[[j]] <- getN(ddF)
   cat(".")
 }
