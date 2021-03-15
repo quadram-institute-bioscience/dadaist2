@@ -18,7 +18,7 @@ set of representative sequences from a folder with Paired End Illumina reads.
 Dadaist2 is a highway to downstream analyses:
 * Generation of a [*PhyloSeq*](https://joey711.github.io/phyloseq/) object, for immediate usage in R
 * Possibility to run in the pipeline a _custom R script_ that starts from the PhyloSeq object
-* Generation of [*MicrobiomeAnalyst*](https://www.microbiomeanalyst.ca)-compatible files. MicrobiomeAnalyst provides a web-interface to perform a broad range of visualizations and analyses.
+* Generation of [*MicrobiomeAnalyst*](https://www.microbiomeanalyst.ca)-compatible files. MicrobiomeAnalyst provides a web-interface to performgi a broad range of visualizations and analyses.
 * Generation of [*Rhea*](https://lagkouvardos.github.io/Rhea/)-compatible files. Rhea is a standardized set of scripts "_designed to help easy implementation by users_".
 
 In addition to this:

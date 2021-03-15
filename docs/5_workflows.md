@@ -7,7 +7,8 @@ permalink: /custom-workflows
 Dadaist2 has been released as a set of wrappers to allow implementing some of them
 in existing pipelines. 
 
-A minimal example is provided in the `nextflow/simple.nf` Nextflow script, where
+A minimal example is provided in the `nextflow/simple.nf` Nextflow script 
+([link](https://github.com/quadram-institute-bioscience/dadaist2/tree/master/nextflow)), where
 we delegate to Nextflow the parallelisation of the input reads trimming with `cutadapt`.
 
 ## Example
@@ -25,12 +26,14 @@ N E X T F L O W  ~  version 19.10.0
 Launching `simple.nf` [angry_celsius] - revision: 053df3283c
 Example pipeline
  =======================================
- taxonomy db  : ../refs/SILVA_SSU_r138_2019.RData
- reads        : ../data/16S/*_R{1,2}_001.fastq.gz
+ taxonomy db  : refs/SILVA_SSU_r138_2019.RData
+ reads        : data/16S/*_R{1,2}_001.fastq.gz
  outdir       : dadaist
 executor >  slurm (4)
-[40/e3e3b7] process > cutadapt (A02_S0_L001) [100%] 3 of 3 ✔
-[ef/5bbb6b] process > dada (1)               [  0%] 0 of 1
+[81/39e622] process > cutadapt (F99_S0_L001) [100%] 3 of 3, cached: 3 ✔
+[19/e589db] process > dada (1)               [100%] 1 of 1, cached: 1 ✔
+[5a/893a7d] process > phyloseq (1)           [100%] 1 of 1 ✔
+[ae/bd2ecb] process > normalize-alpha (1)    [100%] 1 of 1 ✔
 ```
 
 Note that `-with-singularity` makes use of our container that provides:
