@@ -3,12 +3,16 @@
 use 5.012;
 use warnings;
 my $VERSION          = '0.7.5';
+
 BEGIN { 
+		# Track starting time
+		our $EXIT_QUIET = 0;
 		our $START_TIME = time(); 
 		my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst)=localtime(time);
 		our $EXECUTION_TIMESTAMP = sprintf ( "%04d%02d%02d %02d:%02d:%02d",
                                    $year+1900,$mon+1,$mday,$hour,$min,$sec);
 }
+
 =pod
 
 =head1 NAME
@@ -29,6 +33,8 @@ Andrea Telatin <andrea.telatin@quadram.ac.uk>
 =cut
 
 # Minichangelog
+# 0.7.5  - Crosstalk
+# 0.7.3  - Bugfixes
 # 0.7.2  - No join
 # 0.7.0  - Decipher support
 # 0.6.0  - Phyloseq
@@ -38,8 +44,6 @@ Andrea Telatin <andrea.telatin@quadram.ac.uk>
 # 0.2.00 - Manual, save Rds, further analysis, taxonomy labels
 # 0.1.09 - Added autocalculated trimming [qualified_wnd/qualified_min_qual]
 # 0.1.07 - Added quality plot
-
-
 
 use Getopt::Long;
 use Data::Dumper;
@@ -67,17 +71,19 @@ addToTemplate($LOG_TEMPLATE, 'VERSION', $VERSION);
 addToTemplate($LOG_TEMPLATE, 'CPU_CORES', getCpu());
 addToTemplate($LOG_TEMPLATE, 'RAM_GB', getRamGb());
 addToTemplate($LOG_TEMPLATE, 'UNAME', getSysinfo());
+ 
+# Where to place the temporary directory
+my $opt_temp_dir     = File::Spec->tmpdir();
 
 my $opt_verbose      = 1;
 my $opt_quiet        = 0;
 my $opt_debug        = 0;
 my $opt_metadata     = undef;
-my $opt_id_separator = '_';
-my $opt_for_tag      = '_R1';
-my $opt_rev_tag      = '_R2';
-my $opt_seq_prefix   = 'ASV';
-my $opt_temp_dir     = File::Spec->tmpdir();
-my $opt_threads      = 2;
+my $opt_id_separator = '_';		# [SampleName]_S01_L001_R1_001...
+my $opt_for_tag      = '_R1'; # Tag for R1
+my $opt_rev_tag      = '_R2'; # Tag for R2
+my $opt_seq_prefix   = 'ASV'; # Name for FASTA sequences (MD5 to use seq hash)
+my $opt_threads      = num_cpu();			# Default threads = max threads else user input (-t)
 my $opt_tax_db       = "skip";
 my $decipher_db      = undef;
 my $opt_save_rds     = 0;
@@ -137,10 +143,11 @@ my %dependencies = (
   'exporter' => File::Spec->catfile($RealBin, 'dadaist2-exporter') . ' --version',
 );
 
+ 
 my $parsed = GetOptions(
  'i|input-directory=s'             => \$opt_input_directory,
  'o|output-directory=s'            => \$opt_output_directory,
- 'd|database=s'                    => \$opt_tax_db,
+ 'r|d|database=s'                  => \$opt_tax_db,
  'm|metadata=s'                    => \$opt_metadata,
  '1|for-tag=s'                     => \$opt_for_tag,
  '2|rev-tag=s'                     => \$opt_rev_tag,
@@ -149,7 +156,7 @@ my $parsed = GetOptions(
  't|threads=i'                     => \$opt_threads,
  'p|prefix=s'                      => \$opt_seq_prefix,
  'q|min-quality=f'                 => \$qualified_min_qual,
- 'r|save-rds'                      => \$opt_save_rds,
+ 'save-rds'                      => \$opt_save_rds,
  's1|trim-primer-for=i'            => \$fastp_trim_front1,
  's2|trim-primer-rev=i'            => \$fastp_trim_front2,
  'j|just-concat'                   => \$opt_justconcat,
@@ -241,7 +248,7 @@ Trim primer from R1 read specifying the number of bases. Similarly
 use C<-s2> (C<--trim-primer-rev>) to remove the front bases from the
 reverse pair (R2). Default: 20 bases each side.
 
-=item I<-r>, I<--save-rds>
+=item I<--save-rds>
 
 Save a copy of the RDS file (default: off)
 
@@ -273,6 +280,11 @@ will be used instead. Default is "ASV".
 
 Filename for the program log.
 
+=item I<--tmp-dir> DIR
+
+Where to place the temporary directory (default are system temp dir
+or C<$TMPDIR>).
+
 =item I<--popup>
 
 Display popup notifications (tested on MacOS and Ubuntu)
@@ -292,6 +304,7 @@ $opt_verbose = 1 if ($opt_debug);
 
 # Check essential parameters
 my $fastp_threads = $opt_threads > 8 ? 8 : $opt_threads;
+
 usage("Missing parameter(s): input directory (-i DIR).")  if (not defined $opt_input_directory);
 usage("Missing parameter(s): output directory (-o DIR).") if (not defined $opt_output_directory);
 
@@ -971,12 +984,13 @@ sub version {
 sub usage {
 	say STDERR<<END;
 USAGE:
- dadaist2 -i INPUT_DIR -o OUTPUT_DIR [-t TEMP_DIR]
+ dadaist2 [options] [-d DB] -i INPUT_DIR -o OUTPUT_DIR
 
  dadaist2 --help for full manual
 END
 
  if ($_[0]) {
+	our $EXIT_QUIET = 1;
  	say "ERROR: $_[0]";
  	exit 1;
  }
@@ -1014,7 +1028,11 @@ sub loadTaxonomyArray {
     if ($line =~/^\d+/) {
       my @fields = split / /, $line;
       shift(@fields);
-      push(@results, join(';', @fields));
+      #push(@results, join(';', @fields));
+			my $newstr = join(" ", @fields);
+			while ($newstr =~/(".*?"|\S+)/g) {
+				push(@results, $1)
+			}
     }
   }
 	
@@ -1324,12 +1342,14 @@ END {
 		addToTemplate($LOG_TEMPLATE, 'EXECUTION_TIMESTAMP', our $EXECUTION_TIMESTAMP);
 		my $html_log = makeTemplate($TEMPLATE, $LOG_TEMPLATE);
 
-		if (defined $opt_output_directory) {
+		if (defined $opt_output_directory and defined $html_log) {
 			open (my $O, '>', "$opt_output_directory/dadaist2.html");
 			print {$O} $html_log;
 			close $O;
 		}
-		say STDERR "Dadaist2 execution finished (", formatsec($run_time),")";
+		if (our $EXIT_QUIET == 0) {
+			say STDERR "Dadaist2 execution finished (", formatsec($run_time),")";
+		}
 }
 
 sub formatsec { 
