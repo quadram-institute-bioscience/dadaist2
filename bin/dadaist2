@@ -1026,13 +1026,15 @@ sub loadTaxonomyArray {
     $c++;
     next if ($c == 1);
     if ($line =~/^\d+/) {
+			my @local = ();
       my @fields = split / /, $line;
       shift(@fields);
-      #push(@results, join(';', @fields));
+      
 			my $newstr = join(" ", @fields);
 			while ($newstr =~/(".*?"|\S+)/g) {
-				push(@results, $1)
+				push(@local, $1)
 			}
+			push(@results, join(';', @local));
     }
   }
 	
