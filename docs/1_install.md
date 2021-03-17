@@ -17,7 +17,7 @@ conda install -c bioconda dadaist2
 If you want to keep dadaist2 and its dependencies in a separate environment:
 
 ```
-conda create -n dadaist -c bioconda dadaist2
+conda create -n dadaist -c conda-forge -c bioconda dadaist2
 # Then type `conda activate dadaist` to use it
 ```
 
@@ -25,7 +25,7 @@ conda create -n dadaist -c bioconda dadaist2
 Our recommended procedure is to install _mamba_ first:
 ```
 conda install -c conda-forge -y mamba
-mamba create -n dadaist -c bioconda dadaist2
+mamba create -n dadaist  -c conda-forge  -c bioconda dadaist2
 ```
 
 ### Developmental snapshot
