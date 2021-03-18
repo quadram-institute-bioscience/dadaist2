@@ -915,7 +915,9 @@ my $msa_output  = File::Spec->catfile("$opt_output_directory", 'rep-seqs.msa');
 my $tree_output = File::Spec->catfile("$opt_output_directory", 'rep-seqs.tree');
 my $msa_cmd     = qq(clustalo -i "$repseq_file" -o "$msa_output" --outfmt=fasta --force);
 my $tree_cmd    = qq(fasttree -nt -gtr -no2nd -spr 4 -quiet "$msa_output" > "$tree_output");
-$S->verbose("Tree generation");
+
+# TREE
+$S->verbose("Multiple sequence alignment and tree generation");
 my $msa_exec    = $S->run($msa_cmd, { candie => 1 });
 my $tree_exec   = $S->run($tree_cmd , { candie => 1 });
 if ( $msa_exec->{'exit'} != 0 or $tree_exec->{'exit'} != 0) {
@@ -927,6 +929,7 @@ if ( $msa_exec->{'exit'} != 0 or $tree_exec->{'exit'} != 0) {
   $S->verbose("FastTree execution failed.\n cmd> $tree_cmd\noutput> $tree_exec->{stderr}\nstderr> $tree_exec->{stdout}");
 	exit 1;
 } else {
+	$S->verbose("Feature tree generated");
   $output_files{'multiple-alignment'} = $msa_output;
   $output_files{'features-tree'} = $tree_output;
 }
@@ -940,6 +943,7 @@ my $export_cmd = qq($RealBin/dadaist2-exporter -i "$opt_output_directory");
 my $exported = $S->run($export_cmd, { candie => 1});
 
 if ($exported->{'exit'} == 0) {
+	$S->verbose("Exporting MicrobiomeAnalyst");
   $output_files{'mba-files'} = File::Spec->catdir($opt_output_directory, 'MicrobiomeAnalyst');
 } else {
 	$S->verbose("MicrobiomeAnalyst not ready.");
@@ -953,6 +957,7 @@ my $ps_exec = $S->run($ps_cmd, {candie => 1});
 if ($ps_exec-{exit} != 0) {
 	$S->verbose("PhyloSeq file not generated: ", $ps_out);
 } else {
+	$S->verbose("Generating PhyloSeq object");
 	$output_files{'phyloseq'} = $ps_out;
 }
 # Print relevant output files produced
