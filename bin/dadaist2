@@ -950,11 +950,11 @@ if ($exported->{'exit'} == 0) {
 }
 
 # Generate phyloseq
-
 my $ps_out = File::Spec->catfile("$opt_R", 'phyloseq.rds');
 my $ps_cmd = qq($RealBin/dadaist2-phyloseqMake -i "$opt_output_directory" -o "$ps_out");
 my $ps_exec = $S->run($ps_cmd, {candie => 1});
-if ($ps_exec-{exit} != 0) {
+
+if ($ps_exec->{exit} != 0) {
 	$S->verbose("PhyloSeq file not generated: ", $ps_out);
 } else {
 	$S->verbose("Generating PhyloSeq object");
