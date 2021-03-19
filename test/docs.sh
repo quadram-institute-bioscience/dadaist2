@@ -23,7 +23,7 @@ then
        perl -ne  'if ($_=~/^#\s+(\S)(.+)/) {print "## ", $1,lc($2);} else {print "$_"} ' \
        > "$TEST_DIR"/../docs/pages/$basename.x
     mv  "$TEST_DIR"/../docs/pages/$basename.x "$TEST_DIR"/../docs/pages/$basename.md
-    sed -i ".bak" "s/Name/$basename/" "$TEST_DIR"/../docs/pages/$basename.md
+    sed -i.bak "s/Name/$basename/" "$TEST_DIR"/../docs/pages/$basename.md
     rm "$TEST_DIR/../docs/pages/$basename.md.bak"
   done
 else

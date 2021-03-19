@@ -960,9 +960,22 @@ if ($ps_exec->{exit} != 0) {
 	$S->verbose("Generating PhyloSeq object");
 	$output_files{'phyloseq'} = $ps_out;
 }
+
+
+# Experimental: Rhea
+my $Rhea_dir   = File::Spec->catdir($opt_output_directory, 'Rhea');
+my $Rhea_table = File::Spec->catfile($Rhea_dir, 'OTUs-Table.tab');
+my $Rhea_norm  = File::Spec->catfile($Rhea_dir, 'OTUs_Table-norm.tab');
+my $rhea_norm  = qq($RealBin/dadaist2-normalize -i "$Rhea_table" -o "$Rhea_dir");
+my $rhea_alpha = qq($RealBin/dadaist2-alpha -i "$Rhea_norm" -o "$Rhea_dir");
+my $RheaNormRun= $S->run($rhea_norm);
+my $RheaAlphaRun=$S->run($rhea_alpha);
+if ($RheaNormRun->{exit} == 0 and $RheaAlphaRun->{exit} == 0) {
+	$output_files{'rhea'} = $Rhea_dir;
+}
 # Print relevant output files produced
 my $output_message = "Dadaist finished, output files saved:\n";
-for my $f (keys %output_files) {
+for my $f (sort keys %output_files) {
   $output_message .= " * $f: " . $output_files{$f} . "\n";
 }
 $S->verbose($output_message);

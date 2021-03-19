@@ -73,7 +73,7 @@ Andrea Telatin <andrea.telatin@quadram.ac.uk>
     use `-s2` (`--trim-primer-rev`) to remove the front bases from the
     reverse pair (R2). Default: 20 bases each side.
 
-- _-r_, _--save-rds_
+- _--save-rds_
 
     Save a copy of the RDS file (default: off)
 
@@ -100,6 +100,11 @@ Andrea Telatin <andrea.telatin@quadram.ac.uk>
 - _-l_, _--log-file_ FILE
 
     Filename for the program log.
+
+- _--tmp-dir_ DIR
+
+    Where to place the temporary directory (default are system temp dir
+    or `$TMPDIR`).
 
 - _--popup_
 

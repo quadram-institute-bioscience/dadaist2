@@ -23,3 +23,7 @@ q2temp
 test/py/
 test/pydaist/
 Rhea
+GTDB_bac*
+RefSeq_16S_6-11*
+hitdb_v*
+rdp_species_assign*

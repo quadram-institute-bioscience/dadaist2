@@ -5,13 +5,13 @@
 use 5.012;
 use warnings;
 use Pod::Usage;
-my $VERSION = "1.0.5";
+my $VERSION = "1.3.0";
 
 my $url_db = {
 	'testset' => {
 		desc => 'FASTQ input, Small 16S dataset to test the suite',
 		url  => 'https://github.com/quadram-institute-bioscience/dadaist2/releases/download/v0.1.04/data.zip',
-		md5  => '',
+		md5  => 'd0afeec85f0d36c9f28e09372b868d42',
 		ver  => '1.0',
 	},
 	'dada2-hitdb' => {
@@ -49,6 +49,27 @@ my $url_db = {
 		cite => 'Cole, J. R., Q. Wang, J. A. Fish, B. Chai, D. M. McGarrell, Y. Sun, C. T. Brown, A. Porras-Alfaro, C. R. Kuske, and J. M. Tiedje. 2014. Ribosomal Database Project: data and tools for high throughput rRNA analysis Nucl. Acids Res. 42(Database issue):D633-D642; doi: 10.1093/nar/gkt1244 ',
 		ver  => '16',
 	},
+	'dada2-gtdb-2018' => {
+		desc => 'GTDB 20486 bacteria and 1073 archaea full 16S rRNA gene sequences. (20/11/2018)',
+		url  => 'https://zenodo.org/record/2541239/files/GTDB_bac-arc_ssu_r86.fa.gz?download=1',
+		md5  => '307c9d79fb7e167b696fad16f698eb57',
+		cite => 'Ali Alishum. (2019). DADA2 formatted 16S rRNA gene sequences for both bacteria & archaea (Version Version 1) [Data set]. Zenodo. http://doi.org/10.5281/zenodo.2541239',
+		ver  => '2018-11',
+	},
+	'dada2-gtdb-2020' => {
+		desc => 'GTDB 21965 bacteria and 1126 archaea full 16S rRNA gene sequences. (19/07/2020)',
+		url  => 'https://zenodo.org/record/4409439/files/GTDB_bac120_arc122_ssu_r95_Genus.fa.gz?download=1',
+		md5  => '2f8bc3fee2ccde9d94f0bbdcfd92e809',
+		cite => 'Ali Alishum. (2021). DADA2 formatted 16S rRNA gene sequences for both bacteria & archaea (Version Version 4.1) [Data set]. Zenodo. http://doi.org/10.5281/zenodo.4409439',
+		ver  => '2020-07',
+	},
+	'dada2-refseq-2020' => {
+		desc => 'RefSeq+RDP: This database contains 22433 bacterial, 1055 archaea and 99 eukaryotic full lengths16S  (19/07/2020)',
+		url  => 'https://zenodo.org/record/4409439/files/RefSeq_16S_6-11-20_RDPv16_Genus.fa.gz?download=1',
+		md5  => '53aac0449c41db387d78a3c17b06ad07',
+		cite => 'Ali Alishum. (2021). DADA2 formatted 16S rRNA gene sequences for both bacteria & archaea (Version Version 4.1) [Data set]. Zenodo. http://doi.org/10.5281/zenodo.4409439',
+		ver  => '2020-07',
+	},
 	'dada2-unite' => {
 		desc => 'UNITE database for ITS',
 		url  => 'https://github.com/quadram-institute-bioscience/dadaist2/releases/download/v0.7.3/uniref.fa.gz',
@@ -74,8 +95,8 @@ my $url_db = {
 	'decipher-gtdb95' => {
 		desc => 'GTDB',
 		url  => 'http://www2.decipher.codes/Classification/TrainingSets/GTDB_r95-mod_August2020.RData',
-		md5  => '',
-		cite => '',
+		md5  => '7d926cc5f95f3eca1bef31d54b0ed2b8',
+		cite => 'Chaumeil, P.-A, et al. (2019). "GTDB-Tk: a toolkit to classify genomes with the Genome Taxonomy Database." Bioinformatics,',
 		ver  => 'r95 (aug2020)'
 	}
 };
@@ -92,15 +113,16 @@ use FASTX::ScriptHelper;
 use JSON::PP;
 use File::Temp;
 
-my ($opt_urls_db, $opt_list, @opt_db, $opt_output_dir, $opt_help, $opt_version);
+my ($opt_query,$opt_urls_db, $opt_list, @opt_db, $opt_output_dir, $opt_help, $opt_version);
 
 GetOptions(
 	'u|url-db=s'     => \$opt_urls_db,
 	'l|list'         => \$opt_list,
+	'q|query=s'      => \$opt_query,
 	'd|database=s'   => \@opt_db,
 	'o|output-dir=s' => \$opt_output_dir,
 	'version'        => \$opt_version,
-	'help'         => \$opt_help,
+	'help'           => \$opt_help,
 );
 my $query = shift @ARGV;
 
@@ -110,32 +132,73 @@ $opt_version && version();
 $opt_help    && pod2usage({-exitval => 0, -verbose => 2});
 
 $url_db = $opt_urls_db ? load_db_from_file($opt_urls_db) : $url_db;
-
+my $log_filename = File::Temp->new(TEMPLATE => "dadaist2-downloader-XXXXXXX");
 my $S = FASTX::ScriptHelper->new({
 	verbose => 1,
-
+	logfile    => $log_filename,
 });
 
-
+my $curl = $S->run('curl --version');
+my $wget = $S->run('wget --version');
+my $downloader = 'curl';
+if ($curl->{exit} != 0) {
+	if ($wget->{exit} == 0) {
+		$downloader = 'wget';
+	} else {
+		say STDERR "ERROR:\n'curl' (or 'wget') are required, but none was found.\n";
+		exit(1);
+	}
+}
 validate_db($url_db);
 
 
 if ($opt_list) {
 	# LIST DATABASES
 	list_dbs($url_db, $query);
-} elsif ($opt_db[0]) {
+	exit(0);
+} 
+$opt_output_dir //= $ENV{PWD};
+
+
+if ($opt_query) {
+	# Pre-populate $opt_db
+	@opt_db =  grep {$_=~/$opt_query/} keys %{ $url_db };
+	say "Preparing to download ", scalar @opt_db, " databases.";
+}
+if ($opt_db[0]) {
 	# DOWNLOAD DATABASES
-	$opt_output_dir //= $ENV{PWD};
 	$S->run(qq(mkdir -p "$opt_output_dir"));
 	say STDERR " * Preparing to download to $opt_output_dir";
+	my $c = 0;
 	for my $id (sort  @opt_db) {
 		if (defined $url_db->{$id}) {
-			say STDERR " * Getting ", $url_db->{$id}->{desc};
+			$c++;
+			say STDERR " * $c/", scalar @opt_db, " Getting ", $url_db->{$id}->{desc};
 			#$S->download($url_db->{$id}->{url}, $opt_output_dir);
 			my $filename = basename($url_db->{$id}->{url});
 			($filename) = split /[\?]/, $filename;
-			my $download_cmd = qq(curl -o "$opt_output_dir/$filename" "$url_db->{$id}->{url}");
-			$S->run($download_cmd);
+			my $destination = File::Spec->filecat($opt_output_dir, $filename);
+			my $download_cmd = $downloader eq 'curl' ?
+				qq(curl -L --silent -o "$destination" "$url_db->{$id}->{url}") :
+				qq(wget --max-redirect 0 --quiet -O "$destination" "$url_db->{$id}->{url}"); 
+			my $get_log = $S->run($download_cmd);
+			if ($get_log->{exit} != 0) {
+				say STDERR color('red'), "ERROR:", color('reset');
+				say "Unable to download ", $id, ": process failed.\n";
+			} else {
+				my $md5sum = $^O eq 'darwin' ? 'md5' : 'md5sum';
+				my $md5_cmd = qq(cat "$destination" | $md5sum);
+				my $md5_out = $S->run($md5_cmd);
+				chomp($md5_out->{stdout});
+				if ( $url_db->{$id}->{'md5'} and ( $url_db->{$id}->{'md5'} ne $md5_out->{stdout}) ) {
+					say STDERR color('red'), 'ERROR:' , color('reset');
+					say STDERR "Database $id download failed (integrity): expecting ", $url_db->{$id}->{'md5'}, " but ", $md5_out->{stdout}, " found.";
+					say STDERR "\$", $get_log->{cmd};
+					unlink "$destination";
+				} else {
+					say STDERR color('bold'), $id, color('reset'), " downloaded.";
+				}
+			}
 		}
 
 	}
@@ -148,7 +211,8 @@ if ($opt_list) {
 sub list_dbs {
 	my( $db, $query )  = @_;
 	for my $record (sort keys %{ $db }) {
-		say STDERR color('bold'), $record, color('reset'), ": ${ $db }{ $record }{desc}"
+		say STDERR color('bold'), $record, color('reset'), ": ${ $db }{ $record }{desc} ", color('yellow'),  ${ $db }{ $record }{'ver'}, "\n",
+			color('cyan'), ${ $db }{ $record }{'cite'} // '', color('reset')
 		  if (not $query or ( $record =~/$query/i or ${ $db }{ $record }{desc} =~/$query/i ));
 	}
 }
@@ -183,6 +247,11 @@ sub usage {
 	exit;
 }
 
+sub version {
+	my $PROG = basename($0);
+	say "$PROG $VERSION";
+	exit;	
+}
 __END__
 
 =head1 NAME
@@ -199,16 +268,25 @@ Andrea Telatin <andrea.telatin@quadram.ac.uk>
 
 If a C<query> keyword is specified, only matching entries will be printed.
 
-=head1 DOWNLOAD A DATABASE
+=head1 DOWNLOAD ONE OR MORE DATABASES
 
   dadaist2-getdb -d DATABASE_NAME [-o OUTPUT_DIR]
+
+	dadaist2-getdb -d DB1 -d DB2 -d DB3 [-o OUTPUT_DIR]
+
+  dadaist2-getdb -q QUERY_STRING
 
 =over 4
 
 =item I<-d>, I<--database> ID
 
 Identifier of the database to be downloaded (list available database and their
-identifier name using C<dadaist2-getdb --list>).
+identifier name using C<dadaist2-getdb --list>). This parameter can be repeated
+multiple times to download multiple databases.
+
+=item I<-q>, I<--query> STRING
+
+Download all databases matching the query string ('.' for all)
 
 =item I<-o>, I<--output-dir> DIR
 

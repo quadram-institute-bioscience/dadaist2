@@ -52,7 +52,10 @@ $opt_help    && pod2usage({-exitval => 0, -verbose => 2});
 # Check parameters
 die "ERROR: Missing script $rhea_normalize_script.\n" unless (-e $rhea_normalize_script);
 die "Missing parameters. Use --help for full manual.\n" if (!$opt_input_table or !$opt_outdir); 
-die "ERROR: Input file not found: $opt_input_table\n" if  (not -e $opt_input_table or not -d $opt_outdir);
+die "ERROR: Input file not found: $opt_input_table\n" if  (not -e $opt_input_table);
+if (! -d $opt_outdir) {
+  mkdir "$opt_outdir" || die " FATAL ERROR: \n Unable to create $opt_outdir.\n";
+}
 die "ERROR: --n-labels INT (got $opt_labels)\n" if ($opt_labels !~/^\d+$/);
 die "ERROR: --cutoff INT (got $opt_cutoff)\n" if ($opt_cutoff !~/^\d+$/);
 
