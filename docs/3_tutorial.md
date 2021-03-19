@@ -73,7 +73,7 @@ This will place `SILVA_SSU_r138_2019.RData` in the output directory.
 A metadata file is not mandatory, but it's easy to generate one to be extended with more columns if needed.
 
 ```bash
-makeSampleSheet -i data/16S > metadata.tsv
+dadaist2-metadata -i data/16S > metadata.tsv
 ```
 This should generate a file called _metadata.tsv_ with the following content:
 ```text
