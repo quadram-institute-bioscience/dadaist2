@@ -19,7 +19,11 @@ Usage: D2-BetaDivPhyloseq.R phyloseq.rds [output_directory (optional)] [label/no
   inp.phy     <- args[[1]]  # Input phyloseq rds object (filtered or unfiltered)
   out.dir     <- "./"  # output directory
   lab.ord     <- "nolabel" # switch to label ordination points; default: no label
-} else {
+} else if (length(args) == 2) {
+  inp.phy     <- args[[1]]  # Input phyloseq rds object (filtered or unfiltered)
+  out.dir     <- args[[2]]  # output directory
+  lab.ord     <- "nolabel"  # switch to label ordination points
+}else {
   inp.phy     <- args[[1]]  # Input phyloseq rds object (filtered or unfiltered)
   out.dir     <- args[[2]]  # output directory
   lab.ord     <- args[[3]]  # switch to label ordination points
@@ -29,7 +33,7 @@ if (lab.ord == "label") {
   label.switch<-2.5
 } else {
   label.switch<-0
-  }
+}
 
 
 phy <- file.path(inp.phy)

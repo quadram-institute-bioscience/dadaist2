@@ -177,7 +177,7 @@ if ($opt_db[0]) {
 			#$S->download($url_db->{$id}->{url}, $opt_output_dir);
 			my $filename = basename($url_db->{$id}->{url});
 			($filename) = split /[\?]/, $filename;
-			my $destination = File::Spec->filecat($opt_output_dir, $filename);
+			my $destination = File::Spec->catfile($opt_output_dir, $filename);
 			my $download_cmd = $downloader eq 'curl' ?
 				qq(curl -L --silent -o "$destination" "$url_db->{$id}->{url}") :
 				qq(wget --max-redirect 0 --quiet -O "$destination" "$url_db->{$id}->{url}"); 
