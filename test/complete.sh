@@ -13,9 +13,9 @@ if [ ! -e "./refs/uniref.fa.gz" ];  then ./bin/dadaist2-getdb -d dada2-unitek -o
   
 
 if [ -d "$OUT/" ];then
-  rm -rf "$OUT/*"
+  rm -rf "$OUT"/*
 else
-  echo "Quitting: no output dir";  exit
+  echo "Quitting: no output dir: $OUT";  exit
 fi
 
 for DATASET in 16S ITS;

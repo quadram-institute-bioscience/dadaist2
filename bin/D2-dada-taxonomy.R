@@ -6,7 +6,7 @@
 suppressWarnings(suppressMessages(library("dada2")))
 args <- commandArgs(TRUE)
 
-if (length(args) != 3) {
+if (length(args) < 3) {
   stop("Arguments: inputList dbPath outputDir [Threads]\n")
 }
 inputList       <- args[[1]]

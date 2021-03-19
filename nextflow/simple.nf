@@ -1,6 +1,6 @@
 
 params.reads = "$baseDir/reads/*_R{1,2}*.fastq.gz"
-params.outdir = "dadaist"
+params.outdir = "dada-flow"
 params.singleEnd = false
 
 // FASTQ Merge: very conservative defaults
@@ -54,23 +54,57 @@ process cutadapt {
 
 process dada {
     label 'hiend'
+    publishDir params.outdir, mode: "copy"
 
     input:
     file input_files        from cutadapted_ch.collect()
     file "*"                from taxref_ch
+
     output:
-    file "dada"             into dadaist_ch
+    file "dadaist"           into dadaist_ch, rhea_ch
     
 
     script:
     """
-     
-    dadaist2 -i ./ -o dada -d *.gz *.RData -t ${task.cpu} 
+    REF=\$(basename ${params.ref})
+    dadaist2 -i ./ -o dadaist/ -d \$REF -t ${task.cpus} --crosstalk
 
     """
 }
 
+process phyloseq {
+    publishDir params.outdir, mode: "copy"
 
+    input:
+    file ('dir') from dadaist_ch
+
+    output:
+    file ('phyloseq.rds') into ps_ch
+
+    """
+    dadaist2-phyloseqMake -i dir/ -o ./
+    """
+}
+
+process rhea {
+    publishDir params.outdir, mode: "copy"
+
+    input:
+    file ('dir') from rhea_ch
+
+    output:
+    file ('rhea') into rhea_output_ch
+
+    script:
+    """
+    mkdir -p rhea
+    dadaist2-normalize -i dir/Rhea/OTUs-Table.tab  -o rhea/
+    dadaist2-alpha     -i rhea/OTUs_Table-norm.tab -o rhea/
+    dadaist2-taxonomy-binning -i rhea/OTUs_Table-norm-rel-tax.tab -o rhea/
+    """
+}
+
+ 
 //
 //head -n 1 otutab_raw.csv | sed 's/,/\n/g' | perl -ne 'chomp;print "$_,SampleType\n"'
 workflow.onComplete {
