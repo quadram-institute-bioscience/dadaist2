@@ -189,10 +189,13 @@ if ($opt_db[0]) {
 				my $md5sum = $^O eq 'darwin' ? 'md5' : 'md5sum';
 				my $md5_cmd = qq(cat "$destination" | $md5sum);
 				my $md5_out = $S->run($md5_cmd);
-				chomp($md5_out->{stdout});
-				if ( $url_db->{$id}->{'md5'} and ( $url_db->{$id}->{'md5'} ne $md5_out->{stdout}) ) {
+				my $md5_sum = '';
+				if ($md5_out->{stdout} =~/([a-z0-9]{32})/) {
+					$md5sum = $1;
+				}
+				if ( $url_db->{$id}->{'md5'} and ( $url_db->{$id}->{'md5'} ne $md5sum) ) {
 					say STDERR color('red'), 'ERROR:' , color('reset');
-					say STDERR "Database $id download failed (integrity): expecting ", $url_db->{$id}->{'md5'}, " but ", $md5_out->{stdout}, " found.";
+					say STDERR "Database $id download failed (integrity): expecting ", $url_db->{$id}->{'md5'}, " but ", $md5sum, " found.";
 					say STDERR "\$", $get_log->{cmd};
 					unlink "$destination";
 				} else {
