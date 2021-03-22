@@ -25,7 +25,7 @@ my (
 	$opt_inputfile,
 	$opt_outdir,
 	$opt_reference,
-	$opt_version, $opt_help, $opt_verbose, $opt_force, $opt_underscore
+	$opt_version, $opt_help, $opt_verbose, $opt_force, $opt_underscore, $opt_fasta
 );
 my $opt_method = 'DECIPHER';
 my $opt_confidence = 70;
@@ -38,6 +38,7 @@ GetOptions(
 	'o|outdir=s'     => \$opt_outdir,
 	'r|reference=s'  => \$opt_reference,
 	'c|confidence=f' => \$opt_confidence,
+	'f|fasta-out=s'  => \$opt_fasta,
 	't|threads=i'    => \$opt_threads,
 	'u|underscore-join'   => \$opt_underscore,
 	'version'        => \$opt_version,
@@ -203,7 +204,53 @@ if ( $opt_reference =~/RData$/i) {
 	die "ERROR: Reference not in RData/fasta.gz format: $opt_reference.\n";
 }
 
+# Save FASTA file
+
+if (defined $opt_fasta) {
+	
+	open (my $O, '>', "$opt_fasta") || die "ERROR:\nUnable to read $opt_fasta\n";
+	if (-e File::Spec->catfile("$opt_outdir", 'taxonomy.tsv') ) {
+		my @taxonomy = loadTaxonomyArray(File::Spec->catfile("$opt_outdir", 'taxonomy.tsv'));
+		my $R = FASTX::Reader->new({ filename => "$opt_inputfile"});
+		my $c = 0;
+		while (my $z = $R->getRead() ) {
+			say {$O} $z->{name}, "\t", @taxonomy[$c];
+			say {$O} $z->{seq};
+		}
+	}
+}
+
+# Remove log
 unlink "$log_filename";
+
+
+sub loadTaxonomyArray {
+  # load taxonomy from files
+  my $file = $_[0];
+  my @results = ();
+  return () if (! -e "$file");
+  open(my $I, '<', "$file") || return ();
+  my $c = 0;
+  while (my $line = readline($I)) {
+    chomp($line);
+    $c++;
+    next if ($c == 1);
+    if ($line =~/^\d+/) {
+			my @local = ();
+      my @fields = split / /, $line;
+      shift(@fields);
+      
+			my $newstr = join(" ", @fields);
+			while ($newstr =~/(".*?"|\S+)/g) {
+				push(@local, $1)
+			}
+			push(@results, join(';', @local));
+    }
+  }
+	
+  return @results;
+}
+
 
 sub quote_tax {
 	my $name = shift @_;
@@ -260,6 +307,10 @@ Input file in FASTA format (or in DADA2 table format)
 =item I<-o>, I<--outdir> DIR
 
 Output directory, or the current working directory if not specified.
+
+=item I<-f>, I<--fasta> FILE
+
+Save taxonomy assigned FASTA file.
 
 =item I<-r>, I<--reference> FILE
 

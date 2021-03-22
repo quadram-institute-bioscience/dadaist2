@@ -23,6 +23,10 @@ Andrea Telatin <andrea.telatin@quadram.ac.uk>
 
     Output directory, or the current working directory if not specified.
 
+- _-f_, _--fasta_ FILE
+
+    Save taxonomy assigned FASTA file.
+
 - _-r_, _--reference_ FILE
 
     RData file with the training set in DECIPHER format.

@@ -2,7 +2,7 @@
 #ABSTRACT: A program to run DADA2 from the CLI
 use 5.012;
 use warnings;
-my $VERSION          = '0.7.6';
+my $VERSION          = '0.7.7';
 
 BEGIN { 
 		# Track starting time
@@ -40,7 +40,7 @@ Andrea Telatin <andrea.telatin@quadram.ac.uk>
 # 0.6.0  - Phyloseq
 # 0.5.0  - support for MicrobiomeAnalyst (enabled by default)
 # 0.4.0  - Improved verbose mode, added quality parameter, added support to save RDS, added check for dada2 installed, expanded test set, added dadaist2-metadata
-# 0.3.00 - Added a reference database downloader (dadaist2-getdb)
+# fcheck.00 - Added a reference database downloader (dadaist2-getdb)
 # 0.2.00 - Manual, save Rds, further analysis, taxonomy labels
 # 0.1.09 - Added autocalculated trimming [qualified_wnd/qualified_min_qual]
 # 0.1.07 - Added quality plot
@@ -119,8 +119,8 @@ my $total_len_2      = 0;
 my $qualified_wnd    = 4;
 my $qualified_min_qual = 28;
 my $opt_no_trunc;
-my $opt_justconcat = 0;
-
+my $opt_justconcat   = 0;
+my $opt_maxloss      = 0.3;
 my @taxonomy = ();
 my $r1_len = 10_000;
 my $r2_len = 10_000;
@@ -156,10 +156,11 @@ my $parsed = GetOptions(
  't|threads=i'                     => \$opt_threads,
  'p|prefix=s'                      => \$opt_seq_prefix,
  'q|min-quality=f'                 => \$qualified_min_qual,
- 'save-rds'                      => \$opt_save_rds,
+ 'save-rds'                        => \$opt_save_rds,
  's1|trim-primer-for=i'            => \$fastp_trim_front1,
  's2|trim-primer-rev=i'            => \$fastp_trim_front2,
  'j|just-concat'                   => \$opt_justconcat,
+ 'max-loss=f'                      => \$opt_maxloss,
  'crosstalk'                       => \$opt_crosstalk,
  'primers=s'                       => \$opt_primers,
  'maxee1=f'                        => \$opt_maxee_1,
@@ -255,6 +256,11 @@ Save a copy of the RDS file (default: off)
 =item I<-1>, I<--for-tag> STRING [and I<-2>, I<--rev-tag>]
 
 String identifying the forward (and reverse) pairs. Default are _R1 and _R2.
+
+=item I<--max-loss> FLOAT
+
+After DADA2 run, check the amount of reads globally remaining from input
+to non-chimeric, abort if the ratio is below threshold (default: fcheck)
 
 =back
 
@@ -747,6 +753,7 @@ notify_message("DADA2 finished. Finalizing...");
 if ( $dada2_execution->{'exit'} != 0 ) {
   say STDERR color('red'), " *** ERROR *** " if ($opt_verbose);
 	$S->verbose("DADA2 Failed:\n> $dada2_execution->{stderr}\n> $dada2_execution->{stdout}");
+	$S->verbose("Input files: " . "${temp_dir}/{for,rev}");
 	exit 1;
 } else {
 	$S->verbose("DADA2 output:\n" . color('yellow') . $dada2_execution->{stdout} . color('reset')) if ($opt_debug);
@@ -758,6 +765,7 @@ if ( $dada2_execution->{'exit'} != 0 ) {
 
 copy(File::Spec->catfile($dada2_temp, 'stats.tsv'),
 	 File::Spec->catfile($opt_output_directory, 'dada2_stats.tsv')) || die " ERROR:\n Unable to copy stats.tsv file from $dada2_temp to $opt_output_directory.\n";
+
 
 if (! $opt_skip_plots ) {
 	copy(File::Spec->catfile("$temp_dir", 'quality_R1.pdf'),
@@ -837,6 +845,16 @@ if ($opt_crosstalk) {
 	}
 }
 
+## CHECK DADA2 DATA LOSS
+my $dada_failed = 0;
+my $data_loss = stats_check(File::Spec->catfile($dada2_temp, 'stats.tsv'), $opt_maxloss);
+if ($data_loss->{pass} == 0) {
+	say STDERR color('red'), "DADA2 ERROR:", color('reset');
+	$S->verbose("DADA2 filtered too many reads: " . $data_loss->{percentage} . "% from total " . $data_loss->{"reads_input"} . " to " . $data_loss->{"reads_non-chimeric"});
+	$dada_failed = 1;
+} else {
+	$S->verbose("DADA2 filtered " . $data_loss->{percentage} . "% from total " . $data_loss->{"reads_input"} . " to " . $data_loss->{"reads_non-chimeric"});
+}
 if ( defined $decipher_db ) {
 	# Generate 'taxonomy.tsv' using the DECIPHER database
 	
@@ -936,43 +954,51 @@ if ( $msa_exec->{'exit'} != 0 or $tree_exec->{'exit'} != 0) {
 
 
 
+if (not $dada_failed) {
+		# Export MicrobiomeAnalyst + Rhea
 
-# Export MicrobiomeAnalyst + Rhea
+		my $export_cmd = qq($RealBin/dadaist2-exporter -i "$opt_output_directory");
+		my $exported = $S->run($export_cmd, { candie => 1});
 
-my $export_cmd = qq($RealBin/dadaist2-exporter -i "$opt_output_directory");
-my $exported = $S->run($export_cmd, { candie => 1});
+		if ($exported->{'exit'} == 0) {
+			$S->verbose("Exporting MicrobiomeAnalyst");
+			$output_files{'mba-files'} = File::Spec->catdir($opt_output_directory, 'MicrobiomeAnalyst');
+		} else {
+			$S->verbose("MicrobiomeAnalyst not ready.");
+		}
 
-if ($exported->{'exit'} == 0) {
-	$S->verbose("Exporting MicrobiomeAnalyst");
-  $output_files{'mba-files'} = File::Spec->catdir($opt_output_directory, 'MicrobiomeAnalyst');
-} else {
-	$S->verbose("MicrobiomeAnalyst not ready.");
+		# Generate phyloseq
+		my $ps_out = File::Spec->catfile("$opt_R", 'phyloseq.rds');
+		my $ps_cmd = qq($RealBin/dadaist2-phyloseqMake -i "$opt_output_directory" -o "$ps_out");
+		my $ps_exec = $S->run($ps_cmd, {candie => 1});
+
+		if ($ps_exec->{exit} != 0) {
+			$S->verbose("PhyloSeq file not generated: " . $ps_out);
+			#if ($opt_debug) {
+				$S->verbose("Diagnostics: " . $ps_exec->{stdout} . "\n" . $ps_exec->{stderr});
+			#}
+		} else {
+			$S->verbose("Generating PhyloSeq object");
+			$output_files{'phyloseq'} = $ps_out;
+		}
+
+
+		# Experimental: Rhea
+		my $Rhea_dir   = File::Spec->catdir($opt_output_directory, 'Rhea');
+		my $Rhea_table = File::Spec->catfile($Rhea_dir, 'OTUs-Table.tab');
+		my $Rhea_norm  = File::Spec->catfile($Rhea_dir, 'OTUs_Table-norm.tab');
+		my $rhea_norm  = qq($RealBin/dadaist2-normalize -i "$Rhea_table" -o "$Rhea_dir");
+		my $rhea_alpha = qq($RealBin/dadaist2-alpha -i "$Rhea_norm" -o "$Rhea_dir");
+		my $RheaNormRun= $S->run($rhea_norm);
+		my $RheaAlphaRun=$S->run($rhea_alpha);
+		if ($RheaNormRun->{exit} == 0 and $RheaAlphaRun->{exit} == 0) {
+			$output_files{'rhea'} = $Rhea_dir;
+		} else {
+			$S->verbose("Rhea normalization/alpha script skipped.");
+		}
 }
 
-# Generate phyloseq
-my $ps_out = File::Spec->catfile("$opt_R", 'phyloseq.rds');
-my $ps_cmd = qq($RealBin/dadaist2-phyloseqMake -i "$opt_output_directory" -o "$ps_out");
-my $ps_exec = $S->run($ps_cmd, {candie => 1});
 
-if ($ps_exec->{exit} != 0) {
-	$S->verbose("PhyloSeq file not generated: ", $ps_out);
-} else {
-	$S->verbose("Generating PhyloSeq object");
-	$output_files{'phyloseq'} = $ps_out;
-}
-
-
-# Experimental: Rhea
-my $Rhea_dir   = File::Spec->catdir($opt_output_directory, 'Rhea');
-my $Rhea_table = File::Spec->catfile($Rhea_dir, 'OTUs-Table.tab');
-my $Rhea_norm  = File::Spec->catfile($Rhea_dir, 'OTUs_Table-norm.tab');
-my $rhea_norm  = qq($RealBin/dadaist2-normalize -i "$Rhea_table" -o "$Rhea_dir");
-my $rhea_alpha = qq($RealBin/dadaist2-alpha -i "$Rhea_norm" -o "$Rhea_dir");
-my $RheaNormRun= $S->run($rhea_norm);
-my $RheaAlphaRun=$S->run($rhea_alpha);
-if ($RheaNormRun->{exit} == 0 and $RheaAlphaRun->{exit} == 0) {
-	$output_files{'rhea'} = $Rhea_dir;
-}
 # Print relevant output files produced
 my $output_message = "Dadaist finished, output files saved:\n";
 for my $f (sort keys %output_files) {
@@ -985,6 +1011,7 @@ if (notify_message("Dadaist2 finished.")) {
 }
 
 # Delete, or not, temp dir
+our $EXIT_QUIET = 1;
 if ($opt_debug) {
   $S->verbose("Temporary directory _not_ deleted: $temp_dir");
 } else {
@@ -1182,6 +1209,62 @@ sub valid_gzipped_fasta {
 
 	exit;
 }
+
+
+sub stats_check {
+  my ($file, $maxloss) = @_;
+  my $data;
+  my @labels = ('input'  ,'filtered'  ,'denoised'  ,'merged'  ,'non-chimeric');
+  my $I;
+  if (not open ( $I, '<', $file) ) {
+    $data->{pass} = 0;
+    $data->{label} = 'fileNotFound';
+  }
+  my $c = 0;
+  my %counts = ();
+  my %loss   = (); 
+  
+  $data->{pass} = 1;
+  $data->{step} = '';
+
+  # Parse DADA2 stats
+  while (my $line = readline($I)) {
+    chomp($line);
+    $c++;
+    my @fields = split /\t/, $line;
+    if ($c == 1) {  
+      #x,input,filtered,denoised,merged,non-chimeric
+      return 0 if ($fields[1] ne 'input' and $fields[4] ne 'merged');
+    } else {
+      my $sample = shift @fields;
+
+      for my $label (@labels) {
+        $counts{$label} += shift @fields;
+      }
+    }
+  }
+
+  # Check at each step the data loss
+  for my $label (@labels) {
+    $loss{$label} += $counts{$label} / $counts{'input'} if ($counts{'input'});
+    if ($loss{$label} < $maxloss) {
+      $data->{pass} = 0;
+      $data->{step} = $label;
+      $data->{percentage} = sprintf("%.4f", 100 * $counts{$label} / $counts{'input'});
+    } 
+    $data->{"reads_$label"} = $counts{$label};
+  }
+
+  # Set data loss if pass
+  if ($data->{pass} == 1) {
+    $data->{step} = 'non-chimeric';
+    $data->{percentage} = sprintf("%.4f", 100 * $counts{$data->{step}} / $counts{'input'}) if ($counts{'input'});
+  }
+
+  
+  return $data;
+}
+
 sub check_required_binaries {
 
 	for my $bin (sort keys  %{ $_[0]} ) {
@@ -1523,7 +1606,7 @@ tr:nth-child(odd) {
 .cell-row:before,.cell-row:after,.clear:after,.clear:before,.bar:before,.bar:after{content:"";display:table;clear:both}
 .cell-row:before,.cell-row:after,.clear:after,.clear:before,.bar:before,.bar:after{content:"";display:table;clear:both} 
 .container:after,.container:before,.panel:after,.panel:before,.row:after,.row:before,.row-padding:after,.row-padding:before,
-.disabled,.btn:disabled,.button:disabled{cursor:not-allowed;opacity:0.3}.disabled *,:disabled *{pointer-events:none}
+.disabled,.btn:disabled,.button:disabled{cursor:not-allowed;opacity:fcheck}.disabled *,:disabled *{pointer-events:none}
 .display-topleft{position:absolute;left:0;top:0}.display-topright{position:absolute;right:0;top:0}
 .dropdown-hover.mobile,.dropdown-hover.mobile .btn,.dropdown-hover.mobile .button,.dropdown-click.mobile,.dropdown-click.mobile .btn,.dropdown-click.mobile .button{width:100%}}
 .dropdown-hover:hover > .button:first-child,.dropdown-click:hover > .button:first-child{background-color:#ccc;color:#000}

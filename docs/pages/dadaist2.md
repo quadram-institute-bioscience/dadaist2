@@ -81,6 +81,11 @@ Andrea Telatin <andrea.telatin@quadram.ac.uk>
 
     String identifying the forward (and reverse) pairs. Default are \_R1 and \_R2.
 
+- _--max-loss_ FLOAT
+
+    After DADA2 run, check the amount of reads globally remaining from input
+    to non-chimeric, abort if the ratio is below threshold (default: fcheck)
+
 ## Other parameters
 
 - _--crosstalk_ 
