@@ -5,7 +5,7 @@
 use 5.012;
 use warnings;
 use Pod::Usage;
-my $VERSION = "1.3.0";
+my $VERSION = "1.3.4";
 
 my $url_db = {
 	'testset' => {
@@ -113,7 +113,7 @@ use FASTX::ScriptHelper;
 use JSON::PP;
 use File::Temp;
 
-my ($opt_query,$opt_urls_db, $opt_list, @opt_db, $opt_output_dir, $opt_help, $opt_version);
+my ($opt_query,$opt_urls_db, $opt_force, $opt_list, @opt_db, $opt_output_dir, $opt_help, $opt_version);
 
 GetOptions(
 	'u|url-db=s'     => \$opt_urls_db,
@@ -121,6 +121,7 @@ GetOptions(
 	'q|query=s'      => \$opt_query,
 	'd|database=s'   => \@opt_db,
 	'o|output-dir=s' => \$opt_output_dir,
+	'f|force'        => \$opt_force,
 	'version'        => \$opt_version,
 	'help'           => \$opt_help,
 );
@@ -135,7 +136,7 @@ $url_db = $opt_urls_db ? load_db_from_file($opt_urls_db) : $url_db;
 my $log_filename = File::Temp->new(TEMPLATE => "dadaist2-downloader-XXXXXXX");
 my $S = FASTX::ScriptHelper->new({
 	verbose => 1,
-	logfile    => $log_filename,
+	logfile  => $log_filename,
 });
 
 my $curl = $S->run('curl --version');
@@ -178,6 +179,14 @@ if ($opt_db[0]) {
 			my $filename = basename($url_db->{$id}->{url});
 			($filename) = split /[\?]/, $filename;
 			my $destination = File::Spec->catfile($opt_output_dir, $filename);
+
+			# overwrite?
+			if ( -e "$destination") {
+				if (not $opt_force) { 
+					$S->verbose($id . " found. skipping.");
+					next;
+				}
+			}
 			my $download_cmd = $downloader eq 'curl' ?
 				qq(curl -L --silent -o "$destination" "$url_db->{$id}->{url}") :
 				qq(wget --max-redirect 0 --quiet -O "$destination" "$url_db->{$id}->{url}"); 
@@ -210,6 +219,8 @@ if ($opt_db[0]) {
 } else {
 	usage();
 }
+
+unlink "$log_filename";
 
 sub list_dbs {
 	my( $db, $query )  = @_;

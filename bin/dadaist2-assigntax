@@ -56,8 +56,10 @@ if (not defined $methods_avail{$opt_method}) {
 	say STDERR "Available methods: ", join(', ', keys %methods_avail);
 	exit 1;
 }
+my $log_filename = File::Temp->new(TEMPLATE => "dadaist2-downloader-XXXXXXX");
 my $S = FASTX::ScriptHelper->new({
 	verbose => $opt_verbose,
+	logfile => $log_filename,
 });
 
 
@@ -177,7 +179,7 @@ if ( $opt_reference =~/RData$/i) {
 		say STDERR " * Using DADA2";
 		my $R = FASTX::Reader->new({ filename => "$opt_inputfile"});
 		
-		my $tmp = File::Temp->new( TEMPLATE => 'dadaist2-XXXXX',
+		my $tmp = File::Temp->new( TEMPLATE => 'dadaist2-assigntax-XXXXX',
                        SUFFIX => '.txt');
 		say STDERR "Writing temporary file to $tmp.";
 		while (my $record = $R->getRead() ) {
@@ -193,12 +195,15 @@ if ( $opt_reference =~/RData$/i) {
 		if ($exec->{exit} != 0) {
 			print STDERR $exec->{stderr}, "\n";
 			die "Taxonomy assignment failed.\n";
+		} else {
+			unlink "$tmp";
 		}
 
 } else {
 	die "ERROR: Reference not in RData/fasta.gz format: $opt_reference.\n";
 }
 
+unlink "$log_filename";
 
 sub quote_tax {
 	my $name = shift @_;

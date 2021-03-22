@@ -2,24 +2,20 @@
 sort: 6
 ---
 ## dadaist2-getdb
-
 **dadaist2-getdb** - download reference databases for dadaist2
 
 ## Author
-
 Andrea Telatin <andrea.telatin@quadram.ac.uk>
 
 ## List available databases
-
     dadaist2-getdb --list [query]
 
 If a `query` keyword is specified, only matching entries will be printed.
 
 ## Download one or more databases
-
     dadaist2-getdb -d DATABASE_NAME [-o OUTPUT_DIR]
 
-    dadaist2-getdb -d DB1 -d DB2 -d DB3 [-o OUTPUT_DIR]
+          dadaist2-getdb -d DB1 -d DB2 -d DB3 [-o OUTPUT_DIR]
 
     dadaist2-getdb -q QUERY_STRING
 
