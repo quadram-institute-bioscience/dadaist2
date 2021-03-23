@@ -8,25 +8,23 @@ permalink: /installation
 ## Install via Miniconda
 
 The easiest (and recommended) way to install **dadaist2** is from the BioConda repository.
-This requires  _Miniconda_ installed ([how to install it](https://docs.conda.io/en/latest/miniconda.html)):
+This requires  _Miniconda_ installed ([how to install it](https://docs.conda.io/en/latest/miniconda.html)).
+We will first install _mamba_, that makes the installation faster (naturally you can skip the mamba installation if
+you already use it).
 
 ```
-conda install -c bioconda dadaist2
+conda install -y -c conda-forge mamba
+conda install -y -c conda-forge -c bioconda dadaist2
 ```
 
-If you want to keep dadaist2 and its dependencies in a separate environment:
+If you want to keep dadaist2 and its dependencies in a separate environment (**recommended**):
 
 ```
-conda create -n dadaist -c conda-forge -c bioconda dadaist2
+conda install -y -c conda-forge mamba
+mamba create -n dadaist -c conda-forge -c bioconda dadaist2
 # Then type `conda activate dadaist` to use it
 ```
-
-:warning: Dadaist2 requires a lot of dependencies, and conda is sometimes very slow.
-Our recommended procedure is to install _mamba_ first:
-```
-conda install -c conda-forge -y mamba
-mamba create -n dadaist  -c conda-forge  -c bioconda dadaist2
-```
+ 
 
 ### Developmental snapshot
 
@@ -35,7 +33,7 @@ can create an environment with all the required dependencies, then the binaries 
 repository can be used instead:
 
 ```bash
-conda create -n dadaist-last -c conda-forge -c bioconda --only-deps dadaist2 multiqc
+mamba create -n dadaist-last -c conda-forge -c bioconda --only-deps dadaist2 multiqc
 git clone https://github.com/quadram-institute-bioscience/dadaist2
 export PATH=$PWD/dadaist2/bin:$PATH
 ```
