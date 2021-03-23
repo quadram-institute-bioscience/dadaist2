@@ -5,7 +5,7 @@
 use 5.012;
 use warnings;
 use Pod::Usage;
-my $VERSION = "1.0.5";
+my $VERSION = "1.1.0";
 my %methods_avail = ('DECIPHER' => 1, 'DADA2' => 1);
 use Getopt::Long;
 use Data::Dumper;
@@ -214,7 +214,7 @@ if (defined $opt_fasta) {
 		my $R = FASTX::Reader->new({ filename => "$opt_inputfile"});
 		my $c = 0;
 		while (my $z = $R->getRead() ) {
-			say {$O} $z->{name}, "\t", @taxonomy[$c];
+			say {$O} '>', $z->{name}, "\t", @taxonomy[$c];
 			say {$O} $z->{seq};
 		}
 	}
