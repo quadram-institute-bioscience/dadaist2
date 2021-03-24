@@ -18,7 +18,7 @@ What makes Dadaist an interesting alternative to other suites is the focus on re
 * Generation of [*MicrobiomeAnalyst*](https://www.microbiomeanalyst.ca)-compatible files. MicrobiomeAnalyst provides a _web-interface_ to perform a broad range of visualizations and analyses.
 * Generation of [*Rhea*](https://lagkouvardos.github.io/Rhea/)-compatible files. Rhea is a standardized set of scripts "_designed to help easy implementation by users_".
 * Generation of [*MultiQC*](https://multiqc.info) ready report
-![popup](img/multiqc.png)
+
 
 <img src="img/flow.png">
 
