@@ -2,7 +2,7 @@
 #ABSTRACT: A program to run DADA2 from the CLI
 use 5.012;
 use warnings;
-my $VERSION          = '0.7.7';
+my $VERSION          = '0.7.8';
 
 BEGIN { 
 		# Track starting time

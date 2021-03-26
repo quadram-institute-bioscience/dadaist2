@@ -5,7 +5,7 @@
 use 5.012;
 use warnings;
 use Pod::Usage;
-my $VERSION = "1.3.4";
+my $VERSION = "1.3.5";
 
 my $url_db = {
 	'testset' => {
@@ -211,6 +211,8 @@ if ($opt_db[0]) {
 					say STDERR color('bold'), $id, color('reset'), " downloaded.";
 				}
 			}
+		} else {
+			$S->verbose("WARNING: Database not found! Try using --list (or --query STRING)");
 		}
 
 	}

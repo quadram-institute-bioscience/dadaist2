@@ -214,7 +214,7 @@ if (defined $opt_fasta) {
 		my $R = FASTX::Reader->new({ filename => "$opt_inputfile"});
 		my $c = 0;
 		while (my $z = $R->getRead() ) {
-			say {$O} '>', $z->{name}, "\t", @taxonomy[$c];
+			say {$O} '>', $z->{name}, "\t", $taxonomy[$c];
 			say {$O} $z->{seq};
 		}
 	}
@@ -226,17 +226,20 @@ unlink "$log_filename";
 
 sub loadTaxonomyArray {
   # load taxonomy from files
-  my $file = $_[0];
+  my ($file) = @_;
   my @results = ();
   return () if (! -e "$file");
   open(my $I, '<', "$file") || return ();
   my $c = 0;
+
   while (my $line = readline($I)) {
     chomp($line);
     $c++;
     next if ($c == 1);
     if ($line =~/^\d+/) {
 			my @local = ();
+			
+			# Remove first field (seq number)
       my @fields = split / /, $line;
       shift(@fields);
       
