@@ -3,7 +3,7 @@ sort: 3
 permalink: /tutorial
 ---
 
-# Dadaist2: a short tutorial
+# Dadaist2: a first tutorial
 
 ## Get ready
 
@@ -55,7 +55,7 @@ decipher-silva-138: SILVA release 138 (Decipher)
 decipher-unite-2020: UNITE 2020 (Decipher)
 testset: FASTQ input, Small 16S dataset to test the suite
 ```
-Some reference files are for DADA2, others are for DECIPHER. Dadaist2 will automatically select the 
+Some reference files are for DADA2, others are for DECIPHER. Dadaist2 will automatically select the
 correct classifier based on the extension of the reference database.
 
 The keyword before the column is the dataset name, to download it we need to choose a destination directory,
@@ -114,5 +114,5 @@ Notable files:
 
 Subdirectories:
 * **MicrobiomeAnalyst** a set of files formatted to be used with the online (also available offline as R package) software [MicrobiomeAnalyst](https://www.microbiomeanalyst.ca/MicrobiomeAnalyst/upload/OtuUploadView.xhtml).
-* **Rhea** a directory with files to be used with the [Rhea pipeline](https://lagkouvardos.github.io/Rhea/), as well as some pre-calculated outputs (Normalization and Alpha diversity are done by default, as they don't require knowledge about metadata categories) 
+* **Rhea** a directory with files to be used with the [Rhea pipeline](https://lagkouvardos.github.io/Rhea/), as well as some pre-calculated outputs (Normalization and Alpha diversity are done by default, as they don't require knowledge about metadata categories)
 * **R** a directory with the PhyloSeq object

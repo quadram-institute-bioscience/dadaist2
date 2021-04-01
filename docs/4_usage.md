@@ -2,10 +2,7 @@
 sort: 4
 permalink: /usage
 ---
-# Full tutorials
-
-Please, check the short tutorial first:
- * [a first tutorial]({{ 'tutorial' | relative_url }})
+# Other tutorials
 
 ## "Mothur SOP" tutorial
 
