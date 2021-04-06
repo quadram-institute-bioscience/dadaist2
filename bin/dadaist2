@@ -2,7 +2,7 @@
 #ABSTRACT: A program to run DADA2 from the CLI
 use 5.012;
 use warnings;
-my $VERSION          = '0.7.8';
+my $VERSION          = '0.8.0';
 
 BEGIN { 
 		# Track starting time
@@ -40,7 +40,7 @@ Andrea Telatin <andrea.telatin@quadram.ac.uk>
 # 0.6.0  - Phyloseq
 # 0.5.0  - support for MicrobiomeAnalyst (enabled by default)
 # 0.4.0  - Improved verbose mode, added quality parameter, added support to save RDS, added check for dada2 installed, expanded test set, added dadaist2-metadata
-# fcheck.00 - Added a reference database downloader (dadaist2-getdb)
+# 0.3.00 - Added a reference database downloader (dadaist2-getdb)
 # 0.2.00 - Manual, save Rds, further analysis, taxonomy labels
 # 0.1.09 - Added autocalculated trimming [qualified_wnd/qualified_min_qual]
 # 0.1.07 - Added quality plot
@@ -120,7 +120,7 @@ my $qualified_wnd    = 4;
 my $qualified_min_qual = 28;
 my $opt_no_trunc;
 my $opt_justconcat   = 0;
-my $opt_maxloss      = 0.3;
+my $opt_maxloss      = 0.2;
 my @taxonomy = ();
 my $r1_len = 10_000;
 my $r2_len = 10_000;
@@ -260,7 +260,7 @@ String identifying the forward (and reverse) pairs. Default are _R1 and _R2.
 =item I<--max-loss> FLOAT
 
 After DADA2 run, check the amount of reads globally remaining from input
-to non-chimeric, abort if the ratio is below threshold (default: fcheck)
+to non-chimeric, abort if the ratio is below threshold (default: 0.2)
 
 =back
 
@@ -989,12 +989,13 @@ if (not $dada_failed) {
 		my $Rhea_norm  = File::Spec->catfile($Rhea_dir, 'OTUs_Table-norm.tab');
 		my $rhea_norm  = qq($RealBin/dadaist2-normalize -i "$Rhea_table" -o "$Rhea_dir");
 		my $rhea_alpha = qq($RealBin/dadaist2-alpha -i "$Rhea_norm" -o "$Rhea_dir");
-		my $RheaNormRun= $S->run($rhea_norm);
-		my $RheaAlphaRun=$S->run($rhea_alpha);
+		my $RheaNormRun= $S->run($rhea_norm,  { candie => 1});
+		my $RheaAlphaRun=$S->run($rhea_alpha, { candie => 1});
 		if ($RheaNormRun->{exit} == 0 and $RheaAlphaRun->{exit} == 0) {
+			$S->verbose("Rhea normalization/alpha finished.");
 			$output_files{'rhea'} = $Rhea_dir;
 		} else {
-			$S->verbose("Rhea normalization/alpha script skipped.");
+			$S->verbose("Rhea input files prepared, but normalization and alpha div. skipped.");
 		}
 }
 
@@ -1606,7 +1607,7 @@ tr:nth-child(odd) {
 .cell-row:before,.cell-row:after,.clear:after,.clear:before,.bar:before,.bar:after{content:"";display:table;clear:both}
 .cell-row:before,.cell-row:after,.clear:after,.clear:before,.bar:before,.bar:after{content:"";display:table;clear:both} 
 .container:after,.container:before,.panel:after,.panel:before,.row:after,.row:before,.row-padding:after,.row-padding:before,
-.disabled,.btn:disabled,.button:disabled{cursor:not-allowed;opacity:fcheck}.disabled *,:disabled *{pointer-events:none}
+.disabled,.btn:disabled,.button:disabled{cursor:not-allowed;opacity:0.3}.disabled *,:disabled *{pointer-events:none}
 .display-topleft{position:absolute;left:0;top:0}.display-topright{position:absolute;right:0;top:0}
 .dropdown-hover.mobile,.dropdown-hover.mobile .btn,.dropdown-hover.mobile .button,.dropdown-click.mobile,.dropdown-click.mobile .btn,.dropdown-click.mobile .button{width:100%}}
 .dropdown-hover:hover > .button:first-child,.dropdown-click:hover > .button:first-child{background-color:#ccc;color:#000}

@@ -8,7 +8,7 @@ use Data::Dumper;
 use Pod::Usage;
 use FASTX::Reader;
 use File::Copy;
-my $VERSION = '1.3.0';
+my $VERSION = '1.4.0';
 my $opt_input_dir;
 my $opt_output_dir;
 my ($opt_version, $opt_help);
@@ -154,15 +154,18 @@ sub exportMetadataMA{
     if ($c==1) {
       $fields[0] = '#NAME';
     }
+    my @line_fields = ();
     for my $f (@fields) {
-      if ($f !~/,/ ) {
-        print {$O} $f
-      } else {
-        print {$O} qq("$f");
-      }
-      $f eq $fields[-1] ? print {$O} "\n" : print {$O} ",";
-    }
 
+      if ($f !~/,/ ) {
+        push (@line_fields, $f);
+      } else {
+        push (@line_fields, qq("$f") );
+      }
+      # Print separator
+      
+    }
+    say {$O} join(',', @line_fields);
   }
 }
 

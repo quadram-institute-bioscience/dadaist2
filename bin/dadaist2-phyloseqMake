@@ -23,6 +23,13 @@ my (
 	$opt_inputdir, $opt_outfile,
 	$opt_version, $opt_help, $opt_force, $opt_json
 ); 
+
+my %required_files = (
+	'table.csv' => 'feature table',
+	'taxonomy.csv' => 'taxonomy table',
+	'rep-seqs.tree' => 'tree of representative sequences',
+	'metadata.csv' => 'metadata file',
+);
 my $rScript = File::Spec->catfile($RealBin, 'D2-importPhyloseq.R');
  
 GetOptions(
@@ -42,6 +49,7 @@ $opt_help    && pod2usage({-exitval => 0, -verbose => 2});
 
 my $S = FASTX::ScriptHelper->new({
 	verbose => $opt_verbose,
+	logfile => File::Temp->new(TEMPLATE => "dadaist2-phyloSeq-XXXXXXX")
 }); 
 
 die "Missing parameters. Use --help for full manual.\n" if (!$opt_inputdir); 
@@ -51,9 +59,16 @@ die "ERROR: Input directory not found: $opt_inputdir\n" unless (-d $opt_inputdir
 die "ERROR: Input directory not valid (MicrobiomeAnalyst missing): $opt_inputdir/MicrobiomeAnalyst\n" 
  unless (-d $MicrobiomeAnalystDir);
 
+
+for my $file (sort keys %required_files) {
+	if (! -e File::Spec->catfile($MicrobiomeAnalystDir,$file) ) {
+		die "Missing required file <$file> in $opt_inputdir/MicrobiomeAnalyst (", $required_files{$file}, ")\n";
+	}
+}
 die "ERROR: Missing script $rScript.\n" unless (-e $rScript);
+
   
-my $output = $S->run(qq(Rscript --vanilla --no-save $rScript "$opt_inputdir"), {candie => 1});
+my $output = $S->run(qq(Rscript --vanilla --no-save $rScript "$opt_inputdir" 2>&1), {candie => 1});
 
 if ( $output->{exit} == 0 ) {
 	if ($opt_verbose) {
@@ -76,8 +91,9 @@ if ( $output->{exit} == 0 ) {
 	}
  
 } else {
+	say STDERR $output->{stdout};
 	say STDERR $output->{stderr};
-	die "The input file is not a valid PhyloSeq object.";
+	die "PhyloSeq creation failed.";
 }
 __END__
 

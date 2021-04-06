@@ -35,13 +35,14 @@ in_tax = read.table(
   comment.char="") 
 in_tax$sequenceID<-row.names(in_tax)
 in_tax <- as.matrix(in_tax)
-cat (" * Loading taxonomy\n")
+cat (" * Taxonomy loaded\n")
 
 # Load tree if available
 if(! file.exists(file.path(paste(inp.dir, '/rep-seqs.tree', sep='')) )) {
   cat(" * Tree file does not exist - proceeding without tree\n")
 } else {
   in_tree <- read.tree(file = file.path(paste(inp.dir, '/rep-seqs.tree', sep='')))
+  cat (" * Tree loaded\n")
 }
 
 # Load metadata
@@ -53,6 +54,7 @@ if (file.exists(meta_file)){
   metaIn = read.table(meta_file, header=TRUE, sep="\t", comment.char="") # import metadata table
   rownames(metaIn) <- metaIn[,1]
   colnames(metaIn)[1] <- 'sampleID'
+  cat(" * Metadata loaded\n")
 } else {
   cat(" * No metadata provided - proceeding without\n")
   SampleName<-colnames(in_otu)
@@ -66,11 +68,19 @@ in_metad = sample_data(metaIn)
 
 # Generate phyloseq (with or without tree depending on whether a tree file was provided)
 my_OTU = otu_table(in_otu, taxa_are_rows = TRUE)
+cat(" * PhyloSeq: Feature table done\n")
 my_TAX = tax_table(in_tax)
+cat(" * PhyloSeq: Taxonomy table done\n")
 if (exists("in_tree")) {
+  cat(" * PhyloSeq: adding tree\n")
+  sample_names(in_metad)
   my_physeq = phyloseq(my_OTU, my_TAX, in_metad, in_tree)
+  
+  cat(" * PhyloSeq: Tree done\n")
 } else {
+  cat(" * PhyloSeq: skipping tree\n")
   my_physeq = phyloseq(my_OTU, my_TAX, in_metad)
+  cat(" * PhyloSeq: Tree done\n")
 }
 
 saveRDS(my_physeq,out.file)
