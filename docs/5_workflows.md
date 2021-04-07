@@ -2,7 +2,17 @@
 sort: 5
 permalink: /custom-workflows
 ---
-# Dadaist2 as a module provider
+
+# Advanced usage 
+
+## Use in HPC clusters
+
+The supported installation of _Dadaist2_ is via Bioconda:
+* The package can be natively installed via `conda` in the user's home
+* A singularity (or Docker) image can be generated as suggested in the [installation page](/installation).
+  
+
+## Dadaist2 as a module provider
 
 Dadaist2 has been released as a set of wrappers to allow implementing some of them
 in existing pipelines. 
@@ -11,7 +21,7 @@ A minimal example is provided in the `nextflow/simple.nf` Nextflow script
 ([link](https://github.com/quadram-institute-bioscience/dadaist2/tree/master/nextflow)), where
 we delegate to Nextflow the parallelisation of the input reads trimming with `cutadapt`.
 
-## Example
+### Example
 
 Running a workflow using Dadaist tools:
 ```bash
