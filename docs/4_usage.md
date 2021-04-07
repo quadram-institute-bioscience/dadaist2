@@ -72,6 +72,31 @@ download the 'dada2-silva-138' database in our home directory, under the `refs` 
 dadaist2-getdb -d dada2-silva-138 -o ~/refs/
 ```
 
+
+### Refactoring the metadata file
+
+The dataset comes with a tabular file with metadata called `MiSeq_SOP/mouse.time.design`.
+We can rename the header and this will suffice to work with Dadaist2 (that expected
+  a `#SampleID` column):
+
+```bash
+sed 's/group/#SampleID/g' MiSeq_SOP/mouse.time.design > metadata.tsv
+```
+
+### Running Dadaist2
+
+The minimum parameter to run Dadaist are:
+* `-i`: directory with the input reads, with `_R1` and `_R2` tags
+* `-o`: output directory
+Recommended parameters are:
+* `-d`: to specify a reference database (will enable taxonomy annotation)
+* `-m`: metadata file (if not provided a blank metadata file is generated)
+* `-t`: number of threads
+  
+```bash
+dadaist2  -i MiSeq_SOP/ -o dadaist2-sop -m metadata.tsv -d ~/refs/silva_nr_v138_train_set.fa.gz
+```
+
 ### Exploring the dataset with Microbiome Analyst
 
 The output folder contains a subdirectory called _MicrobiomeAnalyst_.
@@ -90,21 +115,6 @@ samples, as shown in the original paper:
 
 <img src="img/ma-pca.png">
 
-### Refactoring the metadata file
-
-The dataset comes with a tabular file with metadata called `MiSeq_SOP/mouse.time.design`.
-We can rename the header and this will suffice to work with Dadaist2 (that expected
-  a `#SampleID` column):
-
-```bash
-sed 's/group/#SampleID/g' MiSeq_SOP/mouse.time.design > metadata.tsv
-```
-
-### Running Dadaist2
-
-```bash
-dadaist2 -d ~/refs/silva_nr_v138_train_set.fa.gz -i MiSeq_SOP/ -o dadaist2-sop -m metadata.tsv
-```
 
 # Documentation
 
