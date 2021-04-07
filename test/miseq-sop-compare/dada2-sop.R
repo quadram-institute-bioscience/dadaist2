@@ -58,7 +58,7 @@ colnames(track) <- c("input", "filtered", "denoisedF", "denoisedR", "merged", "n
 rownames(track) <- sample.names
 
 
-col.names <- basename(filtsF)
+col.names      <- basename(filtFs)
 col.names[[1]] <- paste0("#OTU","\t", col.names[[1]])
 
 write.table(seqtab.nochim, file.path(outdir, "dada2-table.tsv"), sep="\t",
