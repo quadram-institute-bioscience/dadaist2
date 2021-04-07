@@ -84,7 +84,7 @@ Andrea Telatin <andrea.telatin@quadram.ac.uk>
 - _--max-loss_ FLOAT
 
     After DADA2 run, check the amount of reads globally remaining from input
-    to non-chimeric, abort if the ratio is below threshold (default: fcheck)
+    to non-chimeric, abort if the ratio is below threshold (default: 0.2)
 
 ## Other parameters
 

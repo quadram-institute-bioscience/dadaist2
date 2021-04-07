@@ -15,7 +15,7 @@ If a `query` keyword is specified, only matching entries will be printed.
 ## Download one or more databases
     dadaist2-getdb -d DATABASE_NAME [-o OUTPUT_DIR]
 
-          dadaist2-getdb -d DB1 -d DB2 -d DB3 [-o OUTPUT_DIR]
+    dadaist2-getdb -d DB1 -d DB2 -d DB3 [-o OUTPUT_DIR]
 
     dadaist2-getdb -q QUERY_STRING
 

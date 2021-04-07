@@ -4,16 +4,16 @@ sort: 8
 ## dadaist2-normalize
 **dadaist2-normalize** - Normalize OTU table using the **Rhea** protocol.
 The Rhea protocol ([https://lagkouvardos.github.io/Rhea/](https://lagkouvardos.github.io/Rhea/)) is a complete
-set of scripts to analyse microbiome files. 
+set of scripts to analyse microbiome files.
 
-This wrapper is part of the _AutoRhea_ script bundled with _Dadaist2_. 
+This wrapper is part of the _AutoRhea_ script bundled with _Dadaist2_.
 If used, please, cite the Rhea paper (see below).
 
 ## Authors
 Andrea Telatin and Rebecca Ansorge
 
 ## Usage
-    dadaist2-normalize [options] -i TABLE -o OUTDIR 
+    dadaist2-normalize [options] -i TABLE -o OUTDIR
 
 - _-i_, _--input-table_ FILE
 
@@ -42,12 +42,11 @@ Andrea Telatin and Rebecca Ansorge
 ## Citation
 If you use **Rhea** in your work please cite/attribute the original publication:
 
-     Lagkouvardos I, Fischer S, Kumar N, Clavel T. (2017) 
-     Rhea: a transparent and modular R pipeline for microbial profiling based on 16S rRNA gene amplicons. 
-     PeerJ 5:e2836 https://doi.org/10.7717/peerj.2836
-    
+    Lagkouvardos I, Fischer S, Kumar N, Clavel T. (2017)
+    Rhea: a transparent and modular R pipeline for microbial profiling based on 16S rRNA gene amplicons.
+    PeerJ 5:e2836 https://doi.org/10.7717/peerj.2836
 
 ## Source code and documentation
-This wrapper is part of **Dadaist2** freely available at 
+This wrapper is part of **Dadaist2** freely available at
 [https://quadram-institute-bioscience.github.io/dadaist2](https://quadram-institute-bioscience.github.io/dadaist2)
 released under the MIT licence. The website contains further DOCUMENTATION.
