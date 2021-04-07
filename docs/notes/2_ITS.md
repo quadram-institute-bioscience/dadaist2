@@ -11,6 +11,31 @@ This is possible with:
 * the possibility to skip pair-end merging (with `--just-concat`, or `-j` for short) and to re-join when possible using `dadaist2-mergeseqs`, that takes DADA2 feature table as input.
 * support for taxonomy assignment in non contiguous sequences
 
+## Why are ITS amplicons different?
+
+They are not.
+
+**16S rDNA** is the most common target for metabarcoding, and while there are several possible primer-pairs available, the commonly accepted 
+_rule of the thumb_ is to choose a primer pair that will produce and amplicon shorter than the length of the two paired end sequences
+(if adopting paired-end), to ensure that the two fragments will be merged. This is possible because 16S rDNA is highly conserved in length
+and the majority of the variation observed in the commonly sequenced areas is mostly due to sequence alterations, not insertions and deletions.
+
+**ITS amplicons** (and other targets) have a wider variability in length. This has a very annoying effect immediately when preparing the libraries:
+the shorter targets will be amplified with higher efficiency, making the amplification bias worse than it already is with less variable targets.
+
+In short: with "ITS protocol" here we refer to "amplicons highly variable in length".
+
+## How to analyse ITS amplicons
+
+*TLDR*: simply add the `-j` flag (or `--just-concat`) when running the analysis.
+
+Dadaist2 provides support for the denoising mode of DADA2 where the two pairs are not merged. This mode is not supported - for example - in the
+Qiime2 plugin.
+
+DADA2 itself can either merge or [not](https://github.com/benjjneb/dada2/issues/279), while Dadaist2 will merge the representative sequences
+that overlap, leaving unmerged those which don't.
+
+
 ## Increased sensitivity: a simulation
 
 We downloaded the [UNITE database](https://unite.ut.ee/repository.php) (95,481 sequence) and performed
