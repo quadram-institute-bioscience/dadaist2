@@ -9,7 +9,7 @@ permalink: /custom-workflows
 
 The supported installation of _Dadaist2_ is via Bioconda:
 * The package can be natively installed via `conda` in the user's home
-* A singularity (or Docker) image can be generated as suggested in the [installation page](/installation).
+* A singularity (or Docker) image can be generated as suggested in the [installation page](../installation).
   
 
 ## Dadaist2 as a module provider
