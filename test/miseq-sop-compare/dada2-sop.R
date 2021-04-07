@@ -57,6 +57,10 @@ track <- cbind(out, sapply(dadaFs, getN), sapply(dadaRs, getN), sapply(mergers, 
 colnames(track) <- c("input", "filtered", "denoisedF", "denoisedR", "merged", "nonchim")
 rownames(track) <- sample.names
 
+
+col.names <- basename(filtsF)
+col.names[[1]] <- paste0("#OTU","\t", col.names[[1]])
+
 write.table(seqtab.nochim, file.path(outdir, "dada2-table.tsv"), sep="\t",
             row.names=TRUE, col.names=col.names, quote=FALSE)
 write.table(track, file.path(outdir, "dada2-stats.tsv"), sep="\t", row.names=TRUE, col.names=NA,
