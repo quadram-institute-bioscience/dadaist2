@@ -33,6 +33,8 @@ Andrea Telatin <andrea.telatin@quadram.ac.uk>
 =cut
 
 # Minichangelog
+# 0.8.0  - 
+# 0.7.6+ - MultiQC, Rhea support, bugfixes...
 # 0.7.5  - Crosstalk
 # 0.7.3  - Bugfixes
 # 0.7.2  - No join
