@@ -1,26 +1,39 @@
 ---
-sort: 4
+sort: 5
 ---
 
-# MultiQC report
+# Continuous integration
 
-Dadaist2 generates a MultiQC ready directory to generate a QC report using [MultiQC](https://multiqc.info),
-saving the files in the `./multiqc` directory inside the output directory.
+Dadaist2 is a pipeline wrapping third party tools and scripts (most notably _DADA2_, _DECIPHER_, _Rhea_)
+and some custom components (_e. g._ _crosstalk_, _octave plots_ ...) in a coherent framework. 
 
-The report can be generated if MultiQC is installed, otherwise:
-```
-cd $OUTPUT/multiqc
-multiqc -f .
-```
+Most functions are provided as modules, and we are committed to update each module ensuring that the 
+output remains reliable and in line with the original tool. To ensure that the reliability is preserved
+at each release, we set up a set of tests:
 
-## Notable sections
+* continuous integration with CircleCI tests, at each commit:
+  * the generation of a feature table (and representative sequences) without a taxonomy assignment
+  * the generation of a feature table (and representative sequences) *with* a taxonomy assignment
+  * that the taxonomy assignment module (standalone) works correctly
 
-* The most abundant **representative sequences** (separated in unclassified and classified) are reported to be manually inspected, to allow to check for contaminants (among the unclassified) and to control the taxonomy classification
-* **Taxonomy plots** are reported for a preliminary overview
-* A correlation **matrix** allows to check if replicates are indeed closely correlated
-* **Octave plots**, based on the distribution of counts per sample, allow to evaluate the level of _noisy sequences_
+## Function tests
 
-## Screenshot
+In addition to the continuous integration, there is a more complete set of tests that is performed at each
+release:
 
-![popup](../img/multiqc.png)
+* QC
+* DADA2 denoising
+* DADA2 taxonomy
+* DECIPHER taxonomy
 
+## Pipeline tests
+
+A pipeline require that the utilized components (see _Function Tests_) work together,
+generating the expected output to be fed to the downstream steps.
+
+At each release we test:
+
+* MicrobiomeAnalyst output
+* Rhea output
+
+---

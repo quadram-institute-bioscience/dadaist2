@@ -22,5 +22,5 @@ multiqc -f .
 
 ## Screenshot
 
-![popup](../img/multiqc.png)
+![popup](../img/multiqc.png)å
 

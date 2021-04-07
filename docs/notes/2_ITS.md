@@ -35,7 +35,6 @@ Qiime2 plugin.
 DADA2 itself can either merge or [not](https://github.com/benjjneb/dada2/issues/279), while Dadaist2 will merge the representative sequences
 that overlap, leaving unmerged those which don't.
 
-
 ## Increased sensitivity: a simulation
 
 We downloaded the [UNITE database](https://unite.ut.ee/repository.php) (95,481 sequence) and performed
