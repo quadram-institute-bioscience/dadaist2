@@ -33,7 +33,7 @@ DADA2 provides [a tutorial](https://benjjneb.github.io/dada2/tutorial_1_8.html)
 dataset (from [Mothur](https://mothur.org)).
 
 In the repository we have a script (here 
-`[test/miseq-sop-compare/dada2-sop.R](https://github.com/quadram-institute-bioscience/dadaist2/blob/master/test/miseq-sop-compare/dada2-sop.R)`)
+[dada2-sop.R](https://github.com/quadram-institute-bioscience/dadaist2/blob/master/test/miseq-sop-compare/dada2-sop.R))
 that uses the exact commands provided by the tutorial, which does not include any QC step.
 ## Pipeline tests
 
