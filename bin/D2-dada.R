@@ -96,6 +96,9 @@
 # 19) 'do_plots' to save quality plots
 #
 # 20) taxonomy DB -or- 'skip'
+# 21) save rds
+# 22) join paired end
+# 23) join samples
 
 cat(R.version$version.string, "\n")
 errQuit <- function(mesg, status=1) { message("Error: ", mesg); q(status=status) }
@@ -127,6 +130,7 @@ make_plots    <- args[[19]]
 taxonomy_db   <- args[[20]]
 save_rds      <- args[[21]]
 justConcat    <- as.numeric(args[[22]])
+paramPool     <- as.numeric(args[[23]])
 
 if (justConcat == 0) {
 	paramConcat = FALSE
@@ -134,6 +138,11 @@ if (justConcat == 0) {
 	paramConcat = TRUE
 }
 
+if (paramPool == 0) {
+  processPool = FALSE
+} else {
+  processPool = TRUE
+}
 
 
 ### VALIDATE ARGUMENTS ###
@@ -235,18 +244,24 @@ denoisedF <- rep(0, length(filtsF))
 mergers <- vector("list", length(filtsF))
 
 cat(format(Sys.time(), "%Y-%m-%d %H:%M:%S"), "\t[3] Denoise remaining samples ")
-for(j in seq(length(filtsF))) {
-  drpF <- derepFastq(filtsF[[j]])
-  ddF <- dada(drpF, err=errF, multithread=multithread, verbose=FALSE)
-  drpR <- derepFastq(filtsR[[j]])
-  ddR <- dada(drpR, err=errR, multithread=multithread, verbose=FALSE)
-  mergers[[j]] <- mergePairs(
-                ddF, drpF, 
-                ddR, drpR,
-                justConcatenate=paramConcat,
-                trimOverhang=TRUE)
-  denoisedF[[j]] <- getN(ddF)
-  cat(".")
+
+if (processPool == FALSE) {
+      for(j in seq(length(filtsF))) {
+        drpF <- derepFastq(filtsF[[j]])
+        ddF <- dada(drpF, err=errF, multithread=multithread, verbose=FALSE)
+        drpR <- derepFastq(filtsR[[j]])
+        ddR <- dada(drpR, err=errR, multithread=multithread, verbose=FALSE)
+        mergers[[j]] <- mergePairs(
+                      ddF, drpF, 
+                      ddR, drpR,
+                      justConcatenate=paramConcat,
+                      trimOverhang=TRUE)
+        denoisedF[[j]] <- getN(ddF)
+        cat(" * Denoising sample ", j, "\n")
+      }
+  
+} else {
+  
 }
 cat("\n")
 

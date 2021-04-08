@@ -1,7 +1,7 @@
 #!/bin/bash
-
+readlinkf(){ perl -MCwd -e 'print Cwd::abs_path shift' "$1";}
 TEST_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
-BASEDIR=$(readlink -f "$TEST_DIR/..")
+BASEDIR=$(readlink -f "$TEST_DIR/.." || readlinkf "$TEST_DIR/..")
 SCRIPTS="$BASEDIR/bin"
 DATA="$BASEDIR/data/16S/"
 INPUT="$DATA/test.fa"
@@ -11,6 +11,9 @@ FAIL="\e[31m** FAIL **\e[0m"
 mkdir -p "$OUT/"
 
 echo '--------------'
+echo -e "Test dir:\t$TEST_DIR"
+echo -e "Base dir:\t$BASEDIR"
+echo -e "Data dir:\t$DATA"
 echo -e "Env path:\t$(which env)"
 echo -e "Perl path:\t$(which perl)"
 echo -e "Perl version:\t$(env perl -v | grep version)"

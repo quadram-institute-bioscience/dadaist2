@@ -122,6 +122,7 @@ my $qualified_wnd    = 4;
 my $qualified_min_qual = 28;
 my $opt_no_trunc;
 my $opt_justconcat   = 0;
+my $opt_process_pool = 0;
 my $opt_maxloss      = 0.2;
 my @taxonomy = ();
 my $r1_len = 10_000;
@@ -612,7 +613,7 @@ my @dada_paired_parameter_labels = (
 'filt_forward', 'filt_reverse', 'truncLenF', 'truncLenR',
 'trimLeftF', 'trimLeftR', 'maxEEF', 'maxEER',
 'truncQ', 'chimeraMethod', 'minFold','threads',
-'nreads_learn','baseDir', 'doPlots', 'taxonomyDb', 'saveRDS', 'noMerge'
+'nreads_learn','baseDir', 'doPlots', 'taxonomyDb', 'saveRDS', 'noMerge', 'processPool'
 );
 
 
@@ -728,7 +729,10 @@ my @dada_paired_args = (
 	${save_rds},
 
 # 22) Just concat 0=false
-    ${opt_justconcat}
+    ${opt_justconcat},
+
+# 23) Pool
+    ${opt_process_pool}
 );
 
 
@@ -797,7 +801,7 @@ $S->verbose("DADA2 Finished.");
 
 
 # Dada2 taxonomy
-if ($chooser->{'database'} eq 'dada2') {
+if (defined $chooser->{'database'} and $chooser->{'database'} eq 'dada2') {
 	my $taxonomy_file = File::Spec->catfile("$temp_dir", 'taxonomy.tsv');
 	$S->verbose("Converting " . $chooser->{'database'}.  " taxonomy output: " . $taxonomy_file);
 	die " Taxonomy not found: $taxonomy_file\n" unless (-e $taxonomy_file);

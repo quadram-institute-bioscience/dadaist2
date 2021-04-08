@@ -26,6 +26,15 @@ release:
 * DADA2 taxonomy
 * DECIPHER taxonomy
 
+### DADA2 test
+
+DADA2 provides [a tutorial](https://benjjneb.github.io/dada2/tutorial_1_8.html)
+(wrote for version 1.8), based on the [MiSeq SOP](https://mothur.org/wiki/miseq_sop/) 
+dataset (from [Mothur](https://mothur.org)).
+
+In the repository we have a script (here 
+`[test/miseq-sop-compare/dada2-sop.R](https://github.com/quadram-institute-bioscience/dadaist2/blob/master/test/miseq-sop-compare/dada2-sop.R)`)
+that uses the exact commands provided by the tutorial, which does not include any QC step.
 ## Pipeline tests
 
 A pipeline require that the utilized components (see _Function Tests_) work together,
@@ -36,4 +45,6 @@ At each release we test:
 * MicrobiomeAnalyst output
 * Rhea output
 
+
 ---
+
