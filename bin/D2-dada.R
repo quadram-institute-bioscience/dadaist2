@@ -101,7 +101,7 @@
 # 23) join samples
 
 cat(R.version$version.string, "\n")
-errQuit <- function(mesg, status=1) { message("Error: ", mesg); q(status=status) }
+errQuit <- function(mesg, status=1) { message("ERROR: ", mesg); q(status=status) }
 getN <- function(x) sum(getUniques(x))
 args <- commandArgs(TRUE)
 
@@ -111,8 +111,8 @@ inp.dirF      <- args[[1]]
 inp.dirR      <- args[[2]]
 out.path      <- args[[3]]
 out.track     <- args[[4]]
-filtered.dirF <- args[[5]]
-filtered.dirR <- args[[6]]
+filtered_dirF <- args[[5]]
+filtered_dirR <- args[[6]]
 truncLenF     <- as.integer(args[[7]])
 truncLenR     <- as.integer(args[[8]])
 trimLeftF     <- as.integer(args[[9]])
@@ -133,20 +133,19 @@ justConcat    <- as.numeric(args[[22]])
 paramPool     <- as.numeric(args[[23]])
 
 if (justConcat == 0) {
-	paramConcat = FALSE
+	  paramConcat = FALSE
 } else {
-	paramConcat = TRUE
+	  paramConcat = TRUE
 }
 
 if (paramPool == 0) {
-  processPool = FALSE
+    processPool = FALSE
 } else {
-  processPool = TRUE
+    processPool = TRUE
 }
 
 
 ### VALIDATE ARGUMENTS ###
-
 # Input directory is expected to contain .fastq.gz file(s)
 # that have not yet been filtered and globally trimmed
 # to the same length.
@@ -197,8 +196,8 @@ cat("#DADA2:", as.character(packageVersion("dada2")), "/",
 
 ### TRIM AND FILTER ###
 cat(format(Sys.time(), "%Y-%m-%d %H:%M:%S"), "\t[1] Filtering reads ")
-filtsF <- file.path(filtered.dirF, basename(unfiltsF))
-filtsR <- file.path(filtered.dirR, basename(unfiltsR))
+filtsF <- file.path(filtered_dirF, basename(unfiltsF))
+filtsR <- file.path(filtered_dirR, basename(unfiltsR))
 
 
 
@@ -225,9 +224,10 @@ out <- suppressWarnings(filterAndTrim(unfiltsF, filtsF, unfiltsR, filtsR,
                                       maxEE=c(maxEEF, maxEER), truncQ=truncQ, rm.phix=TRUE,
                                       multithread=multithread))
 cat(ifelse(file.exists(filtsF), ".", "x"), sep="")
-filtsF <- list.files(filtered.dirF, pattern=".fastq.gz$", full.names=TRUE)
-filtsR <- list.files(filtered.dirR, pattern=".fastq.gz$", full.names=TRUE)
+filtsF <- list.files(filtered_dirF, pattern=".fastq.gz$", full.names=TRUE)
+filtsR <- list.files(filtered_dirR, pattern=".fastq.gz$", full.names=TRUE)
 cat("\n")
+
 if(length(filtsF) == 0) { # All reads were filtered out
   errQuit("No reads passed the filter (were truncLenF/R longer than the read lengths?)", status=2)
 }
@@ -240,12 +240,15 @@ errR <- suppressWarnings(learnErrors(filtsR, nreads=nreads.learn, multithread=mu
 
 ### PROCESS ALL SAMPLES ###
 # Loop over rest in streaming fashion with learned error rates
-denoisedF <- rep(0, length(filtsF))
-mergers <- vector("list", length(filtsF))
 
-cat(format(Sys.time(), "%Y-%m-%d %H:%M:%S"), "\t[3] Denoise remaining samples ")
+
+cat(format(Sys.time(), "%Y-%m-%d %H:%M:%S"), "\t[3] Denoise remaining samples \n")
 
 if (processPool == FALSE) {
+      cat(" * Sample by sample")
+      denoisedF <- rep(0, length(filtsF))
+      mergers <- vector("list", length(filtsF))
+
       for(j in seq(length(filtsF))) {
         drpF <- derepFastq(filtsF[[j]])
         ddF <- dada(drpF, err=errF, multithread=multithread, verbose=FALSE)
@@ -257,16 +260,37 @@ if (processPool == FALSE) {
                       justConcatenate=paramConcat,
                       trimOverhang=TRUE)
         denoisedF[[j]] <- getN(ddF)
-        cat(" * Denoising sample ", j, "\n")
+       
       }
-  
+      # Make sequence table
+      seqtab <- makeSequenceTable(mergers)
+
 } else {
-  
+      cat(" * Dereplicate all samples\n")
+      derepFs <- derepFastq(filtsF, verbose=TRUE)
+      derepRs <- derepFastq(filtsR, verbose=TRUE)
+
+      # Name the derep-class objects by the sample names
+      #cat(" * Rename samples\n")
+      #names(derepFs) <- sample.names
+      #names(derepRs) <- sample.names
+
+      cat(" * Denoise all samples\n")
+      dadaFs <- dada(derepFs, err=errF, multithread=TRUE)
+      dadaRs <- dada(derepRs, err=errR, multithread=TRUE)
+
+      cat(" * Merge all samples\n")
+      mergers <- mergePairs(dadaFs, derepFs, dadaRs, derepRs, verbose=TRUE)
+
+      cat(" * Make feature table\n")
+      seqtab <- makeSequenceTable(mergers)
+
+      denoisedF <-  sapply(dadaFs, getN)
+      #seqtab.nochim <- removeBimeraDenovo(seqtab, method="consensus", multithread=TRUE, verbose=TRUE)
 }
+
 cat("\n")
 
-# Make sequence table
-seqtab <- makeSequenceTable(mergers)
 
 # Remove chimeras
 cat(format(Sys.time(), "%Y-%m-%d %H:%M:%S"), "\t[4] Remove chimeras (method = ", chimeraMethod, ")\n", sep="")

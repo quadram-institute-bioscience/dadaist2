@@ -58,47 +58,56 @@ else
 	printf  " * $FAIL: tree not found\n";
 fi
 
+echo " [1.1] Test basic settings but pooling"
+perl "$SCRIPTS"/dadaist2 --dada-pool -i "$DATA" -o "$OUT"/no-tax-pooled --tmp-dir "$BASEDIR" > /dev/null 2>&1 || echo "dadaist failed: debugging"
+if [[ -e "$OUT"/no-tax-pooled/feature-table.tsv ]]; then
+	printf  " * $PASS: dada2 'pooled' output found\n";
+else
+	ERRORS=$((ERRORS+1))
+	printf  " * $FAIL: dada2 'pooled' output not found\n";
+fi
 # --
 # TEST: Taxonomy
 
 echo " [2] Test with taxonomy assignments"
-if [ -e "$BASEDIR/refs/rdp_train_set_16.fa.gz" ];
-	then
-	perl "$SCRIPTS"/dadaist2  -d "$BASEDIR/refs/rdp_train_set_16.fa.gz" -i "$DATA" -o "$OUT"/output-dada-taxonomy --tmp-dir "$BASEDIR" > /dev/null  2>&1 || echo "dadaist failed: debugging"
+if [ -e "$BASEDIR/refs/rdp_train_set_16.fa.gz" ];then
 
-	ERRORS=0
-	if [[ -d "$OUT"/output-dada-taxonomy ]];
-	then
-		printf  " * $PASS: Output directory created\n";
-	else
-		ERRORS=$((ERRORS+1))
-		printf  " * $FAIL: Output directory not created\n";
-	fi
-	if [ -e "$OUT"/output-dada-taxonomy/dadaist.log ];
-	then
-		printf  " * $PASS: Log was produced\n";
-	else
-		ERRORS=$((ERRORS+1))
-		printf  " * $FAIL: Log file not found\n";
-	fi
+		perl "$SCRIPTS"/dadaist2  -d "$BASEDIR/refs/rdp_train_set_16.fa.gz" -i "$DATA" -o "$OUT"/output-dada-taxonomy --tmp-dir "$BASEDIR" > /dev/null  2>&1 || echo "dadaist failed: debugging"
+
+		ERRORS=0
+		if [[ -d "$OUT"/output-dada-taxonomy ]];
+		then
+			printf  " * $PASS: Output directory created\n";
+		else
+			ERRORS=$((ERRORS+1))
+			printf  " * $FAIL: Output directory not created\n";
+		fi
+		if [ -e "$OUT"/output-dada-taxonomy/dadaist.log ];
+		then
+			printf  " * $PASS: Log was produced\n";
+		else
+			ERRORS=$((ERRORS+1))
+			printf  " * $FAIL: Log file not found\n";
+		fi
 
 
 
-	if [ -e "$OUT"/output-dada-taxonomy/feature-table.tsv ];
-	then
-		printf  " * $PASS: dada2 output found\n";
-	else
-		ERRORS=$((ERRORS+1))
-		printf  " * $FAIL: dada2 output not found\n";
-	fi
+		if [ -e "$OUT"/output-dada-taxonomy/feature-table.tsv ];
+		then
+			printf  " * $PASS: dada2 output found\n";
+		else
+			ERRORS=$((ERRORS+1))
+			printf  " * $FAIL: dada2 output not found\n";
+		fi
 
-	if [ -e "$OUT"/output-dada-taxonomy/taxonomy.txt ];
-	then
-		printf  " * $PASS: dada2 taxonomy found\n";
-	else
-		ERRORS=$((ERRORS+1))
-		printf  " * $FAIL: dada2 taxonomy not found\n";
-	fi
+		if [ -e "$OUT"/output-dada-taxonomy/taxonomy.txt ];
+		then
+			printf  " * $PASS: dada2 taxonomy found\n";
+		else
+			ERRORS=$((ERRORS+1))
+			printf  " * $FAIL: dada2 taxonomy not found\n";
+		fi
+
 fi
 
 # TEST: Assign Taxonomy
@@ -124,6 +133,7 @@ if [ $ERRORS -gt 0 ]; then
 	cat "$BASEDIR/output/dadaist.log"
 	exit 1
 else
+  printf " * $PASS: ALL TESTS PASSED\n";
   rm -rf "$BASEDIR"/dadaist2_??????/ || true
 fi
 

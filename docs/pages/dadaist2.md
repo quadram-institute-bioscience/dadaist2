@@ -51,7 +51,10 @@ Andrea Telatin <andrea.telatin@quadram.ac.uk>
 - _--skip-qc_
 
     Do not perform any filtering. 
-    _Experimental_.
+
+- _--notrim_
+
+    Do not trim primers (using fastp)
 
 ## Metabarcoding processing
 

@@ -33,8 +33,8 @@ Andrea Telatin <andrea.telatin@quadram.ac.uk>
 =cut
 
 # Minichangelog
-# 0.8.0  - 
-# 0.7.6+ - MultiQC, Rhea support, bugfixes...
+# 0.8.0  - `--dada-pool`
+# 0.7.7  - MultiQC, Rhea support, bugfixes...
 # 0.7.5  - Crosstalk
 # 0.7.3  - Bugfixes
 # 0.7.2  - No join
@@ -97,6 +97,7 @@ my $opt_seqfu        = undef;
 
 # FASTP Preprocess
 # To be autocalculated:
+my $opt_notrim;
 my $fastp_trim_front1 = 20;
 my $fastp_trim_front2 = 20;
 my $fastp_trim_tail1  = 0;
@@ -162,7 +163,9 @@ my $parsed = GetOptions(
  'save-rds'                        => \$opt_save_rds,
  's1|trim-primer-for=i'            => \$fastp_trim_front1,
  's2|trim-primer-rev=i'            => \$fastp_trim_front2,
+ 'no-trim'                         => \$opt_notrim,
  'j|just-concat'                   => \$opt_justconcat,
+ 'dada-pool'                       => \$opt_process_pool,
  'max-loss=f'                      => \$opt_maxloss,
  'crosstalk'                       => \$opt_crosstalk,
  'primers=s'                       => \$opt_primers,
@@ -224,7 +227,10 @@ I<Experimental>.
 =item I<--skip-qc>
 
 Do not perform any filtering. 
-I<Experimental>.
+
+=item I<--notrim>
+
+Do not trim primers (using fastp)
 
 =back
 
@@ -307,6 +313,10 @@ $opt_version && version();
 $opt_help    && pod2usage({-exitval => 0, -verbose => 2});
 $do_plots    = 'skip' if ($opt_skip_plots);
 
+if ($opt_notrim) {
+	$fastp_trim_front1 = 0;
+	$fastp_trim_front2 = 0;
+}
 $opt_verbose = 1 if ($opt_debug);
 
 
@@ -760,6 +770,7 @@ if ( $dada2_execution->{'exit'} != 0 ) {
   say STDERR color('red'), " *** ERROR *** " if ($opt_verbose);
 	$S->verbose("DADA2 Failed:\n> $dada2_execution->{stderr}\n> $dada2_execution->{stdout}");
 	$S->verbose("Input files: " . "${temp_dir}/{for,rev}");
+	our $EXIT_QUIET = 0;
 	exit 1;
 } else {
 	$S->verbose("DADA2 output:\n" . color('yellow') . $dada2_execution->{stdout} . color('reset')) if ($opt_debug);
@@ -1278,10 +1289,11 @@ sub check_required_binaries {
 		my $run = $S->run("${ $_[0]}{$bin}", { candie => 1});
 		addToTemplate($LOG_TEMPLATE, 'INIT_LOG', runToHtml($run), 'append');
 		if ($run->{exit} == 0 and $run->{stdout} !~/not found/) {
+			my $pass = $run->{stdout} =~/\S/ ? $run->{stdout} : '<pass>';
 			if ($opt_debug) {
-				$S->verbose("Checking $bin: $run->{stdout}") 
+				$S->verbose("Checking $bin: $pass") 
 			} else {
-				say STDERR " * $bin: ", color('yellow'), $run->{stdout}, color('reset');
+				say STDERR " * $bin: ", color('yellow'), $pass, color('reset');
 			}
 
 		} else {
