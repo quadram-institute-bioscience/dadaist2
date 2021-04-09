@@ -52,9 +52,14 @@ Andrea Telatin <andrea.telatin@quadram.ac.uk>
 
     Do not perform any filtering. 
 
-- _--notrim_
+- _--no-trim_
 
-    Do not trim primers (using fastp)
+    Do not trim primers (using fastp). Equivalent to
+    `--trim-primer-for 0 --trim-primer-rev 0`.
+
+- _--dada-pool_
+
+    Pool samples in DADA2 analysis (experimental)
 
 ## Metabarcoding processing
 
@@ -64,7 +69,8 @@ Andrea Telatin <andrea.telatin@quadram.ac.uk>
 
 - _--no-trunc_
 
-    Do not truncate reads (required for non-overlapping amplicons, like ITS)
+    Do not truncate reads at the end
+     (required for non-overlapping amplicons, like ITS)
 
 - _--maxee1_, and _--maxee2_ FLOAT
 

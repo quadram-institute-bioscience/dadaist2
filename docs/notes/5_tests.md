@@ -23,8 +23,9 @@ release:
 
 * QC
 * DADA2 denoising
-* DADA2 taxonomy
-* DECIPHER taxonomy
+* Taxonomy (DADA and DECIPHER)
+
+### QC test
 
 ### DADA2 test
 
@@ -35,6 +36,9 @@ dataset (from [Mothur](https://mothur.org)).
 In the repository we have a script (here 
 [dada2-sop.R](https://github.com/quadram-institute-bioscience/dadaist2/blob/master/test/miseq-sop-compare/dada2-sop.R))
 that uses the exact commands provided by the tutorial, which does not include any QC step.
+
+### Taxonomy (DADA and DECIPHER)
+
 ## Pipeline tests
 
 A pipeline require that the utilized components (see _Function Tests_) work together,

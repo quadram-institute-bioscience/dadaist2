@@ -2,12 +2,13 @@
 #ABSTRACT: A program to run DADA2 from the CLI
 use 5.012;
 use warnings;
-my $VERSION          = '0.8.0';
+my $VERSION          = '0.8.1';
 
 BEGIN { 
-		# Track starting time
-		our $EXIT_QUIET = 0;
-		our $START_TIME = time(); 
+		
+		our $EXIT_QUIET = 0;				# Set to true when some error is found (see END {})
+		our $STARTED = 0;						# Set to true when parameters are parsed and pipeline initialized (see END {})
+		our $START_TIME = time(); 	# Track starting time
 		my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst)=localtime(time);
 		our $EXECUTION_TIMESTAMP = sprintf ( "%04d%02d%02d %02d:%02d:%02d",
                                    $year+1900,$mon+1,$mday,$hour,$min,$sec);
@@ -181,7 +182,7 @@ my $parsed = GetOptions(
  'popup'                           => \$opt_notify,
  'version'                         => \$opt_version,
  'h|help'                          => \$opt_help,
-) || die " Parameters error, type --help for more info.\n";;
+) || die " Parameters error, type --help for more info.\n";
 
 die " ERROR: Unexpected parameters: ", join(", ", @ARGV), "\n" if ($ARGV[0]);
 =pod
@@ -228,9 +229,14 @@ I<Experimental>.
 
 Do not perform any filtering. 
 
-=item I<--notrim>
+=item I<--no-trim>
 
-Do not trim primers (using fastp)
+Do not trim primers (using fastp). Equivalent to
+C<--trim-primer-for 0 --trim-primer-rev 0>.
+
+=item I<--dada-pool>
+
+Pool samples in DADA2 analysis (experimental)
 
 =back
 
@@ -246,7 +252,8 @@ Minimum average quality for DADA2 truncation (default: 28)
 
 =item I<--no-trunc>
 
-Do not truncate reads (required for non-overlapping amplicons, like ITS)
+Do not truncate reads at the end
+ (required for non-overlapping amplicons, like ITS)
 
 =item I<--maxee1>, and I<--maxee2> FLOAT
 
@@ -362,7 +369,7 @@ my $S = FASTX::ScriptHelper->new({
 	verbose    => $opt_verbose,
 	logfile    => $log_filename,
 });
-
+our $STARTED = 1;
 $S->verbose("$PROGRAM $VERSION");
 notify_message("Starting dadaist2");
 
@@ -1464,12 +1471,12 @@ END {
 		addToTemplate($LOG_TEMPLATE, 'EXECUTION_TIMESTAMP', our $EXECUTION_TIMESTAMP);
 		my $html_log = makeTemplate($TEMPLATE, $LOG_TEMPLATE);
 
-		if (defined $opt_output_directory and defined $html_log) {
+		if ($STARTED and defined $opt_output_directory and defined $html_log) {
 			open (my $O, '>', "$opt_output_directory/dadaist2.html");
 			print {$O} $html_log;
 			close $O;
 		}
-		if (our $EXIT_QUIET == 0) {
+		if (our $EXIT_QUIET == 0 and our $STARTED > 0) {
 			say STDERR "Dadaist2 execution finished (", formatsec($run_time),")";
 		}
 }
