@@ -2,6 +2,7 @@
 # mkdir prova_mqc && cd prova_mqc
 
 # rm -rf data_for_mqc/ report_by_mqc/ && ../bin/dadaist2-mqc-report-test -i ../example-output -o data_for_mqc && multiqc -f -o report_by_mqc -c data_for_mqc/mqc.yaml data_for_mqc/
+# ./bin/dadaist2-mqc-report -i example-output -o example-report && multiqc -f -o example-mqc -c example-report/report_mqc.yaml example-report
 
 # apparentemente bisogna specificare -c 
 # provare --lint
@@ -41,7 +42,6 @@ if __name__ == '__main__':
 	parser = argparse.ArgumentParser(description='Produce multiqc report')
 	parser.add_argument('-i', '--input-dir', required=True)
 	parser.add_argument('-t', '--toptaxa', type=int, default=10)
-	parser.add_argument('-l', '--level', type=int, default=3)
 	parser.add_argument('-o', '--output-dir', required=True)
 	args = parser.parse_args()
 
@@ -77,17 +77,35 @@ if __name__ == '__main__':
 			main_taxa = main_taxa[:max_groups - 1].tolist() + ['OTHER']
 		feat_by_taxa_df = feat_df.groupby('TAXA').sum().loc[main_taxa]
 
-		feat_by_taxa_df.T.to_csv(args.output_dir + '/taxacounts_{}.tsv'.format(level), sep='\t')
+		#feat_by_taxa_df.T.to_csv(args.output_dir + '/taxacounts_{}.tsv'.format(level), sep='\t')
 		taxa_labels.append(level_name)
 		taxa_data.append({sample: counts.to_dict() for sample, counts in feat_by_taxa_df.items()})
 		
 	# DATA STATS
 	dadastats_df = pandas.read_csv(args.input_dir + '/dada2_stats.tsv', sep='\t', index_col=0)
-	dadastats_df.iloc[:,1:].div(dadastats_df.iloc[:,0])
-	dadastats_diff = dadastats_df.copy()
-	for step, name in enumerate(dadastats_diff.columns[:-1]):
-		dadastats_diff[name] -= dadastats_diff.iloc[:, step + 1]
-	dadastats_data = {sample: counts.to_dict() for sample, counts in dadastats_diff.iterrows()}
+	dadastats_raw_data = {sample: counts.to_dict() for sample, counts in dadastats_df.iterrows()}
+	#dadastats_df.iloc[:,1:].div(dadastats_df.iloc[:,0])
+	if False:
+		dadastats_delta_df = pandas.DataFrame({
+			'filter failed': dadastats_df['input'] - dadastats_df['filtered'],
+			'denoise failed': dadastats_df['filtered'] - dadastats_df['denoised'],
+			'merge failed': dadastats_df['denoised'] - dadastats_df['merged'],
+			'chimeric': dadastats_df['merged'] - dadastats_df['non-chimeric'],
+			'good': dadastats_df['non-chimeric'],
+		})
+		dadastats_delta_data = {sample: counts.to_dict() for sample, counts in dadastats_delta_df.iterrows()}
+		dadastats_ratio_df = pandas.DataFrame({
+			'filtered': dadastats_df['filtered']/dadastats_df['input'],
+			'denoised': dadastats_df['denoised']/dadastats_df['filtered'],
+			'merged': dadastats_df['merged']/dadastats_df['denoised'],
+			'non-chimeric': dadastats_df['non-chimeric']/dadastats_df['merged'],
+		})*100 # percentage
+		dadastats_ratio_data = {sample: counts.to_dict() for sample, counts in dadastats_ratio_df.iterrows()}
+		
+	#dadastats_diff = dadastats_df.copy()
+	#for step, name in enumerate(dadastats_diff.columns[:-1]):
+	#	dadastats_diff[name] -= dadastats_diff.iloc[:, step + 1]
+	#dadastats_data = {sample: counts.to_dict() for sample, counts in dadastats_diff.iterrows()}
 	
 	# FASTA REPORT
 	max_seqs = 3
@@ -129,14 +147,14 @@ if __name__ == '__main__':
 	df = feat_df[samples]
 	dfn = df.div(df.sum()) # normalized by total counts
 
-	# octave plot
+	# OCTAVE PLOT
 	import math
 	octave_breaks = [2**i for i in range(math.ceil(math.log2(df.max().max())) + 1)]
 	octave_plot = df.apply(lambda sample: pandas.cut(sample, octave_breaks, right=False).value_counts())
 	octave_plot.index = octave_plot.index.map(lambda interval: '{}-{}'.format(interval.left, interval.right - 1))
 	octave_plot.to_csv(args.output_dir + '/octaveplot.tsv', sep='\t')
 
-	# bray-curtis
+	# BRAY-CURTIS dissimilarity
 	import itertools
 	bray_curtis = pandas.DataFrame(0.0, index=samples, columns=samples)
 	for i, j in itertools.combinations(samples, 2):
@@ -152,18 +170,18 @@ if __name__ == '__main__':
 	# for plot config see https://github.com/ewels/MultiQC/blob/master/docs/plots.md
 	mqc_config = {
 		'title': 'Dadaist2',
-		'subtitle': 'FIXME',
+		'subtitle': 'FIXME854',
 		'intro_text': 'MultiQC report generated from the Dadaist2 pipeline',
 		#'report_header_info': {
 		#	'Contact E-mail': 'andrea.telatin@quadram.ac.uk',
 		#	'Application Type': 'FIXME',
 		#},
 		'run_modules': [
-#'fastp',
+			'fastp',
 			'custom_content',
 		],
 		'module_order': [
-#'fastp',
+			'fastp',
 			'custom_content',
 		],
 		'custom_content': {
@@ -172,21 +190,52 @@ if __name__ == '__main__':
 			],
 		},
 		'custom_data': {
-			'dadastats': {
+			'dada2stats_raw': {
 				'parent_id': 'qc',
 				'parent_name': 'Quality Checks',
 				'section_name': 'QC',
 				#'parent_description': 'This section reports the taxonomic profiles of all ranks',
+				'plot_type': 'bargraph',
+				'data': dadastats_raw_data,
 				'pconfig': {
 					'id': 'cleaning',
-					'title': 'Read cleaning',
+					'title': 'Data2 Stats: read filtering',
+					'stacking': False,
+					'cpswitch': False,
+					#'ylab': 'FIXME295',
 				},
-				'plot_type': 'bargraph',
-				'data': dadastats_data,
 			},
+#			'dada2stats_deltas': {
+#				'parent_id': 'qc',
+#				'parent_name': 'Quality Checks',
+#				'section_name': 'QC',
+#				'plot_type': 'bargraph',
+#				#'data': [dadastats_delta_data, dadastats_ratio_data],
+#				'data': dadastats_delta_data,
+#				'pconfig': {
+#					'id': 'cleaning',
+#					'title': 'Data2 Stats: read filtering',
+#					#'ylab': 'FIXME295',
+#				},
+#			},
+#			'dada2stats_ratios': {
+#				'parent_id': 'qc',
+#				'parent_name': 'Quality Checks',
+#				'section_name': 'QC',
+#				#'parent_description': 'This section reports the taxonomic profiles of all ranks',
+#				'plot_type': 'bargraph',
+#				'data': dadastats_ratio_data,
+#				'pconfig': {
+#					'id': 'dada2stats_ratios',
+#					'title': 'Data2 Stats: read filtering ratios',
+#					'stacking': False,
+#					'cpswitch': False,
+#					'ylab': 'Percentages',
+#				},
+#			},
 			'octaveplot': {
 				'parent_id': 'qc',
-				'section_name': 'Octave plot',
+				#'section_name': 'Octave plot',
 				'description': 'Aboundance distribution of sequences per sample. Sequences are binned by their log2 counts for each sample. See https://doi.org/10.1101/389833',
 				#'plot_type': 'linegraph # FIXME penso questo funzionerebbe meglio ma il report si pianta quando lo uso',
 				'plot_type': 'bargraph',
@@ -196,36 +245,41 @@ if __name__ == '__main__':
 					'cpswitch': False,
 					'stacking': False,
 					'id': 'octaveplot',
-					'title': 'Octave Plot',
+					'title': 'Dadaist2: Octave plot',
 				},
 			},
 			'braycurtis': {
 				'parent_id': 'samples',
 				'parent_name': 'Samples',
 				#'parent_description': 'This section reports the taxonomic profiles of all ranks',
-				'section_name': 'Bray-Curtis dissimilarity',
+				#'section_name': 'Bray-Curtis dissimilarity',
 				'description': 'Bray-Curtis dissimilarity between samples',
 				'plot_type': 'heatmap',
 				#'ymin': '0',
 				#'ymax': '1',
 				'pconfig': {
-					'title': 'Bray-Curtis dissimilarity',
+					'title': 'Dadaist2: Bray-Curtis dissimilarity',
 					'id': 'braycurtis',
+					#'ylab': 'FIXME694',
 				},
 			},
 			'seqs': {
 				'parent_id': 'qc',
+				'parent_name': 'Quality Checks',
 				'section_name': 'Most common sequences CIAO',
 				'description': 'FIXME11',
 				'plot_type': 'html',
 			},
 			'taxa': {
 				'parent_id': 'samples',
-				'title': 'Ciao',
+				#'title': 'Ciao',
 				'plot_type': 'bargraph',
 				'pconfig': {
+					'id': 'taxonomy',
+					'title': 'Dadaist2: Taxonomy',
 					'data_labels': taxa_labels,
 					'cpswitch_c_active': False,
+					#'ylab': 'FIXME038',
 				},
 				'data': taxa_data,
 			},
@@ -234,13 +288,11 @@ if __name__ == '__main__':
 			'octaveplot': {'fn': 'octaveplot.tsv'},
 			'braycurtis': {'fn': 'braycurtis.tsv'},
 			'seqs': {'fn': 'seqs.html'},
-			#'taxa': {'fn': 'taxacounts_3.tsv'},
-			#'dadastats': {'fn': 'dada2_stats.tsv'},
 		}
 	}
 	import yaml
-	with open(args.output_dir + '/mqc.yaml', 'wt') as f:
-		yaml.dump(mqc_config, f)
+	with open(args.output_dir + '/report_mqc.yaml', 'wt') as f:
+		yaml.dump(mqc_config, f, sort_keys=False)
 	
 	#TODO aggiungere anche qc/A01.json  A02.json  F99.json
 
