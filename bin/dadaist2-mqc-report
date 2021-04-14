@@ -170,7 +170,7 @@ if __name__ == '__main__':
 	# for plot config see https://github.com/ewels/MultiQC/blob/master/docs/plots.md
 	mqc_config = {
 		'title': 'Dadaist2',
-		'subtitle': 'FIXME854',
+		#'subtitle': 'FIXME854',
 		'intro_text': 'MultiQC report generated from the Dadaist2 pipeline',
 		#'report_header_info': {
 		#	'Contact E-mail': 'andrea.telatin@quadram.ac.uk',
@@ -266,8 +266,8 @@ if __name__ == '__main__':
 			'seqs': {
 				'parent_id': 'qc',
 				'parent_name': 'Quality Checks',
-				'section_name': 'Most common sequences CIAO',
-				'description': 'FIXME11',
+				'section_name': 'Most common sequences',
+				#'description': 'FIXME11',
 				'plot_type': 'html',
 			},
 			'taxa': {
