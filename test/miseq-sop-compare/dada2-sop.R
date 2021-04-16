@@ -1,13 +1,13 @@
 
 
 args <- commandArgs(TRUE)
-if (len(args) != 4) {
-  stop(" Arguments: InputDir OutputDir TruncLen1 TruncLen2");
+if (length(args) != 4) {
+  stop(" Arguments: InputDir OutputDir TruncLen1 TruncLen2\n");
 }
 path      <- args[[1]]
 outdir    <- args[[2]]
 tl1       <- strtoi(args[[3]])
-tl2       <- strtiu(args[[4]])
+tl2       <- strtoi(args[[4]])
 ################### START SOP #####################
 
 cat(" Input:  ", path,"\n")
