@@ -1,0 +1,1264 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+ 
+<style>
+h1, h2, h3, h4, h5, h6, table, td, p { font-family: Helvetica, Verdana, Arial; }
+pre { white-space: pre-wrap; 
+overflow-x: auto;
+background-color: lightyellow;
+font-family: Consolas, "Andale Mono WT", "Andale Mono", "Lucida Console", "Lucida Sans Typewriter", "DejaVu Sans Mono", "Bitstream Vera Sans Mono", "Liberation Mono", "Nimbus Mono L", Monaco, "Courier New", Courier, monospace; }
+h1{ color: #b44;}
+.accordion {
+  background-color: #eee;
+  color: #444;
+  cursor: pointer;
+  padding: 18px;
+  width: 100%;
+  border: none;
+  text-align: left;
+  outline: none;
+  font-size: 15px;
+  transition: 0.4s;
+}
+
+.active, .accordion:hover {
+  background-color: #ccc;
+}
+
+.accordion:after {
+  content: '\002B';
+  color: #777;
+  font-weight: bold;
+  float: right;
+  margin-left: 5px;
+}
+
+.active:after {
+  content: "\2212";
+}
+
+.panel {
+  padding: 0 18px;
+  background-color: white;
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.2s ease-out;
+}
+
+/* Table */
+
+table {
+  font-family: arial, sans-serif;
+  border-collapse: collapse;
+  width: 100%;
+}
+
+td, th {
+  border: 1px solid #eee;
+  text-align: left;
+  padding: 8px;
+}
+th {
+  background-color: #ddd;
+}
+tr:nth-child(odd) {
+  background-color: #eee;
+}
+
+.bar .bar-item{padding:8px 16px;float:left;width:auto;border:none;display:block;outline:0}
+.bar .button{white-space:normal}
+.bar .dropdown-hover,.bar .dropdown-click{position:static;float:left}
+.bar-block .bar-item{width:100%;display:block;padding:8px 16px;text-align:left;border:none;white-space:normal;float:none;outline:0}
+.bar-block .dropdown-hover .button,.bar-block .dropdown-click .button{width:100%;text-align:left;padding:8px 16px}
+.bar-block .dropdown-hover .dropdown-content,.bar-block .dropdown-click .dropdown-content{min-width:100%}
+.bar-block .dropdown-hover,.bar-block .dropdown-click{width:100%}
+.bar-block.center .bar-item{text-align:center}.block{display:block;width:100%}
+.bar-block.center .bar-item{text-align:center}.block{display:block;width:100%}
+.bar{width:100%;overflow:hidden}.center .bar{display:inline-block;width:auto}
+.bar{width:100%;overflow:hidden}.center .bar{display:inline-block;width:auto}
+.black,.hover-black:hover{color:#fff!important;background-color:#000!important}
+.btn,.button{-webkit-touch-callout:none;-webkit-user-select:none;-khtml-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none}   
+.btn,.button{border:none;display:inline-block;padding:8px 16px;vertical-align:middle;overflow:hidden;text-decoration:none;color:inherit;background-color:inherit;text-align:center;cursor:pointer;white-space:nowrap}
+.button:hover{color:#000!important;background-color:#ccc!important}
+.cell-row:before,.cell-row:after,.clear:after,.clear:before,.bar:before,.bar:after{content:"";display:table;clear:both}
+.cell-row:before,.cell-row:after,.clear:after,.clear:before,.bar:before,.bar:after{content:"";display:table;clear:both}
+.cell-row:before,.cell-row:after,.clear:after,.clear:before,.bar:before,.bar:after{content:"";display:table;clear:both} 
+.container:after,.container:before,.panel:after,.panel:before,.row:after,.row:before,.row-padding:after,.row-padding:before,
+.disabled,.btn:disabled,.button:disabled{cursor:not-allowed;opacity:0.3}.disabled *,:disabled *{pointer-events:none}
+.display-topleft{position:absolute;left:0;top:0}.display-topright{position:absolute;right:0;top:0}
+.dropdown-hover.mobile,.dropdown-hover.mobile .btn,.dropdown-hover.mobile .button,.dropdown-click.mobile,.dropdown-click.mobile .btn,.dropdown-click.mobile .button{width:100%}}
+.dropdown-hover:hover > .button:first-child,.dropdown-click:hover > .button:first-child{background-color:#ccc;color:#000}
+.hide-small{display:none!important}.mobile{display:block;width:100%!important}.bar-item.mobile,.dropdown-hover.mobile,.dropdown-click.mobile{text-align:center}
+.tooltip,.display-container{position:relative}.tooltip .text{display:none}.tooltip:hover .text{display:inline-block}
+
+.responsive {
+  width: 100%;
+  height: auto;
+}
+</style>
+</head>
+<body>
+<h1>Dadaist2 0.8.0 execution log</h1>
+<p>
+This is not a report with the results of the pipeline, but the log of the events occurred to generate it.
+</p>
+<button class="accordion">Summary</button>
+<div class="panel">
+
+<!--summary -->
+ 
+
+<div class="bar black">
+  <button class="bar-item button" onclick="openCity('Summary')">Summary</button>
+  <button class="bar-item button" onclick="openCity('Parameters')">Parameters</button>
+  <button class="bar-item button" onclick="openCity('Host')">Machine</button>
+</div>
+
+<div id="Summary" class="container display-container city">
+  <span onclick="this.parentElement.style.display='none'"
+  class="button large display-topright">&times;</span>
+
+  <h2>Summary</h2>
+  <p>This reports contain technical details on the execution of 
+  <a href="https://quadram-institute-bioscience.github.io/dadaist2">Dadaist2</a>.</p>
+
+<table>
+  <tr>
+    <th>Parameter</th>
+    <th>Value</th>
+  </tr>
+  <tr>
+    <td>Input</td>
+    <td>/home/ubuntu/volume/16s/mothur-sop/subsample</td>
+  </tr>
+  <tr>
+    <td>Output</td>
+    <td>/home/ubuntu/volume/16s/mothur-sop/dadaist_0.8.0/subsample-silva-default</td>
+  </tr>
+  <tr>
+    <td>Timestamp</td>
+    <td>20210408 20:39:21</td>
+  </tr>
+  <tr>
+    <td>Execution time</td>
+    <td>4m 29s</td>
+  </tr>
+
+</table>
+
+
+</div>
+
+<div id="Parameters" class="container display-container city" style="display:none">
+  <span onclick="this.parentElement.style.display='none'"
+  class="button large display-topright">&times;</span>
+  <h2>Parameters</h2>  
+	<table>
+  <tr>
+    <th>Parameter</th>
+    <th>Value</th>
+  </tr>
+	<br><tr>
+    	<td>Database</td>
+    	<td>/home/ubuntu/volume/dadaist2/refs/silva_nr_v138_train_set.fa.gz</td>
+  	</tr><br><tr>
+    	<td>Metadata</td>
+    	<td>/home/ubuntu/volume/16s/mothur-sop/metadata.tsv</td>
+  	</tr><br><tr>
+    	<td>Threads</td>
+    	<td>/home/ubuntu/volume/16s/mothur-sop/32</td>
+  	</tr>
+	</table>
+</div>
+
+<div id="Host" class="container display-container city" style="display:none">
+  <span onclick="this.parentElement.style.display='none'"
+  class="button large display-topright">&times;</span>
+  <h2>Machine details</h2>
+<table>
+  <tr>
+    <th>Timestamp</th>
+    <th>Event</th>
+  </tr>
+  <tr>
+    <td>Processors</td>
+    <td>64</td>
+  </tr>
+  <tr>
+    <td>RAM</td>
+    <td>78.662109375 Gb</td>
+  </tr>
+  <tr>
+    <td>OS</td>
+    <td>Linux andreb 4.4.0-197-generic #229-Ubuntu SMP Wed Nov 25 11:05:42 UTC 2020 x86_64 x86_64 x86_64 GNU/Linux
+</td>
+  </tr>
+</table>
+</div>
+
+ <br>
+</div>
+<!--/summary-->
+
+
+
+
+
+<button class="accordion">Read trimming (process)</button>
+<div class="panel">
+  <br><p><h3>Shell command <span style="color: #b44">fastp</span></h3><p>Executed at <em>2021-04-08 20:39:40</em> for <em>1.04s</em> and  returned 0 </p>'<p><strong>Command</strong><pre>fastp <br><b>-w</b> 8 <br><b>-i</b> "/home/ubuntu/volume/16s/mothur-sop/subsample/F3D0_S188_L001_R1_001.fastq" <br><b>-I</b> "/home/ubuntu/volume/16s/mothur-sop/subsample/F3D0_S188_L001_R2_001.fastq" <br><b>-o</b> "/tmp/dadaist2_oaSFvt"/for/F3D0_R1.fastq.gz <br><b>-O</b>  "/tmp/dadaist2_oaSFvt"/rev/F3D0_R2.fastq.gz   <br><b>--trim_front1</b> 20 <br><b>--trim_front2</b>  20  <br><b>--detect_adapter_for_pe</b> <br><b>--disable_quality_filtering</b> <br><b>--n_base_limit</b>  1   <br><b>--json</b> "/tmp/dadaist2_oaSFvt/F3D0.json" <br><b>--html</b> /dev/null  <br><b>--trim_tail1</b> 0 <br><b>--trim_tail2</b> 0 <br><b>--length_required</b> 110 </pre></p>
+<p><strong>Standard output</strong><pre><p><strong>Standard error</strong><pre>Detecting adapter sequence for read1...
+No adapter detected for read1
+
+Detecting adapter sequence for read2...
+No adapter detected for read2
+
+Read1 before filtering:
+total reads: 7793
+total bases: 1955914
+Q20 bases: 1861780(95.1872%)
+Q30 bases: 1810170(92.5485%)
+
+Read2 before filtering:
+total reads: 7793
+total bases: 1953534
+Q20 bases: 1726416(88.374%)
+Q30 bases: 1614066(82.6229%)
+
+Read1 after filtering:
+total reads: 7793
+total bases: 1799970
+Q20 bases: 1708262(94.905%)
+Q30 bases: 1657320(92.0749%)
+
+Read2 aftering filtering:
+total reads: 7793
+total bases: 1797590
+Q20 bases: 1575545(87.6476%)
+Q30 bases: 1464970(81.4963%)
+
+Filtering result:
+reads passed filter: 15586
+reads failed due to low quality: 0
+reads failed due to too many N: 0
+reads failed due to too short: 0
+reads with adapter trimmed: 13896
+bases trimmed due to adapters: 168
+
+Duplication rate: 26.3736%
+
+Insert size peak (evaluated by paired-end reads): 253
+
+JSON report: /tmp/dadaist2_oaSFvt/F3D0.json
+HTML report: /dev/null
+
+fastp -w 8 -i /home/ubuntu/volume/16s/mothur-sop/subsample/F3D0_S188_L001_R1_001.fastq -I /home/ubuntu/volume/16s/mothur-sop/subsample/F3D0_S188_L001_R2_001.fastq -o /tmp/dadaist2_oaSFvt/for/F3D0_R1.fastq.gz -O /tmp/dadaist2_oaSFvt/rev/F3D0_R2.fastq.gz --trim_front1 20 --trim_front2 20 --detect_adapter_for_pe --disable_quality_filtering --n_base_limit 1 --json /tmp/dadaist2_oaSFvt/F3D0.json --html /dev/null --trim_tail1 0 --trim_tail2 0 --length_required 110 
+fastp v0.20.1, time used: 1 seconds</p>
+<br><p><h3>Shell command <span style="color: #b44">fastp</span></h3><p>Executed at <em>2021-04-08 20:39:41</em> for <em>1.18s</em> and  returned 0 </p>'<p><strong>Command</strong><pre>fastp <br><b>-w</b> 8 <br><b>-i</b> "/home/ubuntu/volume/16s/mothur-sop/subsample/F3D1_S189_L001_R1_001.fastq" <br><b>-I</b> "/home/ubuntu/volume/16s/mothur-sop/subsample/F3D1_S189_L001_R2_001.fastq" <br><b>-o</b> "/tmp/dadaist2_oaSFvt"/for/F3D1_R1.fastq.gz <br><b>-O</b>  "/tmp/dadaist2_oaSFvt"/rev/F3D1_R2.fastq.gz   <br><b>--trim_front1</b> 20 <br><b>--trim_front2</b>  20  <br><b>--detect_adapter_for_pe</b> <br><b>--disable_quality_filtering</b> <br><b>--n_base_limit</b>  1   <br><b>--json</b> "/tmp/dadaist2_oaSFvt/F3D1.json" <br><b>--html</b> /dev/null  <br><b>--trim_tail1</b> 0 <br><b>--trim_tail2</b> 0 <br><b>--length_required</b> 110 </pre></p>
+<p><strong>Standard output</strong><pre><p><strong>Standard error</strong><pre>Detecting adapter sequence for read1...
+No adapter detected for read1
+
+Detecting adapter sequence for read2...
+No adapter detected for read2
+
+Read1 before filtering:
+total reads: 5869
+total bases: 1473024
+Q20 bases: 1391828(94.4878%)
+Q30 bases: 1348464(91.5439%)
+
+Read2 before filtering:
+total reads: 5869
+total bases: 1471648
+Q20 bases: 1308416(88.9082%)
+Q30 bases: 1229967(83.5775%)
+
+Read1 after filtering:
+total reads: 5869
+total bases: 1355643
+Q20 bases: 1276325(94.149%)
+Q30 bases: 1233521(90.9916%)
+
+Read2 aftering filtering:
+total reads: 5869
+total bases: 1354268
+Q20 bases: 1194849(88.2284%)
+Q30 bases: 1117746(82.5351%)
+
+Filtering result:
+reads passed filter: 11738
+reads failed due to low quality: 0
+reads failed due to too many N: 0
+reads failed due to too short: 0
+reads with adapter trimmed: 10762
+bases trimmed due to adapters: 1
+
+Duplication rate: 17.3333%
+
+Insert size peak (evaluated by paired-end reads): 253
+
+JSON report: /tmp/dadaist2_oaSFvt/F3D1.json
+HTML report: /dev/null
+
+fastp -w 8 -i /home/ubuntu/volume/16s/mothur-sop/subsample/F3D1_S189_L001_R1_001.fastq -I /home/ubuntu/volume/16s/mothur-sop/subsample/F3D1_S189_L001_R2_001.fastq -o /tmp/dadaist2_oaSFvt/for/F3D1_R1.fastq.gz -O /tmp/dadaist2_oaSFvt/rev/F3D1_R2.fastq.gz --trim_front1 20 --trim_front2 20 --detect_adapter_for_pe --disable_quality_filtering --n_base_limit 1 --json /tmp/dadaist2_oaSFvt/F3D1.json --html /dev/null --trim_tail1 0 --trim_tail2 0 --length_required 110 
+fastp v0.20.1, time used: 1 seconds</p>
+<br><p><h3>Shell command <span style="color: #b44">fastp</span></h3><p>Executed at <em>2021-04-08 20:39:43</em> for <em>0.97s</em> and  returned 0 </p>'<p><strong>Command</strong><pre>fastp <br><b>-w</b> 8 <br><b>-i</b> "/home/ubuntu/volume/16s/mothur-sop/subsample/F3D141_S207_L001_R1_001.fastq" <br><b>-I</b> "/home/ubuntu/volume/16s/mothur-sop/subsample/F3D141_S207_L001_R2_001.fastq" <br><b>-o</b> "/tmp/dadaist2_oaSFvt"/for/F3D141_R1.fastq.gz <br><b>-O</b>  "/tmp/dadaist2_oaSFvt"/rev/F3D141_R2.fastq.gz   <br><b>--trim_front1</b> 20 <br><b>--trim_front2</b>  20  <br><b>--detect_adapter_for_pe</b> <br><b>--disable_quality_filtering</b> <br><b>--n_base_limit</b>  1   <br><b>--json</b> "/tmp/dadaist2_oaSFvt/F3D141.json" <br><b>--html</b> /dev/null  <br><b>--trim_tail1</b> 0 <br><b>--trim_tail2</b> 0 <br><b>--length_required</b> 110 </pre></p>
+<p><strong>Standard output</strong><pre><p><strong>Standard error</strong><pre>Detecting adapter sequence for read1...
+No adapter detected for read1
+
+Detecting adapter sequence for read2...
+No adapter detected for read2
+
+Read1 before filtering:
+total reads: 5958
+total bases: 1495347
+Q20 bases: 1425359(95.3196%)
+Q30 bases: 1388281(92.8401%)
+
+Read2 before filtering:
+total reads: 5958
+total bases: 1493188
+Q20 bases: 1310228(87.747%)
+Q30 bases: 1217917(81.5649%)
+
+Read1 after filtering:
+total reads: 5958
+total bases: 1376183
+Q20 bases: 1307756(95.0278%)
+Q30 bases: 1271114(92.3652%)
+
+Read2 aftering filtering:
+total reads: 5958
+total bases: 1374024
+Q20 bases: 1194475(86.9326%)
+Q30 bases: 1103485(80.3105%)
+
+Filtering result:
+reads passed filter: 11916
+reads failed due to low quality: 0
+reads failed due to too many N: 0
+reads failed due to too short: 0
+reads with adapter trimmed: 10400
+bases trimmed due to adapters: 8
+
+Duplication rate: 10.7143%
+
+Insert size peak (evaluated by paired-end reads): 252
+
+JSON report: /tmp/dadaist2_oaSFvt/F3D141.json
+HTML report: /dev/null
+
+fastp -w 8 -i /home/ubuntu/volume/16s/mothur-sop/subsample/F3D141_S207_L001_R1_001.fastq -I /home/ubuntu/volume/16s/mothur-sop/subsample/F3D141_S207_L001_R2_001.fastq -o /tmp/dadaist2_oaSFvt/for/F3D141_R1.fastq.gz -O /tmp/dadaist2_oaSFvt/rev/F3D141_R2.fastq.gz --trim_front1 20 --trim_front2 20 --detect_adapter_for_pe --disable_quality_filtering --n_base_limit 1 --json /tmp/dadaist2_oaSFvt/F3D141.json --html /dev/null --trim_tail1 0 --trim_tail2 0 --length_required 110 
+fastp v0.20.1, time used: 1 seconds</p>
+<br><p><h3>Shell command <span style="color: #b44">fastp</span></h3><p>Executed at <em>2021-04-08 20:39:44</em> for <em>0.90s</em> and  returned 0 </p>'<p><strong>Command</strong><pre>fastp <br><b>-w</b> 8 <br><b>-i</b> "/home/ubuntu/volume/16s/mothur-sop/subsample/F3D142_S208_L001_R1_001.fastq" <br><b>-I</b> "/home/ubuntu/volume/16s/mothur-sop/subsample/F3D142_S208_L001_R2_001.fastq" <br><b>-o</b> "/tmp/dadaist2_oaSFvt"/for/F3D142_R1.fastq.gz <br><b>-O</b>  "/tmp/dadaist2_oaSFvt"/rev/F3D142_R2.fastq.gz   <br><b>--trim_front1</b> 20 <br><b>--trim_front2</b>  20  <br><b>--detect_adapter_for_pe</b> <br><b>--disable_quality_filtering</b> <br><b>--n_base_limit</b>  1   <br><b>--json</b> "/tmp/dadaist2_oaSFvt/F3D142.json" <br><b>--html</b> /dev/null  <br><b>--trim_tail1</b> 0 <br><b>--trim_tail2</b> 0 <br><b>--length_required</b> 110 </pre></p>
+<p><strong>Standard output</strong><pre><p><strong>Standard error</strong><pre>Detecting adapter sequence for read1...
+No adapter detected for read1
+
+Detecting adapter sequence for read2...
+No adapter detected for read2
+
+Read1 before filtering:
+total reads: 3183
+total bases: 798912
+Q20 bases: 764105(95.6432%)
+Q30 bases: 745531(93.3183%)
+
+Read2 before filtering:
+total reads: 3183
+total bases: 797648
+Q20 bases: 691812(86.7315%)
+Q30 bases: 638520(80.0503%)
+
+Read1 after filtering:
+total reads: 3183
+total bases: 735252
+Q20 bases: 701177(95.3655%)
+Q30 bases: 682849(92.8728%)
+
+Read2 aftering filtering:
+total reads: 3183
+total bases: 733988
+Q20 bases: 630231(85.8639%)
+Q30 bases: 577655(78.7009%)
+
+Filtering result:
+reads passed filter: 6366
+reads failed due to low quality: 0
+reads failed due to too many N: 0
+reads failed due to too short: 0
+reads with adapter trimmed: 5428
+bases trimmed due to adapters: 0
+
+Duplication rate: 24%
+
+Insert size peak (evaluated by paired-end reads): 0
+
+JSON report: /tmp/dadaist2_oaSFvt/F3D142.json
+HTML report: /dev/null
+
+fastp -w 8 -i /home/ubuntu/volume/16s/mothur-sop/subsample/F3D142_S208_L001_R1_001.fastq -I /home/ubuntu/volume/16s/mothur-sop/subsample/F3D142_S208_L001_R2_001.fastq -o /tmp/dadaist2_oaSFvt/for/F3D142_R1.fastq.gz -O /tmp/dadaist2_oaSFvt/rev/F3D142_R2.fastq.gz --trim_front1 20 --trim_front2 20 --detect_adapter_for_pe --disable_quality_filtering --n_base_limit 1 --json /tmp/dadaist2_oaSFvt/F3D142.json --html /dev/null --trim_tail1 0 --trim_tail2 0 --length_required 110 
+fastp v0.20.1, time used: 1 seconds</p>
+<br><p><h3>Shell command <span style="color: #b44">fastp</span></h3><p>Executed at <em>2021-04-08 20:39:45</em> for <em>0.85s</em> and  returned 0 </p>'<p><strong>Command</strong><pre>fastp <br><b>-w</b> 8 <br><b>-i</b> "/home/ubuntu/volume/16s/mothur-sop/subsample/F3D143_S209_L001_R1_001.fastq" <br><b>-I</b> "/home/ubuntu/volume/16s/mothur-sop/subsample/F3D143_S209_L001_R2_001.fastq" <br><b>-o</b> "/tmp/dadaist2_oaSFvt"/for/F3D143_R1.fastq.gz <br><b>-O</b>  "/tmp/dadaist2_oaSFvt"/rev/F3D143_R2.fastq.gz   <br><b>--trim_front1</b> 20 <br><b>--trim_front2</b>  20  <br><b>--detect_adapter_for_pe</b> <br><b>--disable_quality_filtering</b> <br><b>--n_base_limit</b>  1   <br><b>--json</b> "/tmp/dadaist2_oaSFvt/F3D143.json" <br><b>--html</b> /dev/null  <br><b>--trim_tail1</b> 0 <br><b>--trim_tail2</b> 0 <br><b>--length_required</b> 110 </pre></p>
+<p><strong>Standard output</strong><pre><p><strong>Standard error</strong><pre>Detecting adapter sequence for read1...
+No adapter detected for read1
+
+Detecting adapter sequence for read2...
+No adapter detected for read2
+
+Read1 before filtering:
+total reads: 3178
+total bases: 797624
+Q20 bases: 761664(95.4916%)
+Q30 bases: 742072(93.0353%)
+
+Read2 before filtering:
+total reads: 3178
+total bases: 796544
+Q20 bases: 695494(87.3139%)
+Q30 bases: 643987(80.8476%)
+
+Read1 after filtering:
+total reads: 3178
+total bases: 734064
+Q20 bases: 699020(95.226%)
+Q30 bases: 679670(92.59%)
+
+Read2 aftering filtering:
+total reads: 3178
+total bases: 732984
+Q20 bases: 633977(86.4926%)
+Q30 bases: 583279(79.576%)
+
+Filtering result:
+reads passed filter: 6356
+reads failed due to low quality: 0
+reads failed due to too many N: 0
+reads failed due to too short: 0
+reads with adapter trimmed: 5474
+bases trimmed due to adapters: 0
+
+Duplication rate: 20.7547%
+
+Insert size peak (evaluated by paired-end reads): 252
+
+JSON report: /tmp/dadaist2_oaSFvt/F3D143.json
+HTML report: /dev/null
+
+fastp -w 8 -i /home/ubuntu/volume/16s/mothur-sop/subsample/F3D143_S209_L001_R1_001.fastq -I /home/ubuntu/volume/16s/mothur-sop/subsample/F3D143_S209_L001_R2_001.fastq -o /tmp/dadaist2_oaSFvt/for/F3D143_R1.fastq.gz -O /tmp/dadaist2_oaSFvt/rev/F3D143_R2.fastq.gz --trim_front1 20 --trim_front2 20 --detect_adapter_for_pe --disable_quality_filtering --n_base_limit 1 --json /tmp/dadaist2_oaSFvt/F3D143.json --html /dev/null --trim_tail1 0 --trim_tail2 0 --length_required 110 
+fastp v0.20.1, time used: 1 seconds</p>
+<br><p><h3>Shell command <span style="color: #b44">fastp</span></h3><p>Executed at <em>2021-04-08 20:39:46</em> for <em>0.93s</em> and  returned 0 </p>'<p><strong>Command</strong><pre>fastp <br><b>-w</b> 8 <br><b>-i</b> "/home/ubuntu/volume/16s/mothur-sop/subsample/F3D144_S210_L001_R1_001.fastq" <br><b>-I</b> "/home/ubuntu/volume/16s/mothur-sop/subsample/F3D144_S210_L001_R2_001.fastq" <br><b>-o</b> "/tmp/dadaist2_oaSFvt"/for/F3D144_R1.fastq.gz <br><b>-O</b>  "/tmp/dadaist2_oaSFvt"/rev/F3D144_R2.fastq.gz   <br><b>--trim_front1</b> 20 <br><b>--trim_front2</b>  20  <br><b>--detect_adapter_for_pe</b> <br><b>--disable_quality_filtering</b> <br><b>--n_base_limit</b>  1   <br><b>--json</b> "/tmp/dadaist2_oaSFvt/F3D144.json" <br><b>--html</b> /dev/null  <br><b>--trim_tail1</b> 0 <br><b>--trim_tail2</b> 0 <br><b>--length_required</b> 110 </pre></p>
+<p><strong>Standard output</strong><pre><p><strong>Standard error</strong><pre>Detecting adapter sequence for read1...
+No adapter detected for read1
+
+Detecting adapter sequence for read2...
+No adapter detected for read2
+
+Read1 before filtering:
+total reads: 4827
+total bases: 1211542
+Q20 bases: 1145768(94.5711%)
+Q30 bases: 1111861(91.7724%)
+
+Read2 before filtering:
+total reads: 4827
+total bases: 1209516
+Q20 bases: 1028996(85.075%)
+Q30 bases: 941297(77.8243%)
+
+Read1 after filtering:
+total reads: 4827
+total bases: 1114994
+Q20 bases: 1050668(94.2308%)
+Q30 bases: 1017161(91.2257%)
+
+Read2 aftering filtering:
+total reads: 4827
+total bases: 1112967
+Q20 bases: 936318(84.1281%)
+Q30 bases: 849968(76.3696%)
+
+Filtering result:
+reads passed filter: 9654
+reads failed due to low quality: 0
+reads failed due to too many N: 0
+reads failed due to too short: 0
+reads with adapter trimmed: 7934
+bases trimmed due to adapters: 17
+
+Duplication rate: 21.6667%
+
+Insert size peak (evaluated by paired-end reads): 252
+
+JSON report: /tmp/dadaist2_oaSFvt/F3D144.json
+HTML report: /dev/null
+
+fastp -w 8 -i /home/ubuntu/volume/16s/mothur-sop/subsample/F3D144_S210_L001_R1_001.fastq -I /home/ubuntu/volume/16s/mothur-sop/subsample/F3D144_S210_L001_R2_001.fastq -o /tmp/dadaist2_oaSFvt/for/F3D144_R1.fastq.gz -O /tmp/dadaist2_oaSFvt/rev/F3D144_R2.fastq.gz --trim_front1 20 --trim_front2 20 --detect_adapter_for_pe --disable_quality_filtering --n_base_limit 1 --json /tmp/dadaist2_oaSFvt/F3D144.json --html /dev/null --trim_tail1 0 --trim_tail2 0 --length_required 110 
+fastp v0.20.1, time used: 1 seconds</p>
+<br><p><h3>Shell command <span style="color: #b44">fastp</span></h3><p>Executed at <em>2021-04-08 20:39:48</em> for <em>0.99s</em> and  returned 0 </p>'<p><strong>Command</strong><pre>fastp <br><b>-w</b> 8 <br><b>-i</b> "/home/ubuntu/volume/16s/mothur-sop/subsample/F3D145_S211_L001_R1_001.fastq" <br><b>-I</b> "/home/ubuntu/volume/16s/mothur-sop/subsample/F3D145_S211_L001_R2_001.fastq" <br><b>-o</b> "/tmp/dadaist2_oaSFvt"/for/F3D145_R1.fastq.gz <br><b>-O</b>  "/tmp/dadaist2_oaSFvt"/rev/F3D145_R2.fastq.gz   <br><b>--trim_front1</b> 20 <br><b>--trim_front2</b>  20  <br><b>--detect_adapter_for_pe</b> <br><b>--disable_quality_filtering</b> <br><b>--n_base_limit</b>  1   <br><b>--json</b> "/tmp/dadaist2_oaSFvt/F3D145.json" <br><b>--html</b> /dev/null  <br><b>--trim_tail1</b> 0 <br><b>--trim_tail2</b> 0 <br><b>--length_required</b> 110 </pre></p>
+<p><strong>Standard output</strong><pre><p><strong>Standard error</strong><pre>Detecting adapter sequence for read1...
+No adapter detected for read1
+
+Detecting adapter sequence for read2...
+No adapter detected for read2
+
+Read1 before filtering:
+total reads: 7377
+total bases: 1851563
+Q20 bases: 1765537(95.3539%)
+Q30 bases: 1720406(92.9164%)
+
+Read2 before filtering:
+total reads: 7377
+total bases: 1848416
+Q20 bases: 1573021(85.101%)
+Q30 bases: 1437093(77.7473%)
+
+Read1 after filtering:
+total reads: 7377
+total bases: 1704022
+Q20 bases: 1619936(95.0654%)
+Q30 bases: 1575344(92.4486%)
+
+Read2 aftering filtering:
+total reads: 7377
+total bases: 1700876
+Q20 bases: 1430515(84.1046%)
+Q30 bases: 1296320(76.2148%)
+
+Filtering result:
+reads passed filter: 14754
+reads failed due to low quality: 0
+reads failed due to too many N: 0
+reads failed due to too short: 0
+reads with adapter trimmed: 12144
+bases trimmed due to adapters: 1
+
+Duplication rate: 31.3953%
+
+Insert size peak (evaluated by paired-end reads): 252
+
+JSON report: /tmp/dadaist2_oaSFvt/F3D145.json
+HTML report: /dev/null
+
+fastp -w 8 -i /home/ubuntu/volume/16s/mothur-sop/subsample/F3D145_S211_L001_R1_001.fastq -I /home/ubuntu/volume/16s/mothur-sop/subsample/F3D145_S211_L001_R2_001.fastq -o /tmp/dadaist2_oaSFvt/for/F3D145_R1.fastq.gz -O /tmp/dadaist2_oaSFvt/rev/F3D145_R2.fastq.gz --trim_front1 20 --trim_front2 20 --detect_adapter_for_pe --disable_quality_filtering --n_base_limit 1 --json /tmp/dadaist2_oaSFvt/F3D145.json --html /dev/null --trim_tail1 0 --trim_tail2 0 --length_required 110 
+fastp v0.20.1, time used: 1 seconds</p>
+<br><p><h3>Shell command <span style="color: #b44">fastp</span></h3><p>Executed at <em>2021-04-08 20:39:49</em> for <em>0.89s</em> and  returned 0 </p>'<p><strong>Command</strong><pre>fastp <br><b>-w</b> 8 <br><b>-i</b> "/home/ubuntu/volume/16s/mothur-sop/subsample/F3D146_S212_L001_R1_001.fastq" <br><b>-I</b> "/home/ubuntu/volume/16s/mothur-sop/subsample/F3D146_S212_L001_R2_001.fastq" <br><b>-o</b> "/tmp/dadaist2_oaSFvt"/for/F3D146_R1.fastq.gz <br><b>-O</b>  "/tmp/dadaist2_oaSFvt"/rev/F3D146_R2.fastq.gz   <br><b>--trim_front1</b> 20 <br><b>--trim_front2</b>  20  <br><b>--detect_adapter_for_pe</b> <br><b>--disable_quality_filtering</b> <br><b>--n_base_limit</b>  1   <br><b>--json</b> "/tmp/dadaist2_oaSFvt/F3D146.json" <br><b>--html</b> /dev/null  <br><b>--trim_tail1</b> 0 <br><b>--trim_tail2</b> 0 <br><b>--length_required</b> 110 </pre></p>
+<p><strong>Standard output</strong><pre><p><strong>Standard error</strong><pre>Detecting adapter sequence for read1...
+No adapter detected for read1
+
+Detecting adapter sequence for read2...
+No adapter detected for read2
+
+Read1 before filtering:
+total reads: 5021
+total bases: 1260202
+Q20 bases: 1195680(94.88%)
+Q30 bases: 1161117(92.1374%)
+
+Read2 before filtering:
+total reads: 5021
+total bases: 1258570
+Q20 bases: 1107912(88.0294%)
+Q30 bases: 1032060(82.0026%)
+
+Read1 after filtering:
+total reads: 5020
+total bases: 1159551
+Q20 bases: 1096672(94.5773%)
+Q30 bases: 1062718(91.6491%)
+
+Read2 aftering filtering:
+total reads: 5020
+total bases: 1157919
+Q20 bases: 1010783(87.2931%)
+Q30 bases: 936242(80.8556%)
+
+Filtering result:
+reads passed filter: 10040
+reads failed due to low quality: 0
+reads failed due to too many N: 0
+reads failed due to too short: 2
+reads with adapter trimmed: 8838
+bases trimmed due to adapters: 288
+
+Duplication rate: 14.5455%
+
+Insert size peak (evaluated by paired-end reads): 252
+
+JSON report: /tmp/dadaist2_oaSFvt/F3D146.json
+HTML report: /dev/null
+
+fastp -w 8 -i /home/ubuntu/volume/16s/mothur-sop/subsample/F3D146_S212_L001_R1_001.fastq -I /home/ubuntu/volume/16s/mothur-sop/subsample/F3D146_S212_L001_R2_001.fastq -o /tmp/dadaist2_oaSFvt/for/F3D146_R1.fastq.gz -O /tmp/dadaist2_oaSFvt/rev/F3D146_R2.fastq.gz --trim_front1 20 --trim_front2 20 --detect_adapter_for_pe --disable_quality_filtering --n_base_limit 1 --json /tmp/dadaist2_oaSFvt/F3D146.json --html /dev/null --trim_tail1 0 --trim_tail2 0 --length_required 110 
+fastp v0.20.1, time used: 1 seconds</p>
+<br><p><h3>Shell command <span style="color: #b44">fastp</span></h3><p>Executed at <em>2021-04-08 20:39:50</em> for <em>5.32s</em> and  returned 0 </p>'<p><strong>Command</strong><pre>fastp <br><b>-w</b> 8 <br><b>-i</b> "/home/ubuntu/volume/16s/mothur-sop/subsample/F3D147_S213_L001_R1_001.fastq" <br><b>-I</b> "/home/ubuntu/volume/16s/mothur-sop/subsample/F3D147_S213_L001_R2_001.fastq" <br><b>-o</b> "/tmp/dadaist2_oaSFvt"/for/F3D147_R1.fastq.gz <br><b>-O</b>  "/tmp/dadaist2_oaSFvt"/rev/F3D147_R2.fastq.gz   <br><b>--trim_front1</b> 20 <br><b>--trim_front2</b>  20  <br><b>--detect_adapter_for_pe</b> <br><b>--disable_quality_filtering</b> <br><b>--n_base_limit</b>  1   <br><b>--json</b> "/tmp/dadaist2_oaSFvt/F3D147.json" <br><b>--html</b> /dev/null  <br><b>--trim_tail1</b> 0 <br><b>--trim_tail2</b> 0 <br><b>--length_required</b> 110 </pre></p>
+<p><strong>Standard output</strong><pre><p><strong>Standard error</strong><pre>Detecting adapter sequence for read1...
+No adapter detected for read1
+
+Detecting adapter sequence for read2...
+No adapter detected for read2
+
+Read1 before filtering:
+total reads: 17070
+total bases: 4284410
+Q20 bases: 4095597(95.593%)
+Q30 bases: 3993384(93.2073%)
+
+Read2 before filtering:
+total reads: 17070
+total bases: 4277194
+Q20 bases: 3665315(85.6944%)
+Q30 bases: 3362295(78.6098%)
+
+Read1 after filtering:
+total reads: 17070
+total bases: 3942976
+Q20 bases: 3759218(95.3396%)
+Q30 bases: 3658702(92.7904%)
+
+Read2 aftering filtering:
+total reads: 17070
+total bases: 3935759
+Q20 bases: 3335420(84.7466%)
+Q30 bases: 3036422(77.1496%)
+
+Filtering result:
+reads passed filter: 34140
+reads failed due to low quality: 0
+reads failed due to too many N: 0
+reads failed due to too short: 0
+reads with adapter trimmed: 27206
+bases trimmed due to adapters: 69
+
+Duplication rate: 12.3711%
+
+Insert size peak (evaluated by paired-end reads): 252
+
+JSON report: /tmp/dadaist2_oaSFvt/F3D147.json
+HTML report: /dev/null
+
+fastp -w 8 -i /home/ubuntu/volume/16s/mothur-sop/subsample/F3D147_S213_L001_R1_001.fastq -I /home/ubuntu/volume/16s/mothur-sop/subsample/F3D147_S213_L001_R2_001.fastq -o /tmp/dadaist2_oaSFvt/for/F3D147_R1.fastq.gz -O /tmp/dadaist2_oaSFvt/rev/F3D147_R2.fastq.gz --trim_front1 20 --trim_front2 20 --detect_adapter_for_pe --disable_quality_filtering --n_base_limit 1 --json /tmp/dadaist2_oaSFvt/F3D147.json --html /dev/null --trim_tail1 0 --trim_tail2 0 --length_required 110 
+fastp v0.20.1, time used: 5 seconds</p>
+<br><p><h3>Shell command <span style="color: #b44">fastp</span></h3><p>Executed at <em>2021-04-08 20:39:56</em> for <em>4.00s</em> and  returned 0 </p>'<p><strong>Command</strong><pre>fastp <br><b>-w</b> 8 <br><b>-i</b> "/home/ubuntu/volume/16s/mothur-sop/subsample/F3D148_S214_L001_R1_001.fastq" <br><b>-I</b> "/home/ubuntu/volume/16s/mothur-sop/subsample/F3D148_S214_L001_R2_001.fastq" <br><b>-o</b> "/tmp/dadaist2_oaSFvt"/for/F3D148_R1.fastq.gz <br><b>-O</b>  "/tmp/dadaist2_oaSFvt"/rev/F3D148_R2.fastq.gz   <br><b>--trim_front1</b> 20 <br><b>--trim_front2</b>  20  <br><b>--detect_adapter_for_pe</b> <br><b>--disable_quality_filtering</b> <br><b>--n_base_limit</b>  1   <br><b>--json</b> "/tmp/dadaist2_oaSFvt/F3D148.json" <br><b>--html</b> /dev/null  <br><b>--trim_tail1</b> 0 <br><b>--trim_tail2</b> 0 <br><b>--length_required</b> 110 </pre></p>
+<p><strong>Standard output</strong><pre><p><strong>Standard error</strong><pre>Detecting adapter sequence for read1...
+No adapter detected for read1
+
+Detecting adapter sequence for read2...
+No adapter detected for read2
+
+Read1 before filtering:
+total reads: 12405
+total bases: 3113525
+Q20 bases: 2970870(95.4182%)
+Q30 bases: 2893974(92.9485%)
+
+Read2 before filtering:
+total reads: 12405
+total bases: 3108849
+Q20 bases: 2712242(87.2426%)
+Q30 bases: 2510990(80.7691%)
+
+Read1 after filtering:
+total reads: 12405
+total bases: 2865381
+Q20 bases: 2726448(95.1513%)
+Q30 bases: 2650805(92.5114%)
+
+Read2 aftering filtering:
+total reads: 12405
+total bases: 2860710
+Q20 bases: 2471675(86.4008%)
+Q30 bases: 2273009(79.4561%)
+
+Filtering result:
+reads passed filter: 24810
+reads failed due to low quality: 0
+reads failed due to too many N: 0
+reads failed due to too short: 0
+reads with adapter trimmed: 21052
+bases trimmed due to adapters: 83
+
+Duplication rate: 9.21053%
+
+Insert size peak (evaluated by paired-end reads): 252
+
+JSON report: /tmp/dadaist2_oaSFvt/F3D148.json
+HTML report: /dev/null
+
+fastp -w 8 -i /home/ubuntu/volume/16s/mothur-sop/subsample/F3D148_S214_L001_R1_001.fastq -I /home/ubuntu/volume/16s/mothur-sop/subsample/F3D148_S214_L001_R2_001.fastq -o /tmp/dadaist2_oaSFvt/for/F3D148_R1.fastq.gz -O /tmp/dadaist2_oaSFvt/rev/F3D148_R2.fastq.gz --trim_front1 20 --trim_front2 20 --detect_adapter_for_pe --disable_quality_filtering --n_base_limit 1 --json /tmp/dadaist2_oaSFvt/F3D148.json --html /dev/null --trim_tail1 0 --trim_tail2 0 --length_required 110 
+fastp v0.20.1, time used: 4 seconds</p>
+<br><p><h3>Shell command <span style="color: #b44">fastp</span></h3><p>Executed at <em>2021-04-08 20:40:00</em> for <em>4.33s</em> and  returned 0 </p>'<p><strong>Command</strong><pre>fastp <br><b>-w</b> 8 <br><b>-i</b> "/home/ubuntu/volume/16s/mothur-sop/subsample/F3D149_S215_L001_R1_001.fastq" <br><b>-I</b> "/home/ubuntu/volume/16s/mothur-sop/subsample/F3D149_S215_L001_R2_001.fastq" <br><b>-o</b> "/tmp/dadaist2_oaSFvt"/for/F3D149_R1.fastq.gz <br><b>-O</b>  "/tmp/dadaist2_oaSFvt"/rev/F3D149_R2.fastq.gz   <br><b>--trim_front1</b> 20 <br><b>--trim_front2</b>  20  <br><b>--detect_adapter_for_pe</b> <br><b>--disable_quality_filtering</b> <br><b>--n_base_limit</b>  1   <br><b>--json</b> "/tmp/dadaist2_oaSFvt/F3D149.json" <br><b>--html</b> /dev/null  <br><b>--trim_tail1</b> 0 <br><b>--trim_tail2</b> 0 <br><b>--length_required</b> 110 </pre></p>
+<p><strong>Standard output</strong><pre><p><strong>Standard error</strong><pre>Detecting adapter sequence for read1...
+No adapter detected for read1
+
+Detecting adapter sequence for read2...
+No adapter detected for read2
+
+Read1 before filtering:
+total reads: 13083
+total bases: 3283570
+Q20 bases: 3126205(95.2075%)
+Q30 bases: 3041024(92.6133%)
+
+Read2 before filtering:
+total reads: 13083
+total bases: 3278781
+Q20 bases: 2866585(87.4284%)
+Q30 bases: 2658465(81.0809%)
+
+Read1 after filtering:
+total reads: 13083
+total bases: 3021902
+Q20 bases: 2868586(94.9265%)
+Q30 bases: 2784863(92.156%)
+
+Read2 aftering filtering:
+total reads: 13083
+total bases: 3017112
+Q20 bases: 2613017(86.6066%)
+Q30 bases: 2407686(79.801%)
+
+Filtering result:
+reads passed filter: 26166
+reads failed due to low quality: 0
+reads failed due to too many N: 0
+reads failed due to too short: 0
+reads with adapter trimmed: 22612
+bases trimmed due to adapters: 17
+
+Duplication rate: 13.5417%
+
+Insert size peak (evaluated by paired-end reads): 252
+
+JSON report: /tmp/dadaist2_oaSFvt/F3D149.json
+HTML report: /dev/null
+
+fastp -w 8 -i /home/ubuntu/volume/16s/mothur-sop/subsample/F3D149_S215_L001_R1_001.fastq -I /home/ubuntu/volume/16s/mothur-sop/subsample/F3D149_S215_L001_R2_001.fastq -o /tmp/dadaist2_oaSFvt/for/F3D149_R1.fastq.gz -O /tmp/dadaist2_oaSFvt/rev/F3D149_R2.fastq.gz --trim_front1 20 --trim_front2 20 --detect_adapter_for_pe --disable_quality_filtering --n_base_limit 1 --json /tmp/dadaist2_oaSFvt/F3D149.json --html /dev/null --trim_tail1 0 --trim_tail2 0 --length_required 110 
+fastp v0.20.1, time used: 4 seconds</p>
+<br><p><h3>Shell command <span style="color: #b44">fastp</span></h3><p>Executed at <em>2021-04-08 20:40:05</em> for <em>0.93s</em> and  returned 0 </p>'<p><strong>Command</strong><pre>fastp <br><b>-w</b> 8 <br><b>-i</b> "/home/ubuntu/volume/16s/mothur-sop/subsample/F3D150_S216_L001_R1_001.fastq" <br><b>-I</b> "/home/ubuntu/volume/16s/mothur-sop/subsample/F3D150_S216_L001_R2_001.fastq" <br><b>-o</b> "/tmp/dadaist2_oaSFvt"/for/F3D150_R1.fastq.gz <br><b>-O</b>  "/tmp/dadaist2_oaSFvt"/rev/F3D150_R2.fastq.gz   <br><b>--trim_front1</b> 20 <br><b>--trim_front2</b>  20  <br><b>--detect_adapter_for_pe</b> <br><b>--disable_quality_filtering</b> <br><b>--n_base_limit</b>  1   <br><b>--json</b> "/tmp/dadaist2_oaSFvt/F3D150.json" <br><b>--html</b> /dev/null  <br><b>--trim_tail1</b> 0 <br><b>--trim_tail2</b> 0 <br><b>--length_required</b> 110 </pre></p>
+<p><strong>Standard output</strong><pre><p><strong>Standard error</strong><pre>Detecting adapter sequence for read1...
+No adapter detected for read1
+
+Detecting adapter sequence for read2...
+No adapter detected for read2
+
+Read1 before filtering:
+total reads: 5509
+total bases: 1382628
+Q20 bases: 1318987(95.3971%)
+Q30 bases: 1283968(92.8643%)
+
+Read2 before filtering:
+total reads: 5509
+total bases: 1380722
+Q20 bases: 1205351(87.2986%)
+Q30 bases: 1117365(80.9261%)
+
+Read1 after filtering:
+total reads: 5509
+total bases: 1272448
+Q20 bases: 1210681(95.1458%)
+Q30 bases: 1176308(92.4445%)
+
+Read2 aftering filtering:
+total reads: 5509
+total bases: 1270542
+Q20 bases: 1098380(86.4497%)
+Q30 bases: 1011318(79.5974%)
+
+Filtering result:
+reads passed filter: 11018
+reads failed due to low quality: 0
+reads failed due to too many N: 0
+reads failed due to too short: 0
+reads with adapter trimmed: 9338
+bases trimmed due to adapters: 0
+
+Duplication rate: 15.7895%
+
+Insert size peak (evaluated by paired-end reads): 252
+
+JSON report: /tmp/dadaist2_oaSFvt/F3D150.json
+HTML report: /dev/null
+
+fastp -w 8 -i /home/ubuntu/volume/16s/mothur-sop/subsample/F3D150_S216_L001_R1_001.fastq -I /home/ubuntu/volume/16s/mothur-sop/subsample/F3D150_S216_L001_R2_001.fastq -o /tmp/dadaist2_oaSFvt/for/F3D150_R1.fastq.gz -O /tmp/dadaist2_oaSFvt/rev/F3D150_R2.fastq.gz --trim_front1 20 --trim_front2 20 --detect_adapter_for_pe --disable_quality_filtering --n_base_limit 1 --json /tmp/dadaist2_oaSFvt/F3D150.json --html /dev/null --trim_tail1 0 --trim_tail2 0 --length_required 110 
+fastp v0.20.1, time used: 1 seconds</p>
+<br><p><h3>Shell command <span style="color: #b44">fastp</span></h3><p>Executed at <em>2021-04-08 20:40:06</em> for <em>5.99s</em> and  returned 0 </p>'<p><strong>Command</strong><pre>fastp <br><b>-w</b> 8 <br><b>-i</b> "/home/ubuntu/volume/16s/mothur-sop/subsample/F3D2_S190_L001_R1_001.fastq" <br><b>-I</b> "/home/ubuntu/volume/16s/mothur-sop/subsample/F3D2_S190_L001_R2_001.fastq" <br><b>-o</b> "/tmp/dadaist2_oaSFvt"/for/F3D2_R1.fastq.gz <br><b>-O</b>  "/tmp/dadaist2_oaSFvt"/rev/F3D2_R2.fastq.gz   <br><b>--trim_front1</b> 20 <br><b>--trim_front2</b>  20  <br><b>--detect_adapter_for_pe</b> <br><b>--disable_quality_filtering</b> <br><b>--n_base_limit</b>  1   <br><b>--json</b> "/tmp/dadaist2_oaSFvt/F3D2.json" <br><b>--html</b> /dev/null  <br><b>--trim_tail1</b> 0 <br><b>--trim_tail2</b> 0 <br><b>--length_required</b> 110 </pre></p>
+<p><strong>Standard output</strong><pre><p><strong>Standard error</strong><pre>Detecting adapter sequence for read1...
+No adapter detected for read1
+
+Detecting adapter sequence for read2...
+No adapter detected for read2
+
+Read1 before filtering:
+total reads: 19620
+total bases: 4924442
+Q20 bases: 4711317(95.6721%)
+Q30 bases: 4596837(93.3474%)
+
+Read2 before filtering:
+total reads: 19620
+total bases: 4917683
+Q20 bases: 4310303(87.6491%)
+Q30 bases: 4003016(81.4004%)
+
+Read1 after filtering:
+total reads: 19620
+total bases: 4532039
+Q20 bases: 4324602(95.4229%)
+Q30 bases: 4211857(92.9351%)
+
+Read2 aftering filtering:
+total reads: 19620
+total bases: 4525282
+Q20 bases: 3929278(86.8295%)
+Q30 bases: 3626015(80.1279%)
+
+Filtering result:
+reads passed filter: 39240
+reads failed due to low quality: 0
+reads failed due to too many N: 0
+reads failed due to too short: 0
+reads with adapter trimmed: 34966
+bases trimmed due to adapters: 4
+
+Duplication rate: 27.7027%
+
+Insert size peak (evaluated by paired-end reads): 252
+
+JSON report: /tmp/dadaist2_oaSFvt/F3D2.json
+HTML report: /dev/null
+
+fastp -w 8 -i /home/ubuntu/volume/16s/mothur-sop/subsample/F3D2_S190_L001_R1_001.fastq -I /home/ubuntu/volume/16s/mothur-sop/subsample/F3D2_S190_L001_R2_001.fastq -o /tmp/dadaist2_oaSFvt/for/F3D2_R1.fastq.gz -O /tmp/dadaist2_oaSFvt/rev/F3D2_R2.fastq.gz --trim_front1 20 --trim_front2 20 --detect_adapter_for_pe --disable_quality_filtering --n_base_limit 1 --json /tmp/dadaist2_oaSFvt/F3D2.json --html /dev/null --trim_tail1 0 --trim_tail2 0 --length_required 110 
+fastp v0.20.1, time used: 6 seconds</p>
+<br><p><h3>Shell command <span style="color: #b44">fastp</span></h3><p>Executed at <em>2021-04-08 20:40:12</em> for <em>0.97s</em> and  returned 0 </p>'<p><strong>Command</strong><pre>fastp <br><b>-w</b> 8 <br><b>-i</b> "/home/ubuntu/volume/16s/mothur-sop/subsample/F3D3_S191_L001_R1_001.fastq" <br><b>-I</b> "/home/ubuntu/volume/16s/mothur-sop/subsample/F3D3_S191_L001_R2_001.fastq" <br><b>-o</b> "/tmp/dadaist2_oaSFvt"/for/F3D3_R1.fastq.gz <br><b>-O</b>  "/tmp/dadaist2_oaSFvt"/rev/F3D3_R2.fastq.gz   <br><b>--trim_front1</b> 20 <br><b>--trim_front2</b>  20  <br><b>--detect_adapter_for_pe</b> <br><b>--disable_quality_filtering</b> <br><b>--n_base_limit</b>  1   <br><b>--json</b> "/tmp/dadaist2_oaSFvt/F3D3.json" <br><b>--html</b> /dev/null  <br><b>--trim_tail1</b> 0 <br><b>--trim_tail2</b> 0 <br><b>--length_required</b> 110 </pre></p>
+<p><strong>Standard output</strong><pre><p><strong>Standard error</strong><pre>Detecting adapter sequence for read1...
+No adapter detected for read1
+
+Detecting adapter sequence for read2...
+No adapter detected for read2
+
+Read1 before filtering:
+total reads: 6758
+total bases: 1696205
+Q20 bases: 1619690(95.489%)
+Q30 bases: 1579885(93.1423%)
+
+Read2 before filtering:
+total reads: 6758
+total bases: 1693513
+Q20 bases: 1474137(87.0461%)
+Q30 bases: 1363890(80.5361%)
+
+Read1 after filtering:
+total reads: 6758
+total bases: 1561045
+Q20 bases: 1486387(95.2174%)
+Q30 bases: 1447131(92.7027%)
+
+Read2 aftering filtering:
+total reads: 6758
+total bases: 1558353
+Q20 bases: 1342978(86.1793%)
+Q30 bases: 1234150(79.1958%)
+
+Filtering result:
+reads passed filter: 13516
+reads failed due to low quality: 0
+reads failed due to too many N: 0
+reads failed due to too short: 0
+reads with adapter trimmed: 11696
+bases trimmed due to adapters: 0
+
+Duplication rate: 39.3939%
+
+Insert size peak (evaluated by paired-end reads): 252
+
+JSON report: /tmp/dadaist2_oaSFvt/F3D3.json
+HTML report: /dev/null
+
+fastp -w 8 -i /home/ubuntu/volume/16s/mothur-sop/subsample/F3D3_S191_L001_R1_001.fastq -I /home/ubuntu/volume/16s/mothur-sop/subsample/F3D3_S191_L001_R2_001.fastq -o /tmp/dadaist2_oaSFvt/for/F3D3_R1.fastq.gz -O /tmp/dadaist2_oaSFvt/rev/F3D3_R2.fastq.gz --trim_front1 20 --trim_front2 20 --detect_adapter_for_pe --disable_quality_filtering --n_base_limit 1 --json /tmp/dadaist2_oaSFvt/F3D3.json --html /dev/null --trim_tail1 0 --trim_tail2 0 --length_required 110 
+fastp v0.20.1, time used: 1 seconds</p>
+<br><p><h3>Shell command <span style="color: #b44">fastp</span></h3><p>Executed at <em>2021-04-08 20:40:14</em> for <em>0.91s</em> and  returned 0 </p>'<p><strong>Command</strong><pre>fastp <br><b>-w</b> 8 <br><b>-i</b> "/home/ubuntu/volume/16s/mothur-sop/subsample/F3D5_S193_L001_R1_001.fastq" <br><b>-I</b> "/home/ubuntu/volume/16s/mothur-sop/subsample/F3D5_S193_L001_R2_001.fastq" <br><b>-o</b> "/tmp/dadaist2_oaSFvt"/for/F3D5_R1.fastq.gz <br><b>-O</b>  "/tmp/dadaist2_oaSFvt"/rev/F3D5_R2.fastq.gz   <br><b>--trim_front1</b> 20 <br><b>--trim_front2</b>  20  <br><b>--detect_adapter_for_pe</b> <br><b>--disable_quality_filtering</b> <br><b>--n_base_limit</b>  1   <br><b>--json</b> "/tmp/dadaist2_oaSFvt/F3D5.json" <br><b>--html</b> /dev/null  <br><b>--trim_tail1</b> 0 <br><b>--trim_tail2</b> 0 <br><b>--length_required</b> 110 </pre></p>
+<p><strong>Standard output</strong><pre><p><strong>Standard error</strong><pre>Detecting adapter sequence for read1...
+No adapter detected for read1
+
+Detecting adapter sequence for read2...
+No adapter detected for read2
+
+Read1 before filtering:
+total reads: 4448
+total bases: 1116401
+Q20 bases: 1061302(95.0646%)
+Q30 bases: 1031817(92.4235%)
+
+Read2 before filtering:
+total reads: 4448
+total bases: 1115006
+Q20 bases: 973168(87.2792%)
+Q30 bases: 904231(81.0965%)
+
+Read1 after filtering:
+total reads: 4448
+total bases: 1027441
+Q20 bases: 973610(94.7607%)
+Q30 bases: 944510(91.9284%)
+
+Read2 aftering filtering:
+total reads: 4448
+total bases: 1026046
+Q20 bases: 886769(86.4259%)
+Q30 bases: 818680(79.7898%)
+
+Filtering result:
+reads passed filter: 8896
+reads failed due to low quality: 0
+reads failed due to too many N: 0
+reads failed due to too short: 0
+reads with adapter trimmed: 7716
+bases trimmed due to adapters: 0
+
+Duplication rate: 20%
+
+Insert size peak (evaluated by paired-end reads): 253
+
+JSON report: /tmp/dadaist2_oaSFvt/F3D5.json
+HTML report: /dev/null
+
+fastp -w 8 -i /home/ubuntu/volume/16s/mothur-sop/subsample/F3D5_S193_L001_R1_001.fastq -I /home/ubuntu/volume/16s/mothur-sop/subsample/F3D5_S193_L001_R2_001.fastq -o /tmp/dadaist2_oaSFvt/for/F3D5_R1.fastq.gz -O /tmp/dadaist2_oaSFvt/rev/F3D5_R2.fastq.gz --trim_front1 20 --trim_front2 20 --detect_adapter_for_pe --disable_quality_filtering --n_base_limit 1 --json /tmp/dadaist2_oaSFvt/F3D5.json --html /dev/null --trim_tail1 0 --trim_tail2 0 --length_required 110 
+fastp v0.20.1, time used: 0 seconds</p>
+<br><p><h3>Shell command <span style="color: #b44">fastp</span></h3><p>Executed at <em>2021-04-08 20:40:15</em> for <em>1.05s</em> and  returned 0 </p>'<p><strong>Command</strong><pre>fastp <br><b>-w</b> 8 <br><b>-i</b> "/home/ubuntu/volume/16s/mothur-sop/subsample/F3D6_S194_L001_R1_001.fastq" <br><b>-I</b> "/home/ubuntu/volume/16s/mothur-sop/subsample/F3D6_S194_L001_R2_001.fastq" <br><b>-o</b> "/tmp/dadaist2_oaSFvt"/for/F3D6_R1.fastq.gz <br><b>-O</b>  "/tmp/dadaist2_oaSFvt"/rev/F3D6_R2.fastq.gz   <br><b>--trim_front1</b> 20 <br><b>--trim_front2</b>  20  <br><b>--detect_adapter_for_pe</b> <br><b>--disable_quality_filtering</b> <br><b>--n_base_limit</b>  1   <br><b>--json</b> "/tmp/dadaist2_oaSFvt/F3D6.json" <br><b>--html</b> /dev/null  <br><b>--trim_tail1</b> 0 <br><b>--trim_tail2</b> 0 <br><b>--length_required</b> 110 </pre></p>
+<p><strong>Standard output</strong><pre><p><strong>Standard error</strong><pre>Detecting adapter sequence for read1...
+No adapter detected for read1
+
+Detecting adapter sequence for read2...
+No adapter detected for read2
+
+Read1 before filtering:
+total reads: 7989
+total bases: 2005171
+Q20 bases: 1916532(95.5795%)
+Q30 bases: 1869292(93.2236%)
+
+Read2 before filtering:
+total reads: 7989
+total bases: 2002558
+Q20 bases: 1760851(87.9301%)
+Q30 bases: 1639465(81.8685%)
+
+Read1 after filtering:
+total reads: 7989
+total bases: 1845388
+Q20 bases: 1759084(95.3233%)
+Q30 bases: 1712491(92.7984%)
+
+Read2 aftering filtering:
+total reads: 7989
+total bases: 1842777
+Q20 bases: 1605757(87.1379%)
+Q30 bases: 1486156(80.6476%)
+
+Filtering result:
+reads passed filter: 15978
+reads failed due to low quality: 0
+reads failed due to too many N: 0
+reads failed due to too short: 0
+reads with adapter trimmed: 14336
+bases trimmed due to adapters: 4
+
+Duplication rate: 64.881%
+
+Insert size peak (evaluated by paired-end reads): 252
+
+JSON report: /tmp/dadaist2_oaSFvt/F3D6.json
+HTML report: /dev/null
+
+fastp -w 8 -i /home/ubuntu/volume/16s/mothur-sop/subsample/F3D6_S194_L001_R1_001.fastq -I /home/ubuntu/volume/16s/mothur-sop/subsample/F3D6_S194_L001_R2_001.fastq -o /tmp/dadaist2_oaSFvt/for/F3D6_R1.fastq.gz -O /tmp/dadaist2_oaSFvt/rev/F3D6_R2.fastq.gz --trim_front1 20 --trim_front2 20 --detect_adapter_for_pe --disable_quality_filtering --n_base_limit 1 --json /tmp/dadaist2_oaSFvt/F3D6.json --html /dev/null --trim_tail1 0 --trim_tail2 0 --length_required 110 
+fastp v0.20.1, time used: 1 seconds</p>
+<br><p><h3>Shell command <span style="color: #b44">fastp</span></h3><p>Executed at <em>2021-04-08 20:40:16</em> for <em>0.91s</em> and  returned 0 </p>'<p><strong>Command</strong><pre>fastp <br><b>-w</b> 8 <br><b>-i</b> "/home/ubuntu/volume/16s/mothur-sop/subsample/F3D7_S195_L001_R1_001.fastq" <br><b>-I</b> "/home/ubuntu/volume/16s/mothur-sop/subsample/F3D7_S195_L001_R2_001.fastq" <br><b>-o</b> "/tmp/dadaist2_oaSFvt"/for/F3D7_R1.fastq.gz <br><b>-O</b>  "/tmp/dadaist2_oaSFvt"/rev/F3D7_R2.fastq.gz   <br><b>--trim_front1</b> 20 <br><b>--trim_front2</b>  20  <br><b>--detect_adapter_for_pe</b> <br><b>--disable_quality_filtering</b> <br><b>--n_base_limit</b>  1   <br><b>--json</b> "/tmp/dadaist2_oaSFvt/F3D7.json" <br><b>--html</b> /dev/null  <br><b>--trim_tail1</b> 0 <br><b>--trim_tail2</b> 0 <br><b>--length_required</b> 110 </pre></p>
+<p><strong>Standard output</strong><pre><p><strong>Standard error</strong><pre>Detecting adapter sequence for read1...
+No adapter detected for read1
+
+Detecting adapter sequence for read2...
+No adapter detected for read2
+
+Read1 before filtering:
+total reads: 5129
+total bases: 1287342
+Q20 bases: 1234208(95.8726%)
+Q30 bases: 1206272(93.7025%)
+
+Read2 before filtering:
+total reads: 5129
+total bases: 1285368
+Q20 bases: 1124901(87.5159%)
+Q30 bases: 1043858(81.2108%)
+
+Read1 after filtering:
+total reads: 5129
+total bases: 1184762
+Q20 bases: 1133099(95.6394%)
+Q30 bases: 1105562(93.3151%)
+
+Read2 aftering filtering:
+total reads: 5129
+total bases: 1182788
+Q20 bases: 1025269(86.6824%)
+Q30 bases: 945379(79.928%)
+
+Filtering result:
+reads passed filter: 10258
+reads failed due to low quality: 0
+reads failed due to too many N: 0
+reads failed due to too short: 0
+reads with adapter trimmed: 9072
+bases trimmed due to adapters: 0
+
+Duplication rate: 26.9231%
+
+Insert size peak (evaluated by paired-end reads): 252
+
+JSON report: /tmp/dadaist2_oaSFvt/F3D7.json
+HTML report: /dev/null
+
+fastp -w 8 -i /home/ubuntu/volume/16s/mothur-sop/subsample/F3D7_S195_L001_R1_001.fastq -I /home/ubuntu/volume/16s/mothur-sop/subsample/F3D7_S195_L001_R2_001.fastq -o /tmp/dadaist2_oaSFvt/for/F3D7_R1.fastq.gz -O /tmp/dadaist2_oaSFvt/rev/F3D7_R2.fastq.gz --trim_front1 20 --trim_front2 20 --detect_adapter_for_pe --disable_quality_filtering --n_base_limit 1 --json /tmp/dadaist2_oaSFvt/F3D7.json --html /dev/null --trim_tail1 0 --trim_tail2 0 --length_required 110 
+fastp v0.20.1, time used: 1 seconds</p>
+<br><p><h3>Shell command <span style="color: #b44">fastp</span></h3><p>Executed at <em>2021-04-08 20:40:17</em> for <em>0.89s</em> and  returned 0 </p>'<p><strong>Command</strong><pre>fastp <br><b>-w</b> 8 <br><b>-i</b> "/home/ubuntu/volume/16s/mothur-sop/subsample/F3D8_S196_L001_R1_001.fastq" <br><b>-I</b> "/home/ubuntu/volume/16s/mothur-sop/subsample/F3D8_S196_L001_R2_001.fastq" <br><b>-o</b> "/tmp/dadaist2_oaSFvt"/for/F3D8_R1.fastq.gz <br><b>-O</b>  "/tmp/dadaist2_oaSFvt"/rev/F3D8_R2.fastq.gz   <br><b>--trim_front1</b> 20 <br><b>--trim_front2</b>  20  <br><b>--detect_adapter_for_pe</b> <br><b>--disable_quality_filtering</b> <br><b>--n_base_limit</b>  1   <br><b>--json</b> "/tmp/dadaist2_oaSFvt/F3D8.json" <br><b>--html</b> /dev/null  <br><b>--trim_tail1</b> 0 <br><b>--trim_tail2</b> 0 <br><b>--length_required</b> 110 </pre></p>
+<p><strong>Standard output</strong><pre><p><strong>Standard error</strong><pre>Detecting adapter sequence for read1...
+No adapter detected for read1
+
+Detecting adapter sequence for read2...
+No adapter detected for read2
+
+Read1 before filtering:
+total reads: 5294
+total bases: 1328727
+Q20 bases: 1263542(95.0942%)
+Q30 bases: 1229075(92.5002%)
+
+Read2 before filtering:
+total reads: 5294
+total bases: 1327298
+Q20 bases: 1182193(89.0676%)
+Q30 bases: 1110909(83.697%)
+
+Read1 after filtering:
+total reads: 5294
+total bases: 1222846
+Q20 bases: 1159215(94.7965%)
+Q30 bases: 1125223(92.0167%)
+
+Read2 aftering filtering:
+total reads: 5294
+total bases: 1221417
+Q20 bases: 1079533(88.3837%)
+Q30 bases: 1009406(82.6422%)
+
+Filtering result:
+reads passed filter: 10588
+reads failed due to low quality: 0
+reads failed due to too many N: 0
+reads failed due to too short: 0
+reads with adapter trimmed: 9738
+bases trimmed due to adapters: 2
+
+Duplication rate: 25.8824%
+
+Insert size peak (evaluated by paired-end reads): 253
+
+JSON report: /tmp/dadaist2_oaSFvt/F3D8.json
+HTML report: /dev/null
+
+fastp -w 8 -i /home/ubuntu/volume/16s/mothur-sop/subsample/F3D8_S196_L001_R1_001.fastq -I /home/ubuntu/volume/16s/mothur-sop/subsample/F3D8_S196_L001_R2_001.fastq -o /tmp/dadaist2_oaSFvt/for/F3D8_R1.fastq.gz -O /tmp/dadaist2_oaSFvt/rev/F3D8_R2.fastq.gz --trim_front1 20 --trim_front2 20 --detect_adapter_for_pe --disable_quality_filtering --n_base_limit 1 --json /tmp/dadaist2_oaSFvt/F3D8.json --html /dev/null --trim_tail1 0 --trim_tail2 0 --length_required 110 
+fastp v0.20.1, time used: 1 seconds</p>
+<br><p><h3>Shell command <span style="color: #b44">fastp</span></h3><p>Executed at <em>2021-04-08 20:40:19</em> for <em>0.96s</em> and  returned 0 </p>'<p><strong>Command</strong><pre>fastp <br><b>-w</b> 8 <br><b>-i</b> "/home/ubuntu/volume/16s/mothur-sop/subsample/F3D9_S197_L001_R1_001.fastq" <br><b>-I</b> "/home/ubuntu/volume/16s/mothur-sop/subsample/F3D9_S197_L001_R2_001.fastq" <br><b>-o</b> "/tmp/dadaist2_oaSFvt"/for/F3D9_R1.fastq.gz <br><b>-O</b>  "/tmp/dadaist2_oaSFvt"/rev/F3D9_R2.fastq.gz   <br><b>--trim_front1</b> 20 <br><b>--trim_front2</b>  20  <br><b>--detect_adapter_for_pe</b> <br><b>--disable_quality_filtering</b> <br><b>--n_base_limit</b>  1   <br><b>--json</b> "/tmp/dadaist2_oaSFvt/F3D9.json" <br><b>--html</b> /dev/null  <br><b>--trim_tail1</b> 0 <br><b>--trim_tail2</b> 0 <br><b>--length_required</b> 110 </pre></p>
+<p><strong>Standard output</strong><pre><p><strong>Standard error</strong><pre>Detecting adapter sequence for read1...
+No adapter detected for read1
+
+Detecting adapter sequence for read2...
+No adapter detected for read2
+
+Read1 before filtering:
+total reads: 7070
+total bases: 1774487
+Q20 bases: 1694396(95.4865%)
+Q30 bases: 1651429(93.0652%)
+
+Read2 before filtering:
+total reads: 7070
+total bases: 1772522
+Q20 bases: 1574025(88.8014%)
+Q30 bases: 1476473(83.2979%)
+
+Read1 after filtering:
+total reads: 7070
+total bases: 1633087
+Q20 bases: 1555002(95.2186%)
+Q30 bases: 1512624(92.6236%)
+
+Read2 aftering filtering:
+total reads: 7070
+total bases: 1631122
+Q20 bases: 1437046(88.1017%)
+Q30 bases: 1341227(82.2273%)
+
+Filtering result:
+reads passed filter: 14140
+reads failed due to low quality: 0
+reads failed due to too many N: 0
+reads failed due to too short: 0
+reads with adapter trimmed: 12980
+bases trimmed due to adapters: 0
+
+Duplication rate: 15.6627%
+
+Insert size peak (evaluated by paired-end reads): 253
+
+JSON report: /tmp/dadaist2_oaSFvt/F3D9.json
+HTML report: /dev/null
+
+fastp -w 8 -i /home/ubuntu/volume/16s/mothur-sop/subsample/F3D9_S197_L001_R1_001.fastq -I /home/ubuntu/volume/16s/mothur-sop/subsample/F3D9_S197_L001_R2_001.fastq -o /tmp/dadaist2_oaSFvt/for/F3D9_R1.fastq.gz -O /tmp/dadaist2_oaSFvt/rev/F3D9_R2.fastq.gz --trim_front1 20 --trim_front2 20 --detect_adapter_for_pe --disable_quality_filtering --n_base_limit 1 --json /tmp/dadaist2_oaSFvt/F3D9.json --html /dev/null --trim_tail1 0 --trim_tail2 0 --length_required 110 
+fastp v0.20.1, time used: 1 seconds</p>
+<br><p><h3>Shell command <span style="color: #b44">fastp</span></h3><p>Executed at <em>2021-04-08 20:40:20</em> for <em>0.85s</em> and  returned 0 </p>'<p><strong>Command</strong><pre>fastp <br><b>-w</b> 8 <br><b>-i</b> "/home/ubuntu/volume/16s/mothur-sop/subsample/Mock_S280_L001_R1_001.fastq" <br><b>-I</b> "/home/ubuntu/volume/16s/mothur-sop/subsample/Mock_S280_L001_R2_001.fastq" <br><b>-o</b> "/tmp/dadaist2_oaSFvt"/for/Mock_R1.fastq.gz <br><b>-O</b>  "/tmp/dadaist2_oaSFvt"/rev/Mock_R2.fastq.gz   <br><b>--trim_front1</b> 20 <br><b>--trim_front2</b>  20  <br><b>--detect_adapter_for_pe</b> <br><b>--disable_quality_filtering</b> <br><b>--n_base_limit</b>  1   <br><b>--json</b> "/tmp/dadaist2_oaSFvt/Mock.json" <br><b>--html</b> /dev/null  <br><b>--trim_tail1</b> 0 <br><b>--trim_tail2</b> 0 <br><b>--length_required</b> 110 </pre></p>
+<p><strong>Standard output</strong><pre><p><strong>Standard error</strong><pre>Detecting adapter sequence for read1...
+No adapter detected for read1
+
+Detecting adapter sequence for read2...
+No adapter detected for read2
+
+Read1 before filtering:
+total reads: 4779
+total bases: 1199027
+Q20 bases: 1129105(94.1684%)
+Q30 bases: 1093050(91.1614%)
+
+Read2 before filtering:
+total reads: 4779
+total bases: 1197710
+Q20 bases: 1085627(90.6419%)
+Q30 bases: 1035678(86.4715%)
+
+Read1 after filtering:
+total reads: 4779
+total bases: 1103445
+Q20 bases: 1034947(93.7924%)
+Q30 bases: 999505(90.5804%)
+
+Read2 aftering filtering:
+total reads: 4779
+total bases: 1102128
+Q20 bases: 993144(90.1115%)
+Q30 bases: 944345(85.6838%)
+
+Filtering result:
+reads passed filter: 9558
+reads failed due to low quality: 0
+reads failed due to too many N: 0
+reads failed due to too short: 0
+reads with adapter trimmed: 9244
+bases trimmed due to adapters: 4
+
+Duplication rate: 18.1818%
+
+Insert size peak (evaluated by paired-end reads): 253
+
+JSON report: /tmp/dadaist2_oaSFvt/Mock.json
+HTML report: /dev/null
+
+fastp -w 8 -i /home/ubuntu/volume/16s/mothur-sop/subsample/Mock_S280_L001_R1_001.fastq -I /home/ubuntu/volume/16s/mothur-sop/subsample/Mock_S280_L001_R2_001.fastq -o /tmp/dadaist2_oaSFvt/for/Mock_R1.fastq.gz -O /tmp/dadaist2_oaSFvt/rev/Mock_R2.fastq.gz --trim_front1 20 --trim_front2 20 --detect_adapter_for_pe --disable_quality_filtering --n_base_limit 1 --json /tmp/dadaist2_oaSFvt/Mock.json --html /dev/null --trim_tail1 0 --trim_tail2 0 --length_required 110 
+fastp v0.20.1, time used: 1 seconds</p>
+
+</div>
+
+<button class="accordion">DADA2 Denoising (process)</button>
+<div class="panel">
+  <p><h3>Shell command <span style="color: #b44">Rscript</span></h3><p>Executed at <em>2021-04-08 20:40:21</em> for <em>188.01s</em> and  returned 0 </p>'<p><strong>Command</strong><pre>Rscript <br><b>--vanilla</b> /home/ubuntu/volume/dadaist2/bin/D2-dada.R /tmp/dadaist2_oaSFvt/for /tmp/dadaist2_oaSFvt/rev /tmp/dadaist2_oaSFvt/dada2/dada2.tsv /tmp/dadaist2_oaSFvt/dada2/stats.tsv /tmp/dadaist2_oaSFvt/for/filtered /tmp/dadaist2_oaSFvt/rev/filtered 231 215 0 0 1 1.5 10 consensus 1 32 10000 /tmp/dadaist2_oaSFvt do_plots /home/ubuntu/volume/dadaist2/refs/silva_nr_v138_train_set.fa.gz no 0 0</pre></p>
+<p><strong>Standard output</strong><pre>R version 4.0.3 (2020-10-10) 
+#DADA2: 1.18.0 / Rcpp: 1.0.6 / RcppParallel: 5.0.3 
+2021-04-08 20:40:33 	[1] Filtering reads ....................
+2021-04-08 20:41:47 	[2] Learning Error Rates
+2872947 total bases in 12437 reads from 3 samples will be used for learning the error rates.
+2673955 total bases in 12437 reads from 3 samples will be used for learning the error rates.
+2021-04-08 20:41:58 	[3] Denoise remaining samples 
+ * Sample by sample
+2021-04-08 20:42:20	[4] Remove chimeras (method = consensus)
+2021-04-08 20:42:20 	[5.1] Taxonomy
+2021-04-08 20:43:29 	[6] Write output
+	 *  /tmp/dadaist2_oaSFvt/dada2/dada2.tsv 
+	 *  /tmp/dadaist2_oaSFvt/taxonomy.tsv <p><strong>Standard error</strong><pre>Loading required package: Rcpp
+Duplicate sequences in merged output.
+Duplicate sequences in merged output.
+Duplicate sequences in merged output.
+Duplicate sequences in merged output.
+Duplicate sequences detected and merged.
+Duplicate sequences detected and merged.
+Duplicate sequences detected and merged.
+Duplicate sequences detected and merged.</p>
+
+</div>
+
+<button class="accordion">Taxonomy (process)</button>
+<div class="panel">
+  <p>Not available.</p>
+</div>
+
+
+<button class="accordion">Initial checks</button>
+<div class="panel">
+	<br><p><h3>Shell command <span style="color: #b44">Rscript</span></h3><p>Executed at <em>2021-04-08 20:39:22</em> for <em>0.01s</em> and  returned 0 </p>'<p><strong>Command</strong><pre>Rscript  <br><b>--version</b> 2>&1</pre></p>
+<p><strong>Standard output</strong><pre>R scripting front-end version 4.0.3 (2020-10-10)<p><strong>Standard error</strong><pre></p>
+<br><p><h3>Shell command <span style="color: #b44">/home/ubuntu/volume/dadaist2/bin/dadaist2-assigntax</span></h3><p>Executed at <em>2021-04-08 20:39:22</em> for <em>0.22s</em> and  returned 0 </p>'<p><strong>Command</strong><pre>/home/ubuntu/volume/dadaist2/bin/dadaist2-assigntax --version</pre></p>
+<p><strong>Standard output</strong><pre>dadaist2-assigntax 1.1.0<p><strong>Standard error</strong><pre>[35;1m DADAIST2 Assign Taxonomy[0m</p>
+<br><p><h3>Shell command <span style="color: #b44">/home/ubuntu/volume/dadaist2/bin/dadaist2-assigntax</span></h3><p>Executed at <em>2021-04-08 20:39:22</em> for <em>0.22s</em> and  returned 0 </p>'<p><strong>Command</strong><pre>/home/ubuntu/volume/dadaist2/bin/dadaist2-assigntax --version</pre></p>
+<p><strong>Standard output</strong><pre>dadaist2-assigntax 1.1.0<p><strong>Standard error</strong><pre>[35;1m DADAIST2 Assign Taxonomy[0m</p>
+<br><p><h3>Shell command <span style="color: #b44">clustalo</span></h3><p>Executed at <em>2021-04-08 20:39:22</em> for <em>0.01s</em> and  returned 0 </p>'<p><strong>Command</strong><pre>clustalo <br><b>--version</b> 2>&1</pre></p>
+<p><strong>Standard output</strong><pre>1.2.4<p><strong>Standard error</strong><pre></p>
+<br><p><h3>Shell command <span style="color: #b44">echo</span></h3><p>Executed at <em>2021-04-08 20:39:22</em> for <em>17.44s</em> and  returned 0 </p>'<p><strong>Command</strong><pre>echo "library(dada2)" | R <br><b>--no-save</b> > /dev/null</pre></p>
+<p><strong>Standard output</strong><pre><p><strong>Standard error</strong><pre>Loading required package: Rcpp</p>
+<br><p><h3>Shell command <span style="color: #b44">/home/ubuntu/volume/dadaist2/bin/dadaist2-exporter</span></h3><p>Executed at <em>2021-04-08 20:39:40</em> for <em>0.11s</em> and  returned 0 </p>'<p><strong>Command</strong><pre>/home/ubuntu/volume/dadaist2/bin/dadaist2-exporter --version</pre></p>
+<p><strong>Standard output</strong><pre>dadaist2-exporter 1.4.0<p><strong>Standard error</strong><pre></p>
+<br><p><h3>Shell command <span style="color: #b44">fastp</span></h3><p>Executed at <em>2021-04-08 20:39:40</em> for <em>0.01s</em> and  returned 0 </p>'<p><strong>Command</strong><pre>fastp <br><b>--version</b> 2>&1</pre></p>
+<p><strong>Standard output</strong><pre>fastp 0.20.1<p><strong>Standard error</strong><pre></p>
+<br><p><h3>Shell command <span style="color: #b44">fasttree</span></h3><p>Executed at <em>2021-04-08 20:39:40</em> for <em>0.01s</em> and  returned 0 </p>'<p><strong>Command</strong><pre>fasttree 2>&1 | head <br><b>-n</b> 1 | cut <br><b>-c</b> 11-</pre></p>
+<p><strong>Standard output</strong><pre>FastTree version 2.1.10 Double precision (No SSE3):<p><strong>Standard error</strong><pre></p>
+<br><p><h3>Shell command <span style="color: #b44">fu-primers</span></h3><p>Executed at <em>2021-04-08 20:39:40</em> for <em>0.03s</em> and  returned 0 </p>'<p><strong>Command</strong><pre>fu-primers <br><b>--version</b> 2>&1</pre></p>
+<p><strong>Standard output</strong><pre>fu-primers 1.0<p><strong>Standard error</strong><pre></p>
+
+</div>
+
+
+<script>
+var acc = document.getElementsByClassName("accordion");
+var i;
+
+for (i = 0; i < acc.length; i++) {
+  acc[i].addEventListener("click", function() {
+    this.classList.toggle("active");
+    var panel = this.nextElementSibling;
+    if (panel.style.maxHeight) {
+      panel.style.maxHeight = null;
+    } else {
+      panel.style.maxHeight = panel.scrollHeight + "px";
+    } 
+  });
+}
+</script>
+
+
+<script>
+function openCity(cityName) {
+  var i;
+  var x = document.getElementsByClassName("city");
+  for (i = 0; i < x.length; i++) {
+    x[i].style.display = "none";  
+  }
+  document.getElementById(cityName).style.display = "block";  
+}
+</script>
+</body>
+
+
+
+</html>
+
