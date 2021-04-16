@@ -1,4 +1,4 @@
-library(dada2); packageVersion("dada2")
+
 
 args <- commandArgs(TRUE)
 if (len(args) != 4) {
@@ -6,10 +6,14 @@ if (len(args) != 4) {
 }
 path      <- args[[1]]
 outdir    <- args[[2]]
-tl1       <- args[[3]]
-tl2       <- args[[4]]
+tl1       <- strtoi(args[[3]])
+tl2       <- strtiu(args[[4]])
 ################### START SOP #####################
 
+cat(" Input:  ", path,"\n")
+cat(" Output: ", outdir,"\n")
+cat(" Trunc1: ", tl1, "\n")
+cat(" Trunc2: ", tl2, "\n")
 
 # Forward and reverse fastq filenames have format: SAMPLENAME_R1_001.fastq and SAMPLENAME_R2_001.fastq
 fnFs <- sort(list.files(path, pattern="_R1_001.fastq", full.names = TRUE))
@@ -17,6 +21,7 @@ fnRs <- sort(list.files(path, pattern="_R2_001.fastq", full.names = TRUE))
 # Extract sample names, assuming filenames have format: SAMPLENAME_XXX.fastq
 sample.names <- sapply(strsplit(basename(fnFs), "_"), `[`, 1)
 
+library(dada2); packageVersion("dada2")
 pdf("for.pdf")
 plotQualityProfile(fnFs[1:2])
 dev.off()
