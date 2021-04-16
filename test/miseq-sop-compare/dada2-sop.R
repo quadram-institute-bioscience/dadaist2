@@ -4,12 +4,18 @@ args <- commandArgs(TRUE)
 if (length(args) != 4) {
   stop(" Arguments: InputDir OutputDir TruncLen1 TruncLen2\n");
 }
+
 path      <- args[[1]]
 outdir    <- args[[2]]
 tl1       <- strtoi(args[[3]])
 tl2       <- strtoi(args[[4]])
 ################### START SOP #####################
-
+if (! dir.exists(outdir)) {
+  stop(" Output directory not found: ", outdir, "\n")
+}
+if (! dir.exists(path)) {
+  stop(" Input directory not found: ", path, "\n")
+}
 cat(" Input:  ", path,"\n")
 cat(" Output: ", outdir,"\n")
 cat(" Trunc1: ", tl1, "\n")
@@ -62,12 +68,12 @@ mergers <- mergePairs(dadaFs, derepFs, dadaRs, derepRs, verbose=TRUE)
 seqtab <- makeSequenceTable(mergers)
 cat("# Remove chimeras\n")
 seqtab.nochim <- removeBimeraDenovo(seqtab, method="consensus", multithread=TRUE, verbose=TRUE)
-
+seqtab.nochim <- t(seqtab.nochim)
 
 ################### END SOP #####################
 
-seqtab.nochim <- t(seqtab.nochim)
 
+cat("# Finalise\n")
 # Track
 getN <- function(x) sum(getUniques(x))
 track <- cbind(out, sapply(dadaFs, getN), sapply(dadaRs, getN), sapply(mergers, getN), rowSums(seqtab.nochim))
@@ -78,7 +84,7 @@ rownames(track) <- sample.names
 
 col.names      <- basename(filtFs)
 col.names[[1]] <- paste0("#OTU","\t", col.names[[1]])
-
+cat("# Write output\n")
 write.table(seqtab.nochim, file.path(outdir, "dada2-table.tsv"), sep="\t",
             row.names=TRUE, col.names=col.names, quote=FALSE)
 write.table(track, file.path(outdir, "dada2-stats.tsv"), sep="\t", row.names=TRUE, col.names=NA,
