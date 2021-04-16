@@ -7,7 +7,7 @@ if (length(args) != 4) {
 path      <- args[[1]]
 outdir    <- args[[2]]
 tl1       <- strtoi(args[[3]])
-tl2       <- strtiu(args[[4]])
+tl2       <- strtoi(args[[4]])
 ################### START SOP #####################
 
 cat(" Input:  ", path,"\n")
