@@ -1,8 +1,8 @@
 
 
 args <- commandArgs(TRUE)
-if (len(args) != 4) {
-  stop(" Arguments: InputDir OutputDir TruncLen1 TruncLen2");
+if (length(args) != 4) {
+  stop(" Arguments: InputDir OutputDir TruncLen1 TruncLen2\n");
 }
 path      <- args[[1]]
 outdir    <- args[[2]]
