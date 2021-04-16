@@ -1,9 +1,13 @@
 library(dada2); packageVersion("dada2")
 
 args <- commandArgs(TRUE)
+if (len(args) != 4) {
+  stop(" Arguments: InputDir OutputDir TruncLen1 TruncLen2");
+}
 path      <- args[[1]]
 outdir    <- args[[2]]
-
+tl1       <- args[[3]]
+tl2       <- args[[4]]
 ################### START SOP #####################
 
 
@@ -24,7 +28,7 @@ dev.off()
 # Place filtered files in filtered/ subdirectory
 filtFs <- file.path(path, "filtered", paste0(sample.names, "_F_filt.fastq.gz"))
 filtRs <- file.path(path, "filtered", paste0(sample.names, "_R_filt.fastq.gz"))
-out <- filterAndTrim(fnFs, filtFs, fnRs, filtRs, truncLen=c(240,160),
+out <- filterAndTrim(fnFs, filtFs, fnRs, filtRs, truncLen=c(tl1,tl2),
               maxN=0, maxEE=c(2,2), truncQ=2, rm.phix=TRUE,
               compress=TRUE, multithread=TRUE) # On Windows set multithread=FALSE
 
