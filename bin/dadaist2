@@ -2,7 +2,7 @@
 #ABSTRACT: A program to run DADA2 from the CLI
 use 5.012;
 use warnings;
-my $VERSION          = '0.8.1';
+my $VERSION          = '0.9.0';
 
 BEGIN { 
 		
@@ -114,6 +114,8 @@ my $primer_rev        = undef;
 my $do_plots         = 'do_plots';
 my $trunc_len_1      = 0;
 my $trunc_len_2      = 0;
+my $opt_trunc_len_1;
+my $opt_trunc_len_2;
 my $trunc_start_1    = 0;
 my $trunc_start_2    = 0;
 my $opt_maxee_1      = 1.0;
@@ -150,22 +152,28 @@ my %dependencies = (
 
  
 my $parsed = GetOptions(
+# Main parameters
  'i|input-directory=s'             => \$opt_input_directory,
  'o|output-directory=s'            => \$opt_output_directory,
  'r|d|database=s'                  => \$opt_tax_db,
  'm|metadata=s'                    => \$opt_metadata,
+ 'l|log-file=s'                    => \$opt_log_filename,
+ 't|threads=i'                     => \$opt_threads,
+ 'tmp-dir=s'                       => \$opt_temp_dir,
+# Input reads
  '1|for-tag=s'                     => \$opt_for_tag,
  '2|rev-tag=s'                     => \$opt_rev_tag,
  's|id-separator=s'                => \$opt_id_separator,
- 'l|log-file=s'                    => \$opt_log_filename,
- 't|threads=i'                     => \$opt_threads,
+# ASV generation
  'p|prefix=s'                      => \$opt_seq_prefix,
  'q|min-quality=f'                 => \$qualified_min_qual,
  'save-rds'                        => \$opt_save_rds,
  's1|trim-primer-for=i'            => \$fastp_trim_front1,
  's2|trim-primer-rev=i'            => \$fastp_trim_front2,
  'no-trim'                         => \$opt_notrim,
- 'j|just-concat'                   => \$opt_justconcat,
+ 'trunc-len-1=i'                   => \$opt_trunc_len_1,
+ 'trunc-len-2=i'                   => \$opt_trunc_len_2,
+ 'j|its|just-concat'               => \$opt_justconcat,
  'dada-pool'                       => \$opt_process_pool,
  'max-loss=f'                      => \$opt_maxloss,
  'crosstalk'                       => \$opt_crosstalk,
@@ -173,9 +181,9 @@ my $parsed = GetOptions(
  'maxee1=f'                        => \$opt_maxee_1,
  'maxee2=f'                        => \$opt_maxee_2,
  'no-trunc'                        => \$opt_no_trunc,
- 'tmp-dir=s'                       => \$opt_temp_dir,
  'skip-plots'                      => \$opt_skip_plots,
  'skip-qc'                         => \$opt_skip_qc,
+# Misc
  'quiet'                           => \$opt_quiet,
  'verbose'                         => \$opt_verbose,
  'debug'                           => \$opt_debug,
@@ -546,6 +554,8 @@ for my $sample (sort keys %{ $files_hash } ) {
 		my $rev_dir = File::Spec->catdir($temp_dir, 'rev');
 		my $for_name = basename($$files_hash{$sample}{for});
 		my $rev_name = basename($$files_hash{$sample}{rev});
+		$trunc_len_1 = $opt_trunc_len_1;
+		$trunc_len_2 = $opt_trunc_len_2;
 		$for_name =~s/\.(fq|FQ|FASTQ)/.fastq/;
 		$rev_name =~s/\.(fq|FQ|FASTQ)/.fastq/;
 		my $dest_for = File::Spec->catfile($for_dir, $for_name);
@@ -801,14 +811,23 @@ if (! $opt_skip_plots ) {
 
 }
 
+
 ## PROCESS DADA2 MAIN OUTPUT
 my $dada2_tsv   = File::Spec->catfile($dada2_temp, 'dada2.tsv');
 my $dada2_file  = File::Spec->catfile($opt_output_directory, 'feature-table.tsv');
 my $repseq_file = File::Spec->catfile($opt_output_directory, 'rep-seqs.fasta');
 
-copy($dada2_tsv,
-	 File::Spec->catfile($opt_output_directory, 'dada2_raw.tsv')) || 
-	 die " ERROR:\n Unable to copy feature table file from $dada2_temp to $opt_output_directory.\n";
+# Where to store DADA2 tsv output
+my $final_dada2_tsv = File::Spec->catfile($opt_output_directory, 'dada2_raw.tsv');
+ 
+if ($opt_justconcat) {
+	my $join_cmd = qq(dadaist2-mergeseqs -i "$dada2_tsv" -o "$final_dada2_tsv");
+	$S->run($join_cmd, { candie => 0});
+} else {
+	copy($dada2_tsv,
+		$final_dada2_tsv) || 
+		die " ERROR:\n Unable to copy feature table file from $dada2_temp to $opt_output_directory.\n";
+}
 
 my @header = ();
 open my $DADA_TSV,   '<', "$dada2_tsv"   || die " ERROR:\n Unable to open <$dada2_tsv>\n";
