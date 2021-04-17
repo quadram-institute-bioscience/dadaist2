@@ -14,7 +14,7 @@ you already use it).
 
 ```
 conda install -y -c conda-forge mamba
-conda install -y -c conda-forge -c bioconda dadaist2
+mamba install -y -c conda-forge -c bioconda dadaist2
 ```
 
 If you want to keep dadaist2 and its dependencies in a separate environment (**recommended**):
@@ -25,6 +25,9 @@ mamba create -n dadaist -c conda-forge -c bioconda dadaist2
 # Then type `conda activate dadaist` to use it
 ```
  
+:bulb: Note that you can install also MultiQC and optional dependencies installing
+`dadaist2-full` instead of `dadaist2`.
+
 
 ### Developmental snapshot
 
@@ -33,13 +36,24 @@ can create an environment with all the required dependencies, then the binaries 
 repository can be used instead:
 
 ```bash
-mamba create -n dadaist-last -c conda-forge -c bioconda --only-deps dadaist2 multiqc
+mamba create -n dadaist-last -c conda-forge -c bioconda --only-deps dadaist2-full
 git clone https://github.com/quadram-institute-bioscience/dadaist2
 export PATH=$PWD/dadaist2/bin:$PATH
 ```
 
-## Singularity definition
-To build an image with the latest version from Bioconda the following definition file can be saved as `dadaist-stable.def`:
+## Docker image
+
+Dadaist2 is available from [DockerHub](https://hub.docker.com/r/andreatelatin/dadaist2) and
+the image can be pulled via:
+```
+sudo docker pull andreatelatin/dadaist2:last
+```
+
+
+## Advanced topics
+
+### Singularity definition
+To manually build an image with the latest version from Bioconda the following definition file can be saved as `dadaist-stable.def`:
 ```
 Bootstrap: docker
 From: centos:centos7.6.1810
@@ -69,7 +83,8 @@ and the image built as:
 sudo singularity build dadaist2.simg dadaist2-stable.def
 ```
 
-### Developmental snapshot
+### Developmental snapshot via Singularity
+
 To get the latest code from the repository (and also some databases) here we share a `dadaist2-dev.def` file:
 ```
 Bootstrap: docker
@@ -109,7 +124,7 @@ and the image built as:
 sudo singularity build dadaist2-dev.simg dadaist2-dev.def
 ```
 
-## Docker file 
+### Docker file 
 To build an image with the latest version from Bioconda the following definition file can be saved as `Dockerfile`:
 ```
 Bootstrap: docker
@@ -140,7 +155,8 @@ and the image built as:
 sudo singularity build dadaist2.simg dadaist2-stable.def
 ```
 
-### Developmental snapshot
+### Developmental snapshot with Docker
+
 To get the latest code from the repository (and also some databases) here we share a `dadaist2-dev.def` file:
 ```
 Bootstrap: docker
