@@ -33,11 +33,11 @@ library(dada2); packageVersion("dada2")
 cat("# Quality plots\n")
 pdf("for.pdf")
 plotQualityProfile(fnFs[1:2])
-dev.off()
+garbage <- dev.off()
 
 pdf("rev.pdf")
 plotQualityProfile(fnRs[1:2])
-dev.off()
+garbage <- dev.off()
 
 # Place filtered files in filtered/ subdirectory
 cat("# Filter and trim\n")

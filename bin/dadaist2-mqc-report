@@ -2,7 +2,7 @@
 # mkdir prova_mqc && cd prova_mqc
 
 # rm -rf data_for_mqc/ report_by_mqc/ && ../bin/dadaist2-mqc-report-test -i ../example-output -o data_for_mqc && multiqc -f -o report_by_mqc -c data_for_mqc/mqc.yaml data_for_mqc/
-# ./bin/dadaist2-mqc-report -i example-output -o example-report && multiqc -f -o example-mqc -c example-report/report_mqc.yaml example-report
+# ./bin/dadaist2-mqc-report -i example-output -o example-report && multiqc -f -o example-mqc -c example-report/config.yaml example-report
 
 # apparentemente bisogna specificare -c 
 # provare --lint
@@ -291,7 +291,7 @@ if __name__ == '__main__':
 		}
 	}
 	import yaml
-	with open(args.output_dir + '/report_mqc.yaml', 'wt') as f:
+	with open(args.output_dir + '/config.yaml', 'wt') as f:
 		yaml.dump(mqc_config, f, sort_keys=False)
 	
 	#TODO aggiungere anche qc/A01.json  A02.json  F99.json
