@@ -21,8 +21,8 @@ Dadaist2 is a highway to downstream analyses:
 * Generation of [*MicrobiomeAnalyst*](https://www.microbiomeanalyst.ca)-compatible files. MicrobiomeAnalyst provides a web-interface to performgi a broad range of visualizations and analyses.
 * Generation of [*Rhea*](https://lagkouvardos.github.io/Rhea/)-compatible files. Rhea is a standardized set of scripts "_designed to help easy implementation by users_".
 
-In addition to this:
-* Has a custom primer removal tool that discards noisy reads (missing primers or having too much of them).
+In addition to this, Dadaist:
+* Can automatically detect quality boundaries or trim the primers
 * Has a custom mode for _variable length_ amplicons (i.e. ITS), to detect features longer than the sum of the paired-end reads.
 * Ships an open source implementation of *[UNCROSS2](https://www.biorxiv.org/content/10.1101/400762v1.full)* by Robert Edgar.
 * Has a modular design that allows recycling parts of it in custom workflows.
