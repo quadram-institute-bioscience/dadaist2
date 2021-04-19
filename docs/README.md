@@ -26,6 +26,8 @@ In addition to this:
 * Has a custom mode for _variable length_ amplicons (i.e. ITS), to detect features longer than the sum of the paired-end reads.
 * Ships an open source implementation of *[UNCROSS2](https://www.biorxiv.org/content/10.1101/400762v1.full)* by Robert Edgar.
 * Has a modular design that allows recycling parts of it in custom workflows.
+* Prepares [a MultiQC-enabled](https://quadram-institute-bioscience.github.io/dadaist2/mqc/) overview of the experiment
+* Produces an easy to inspect [HTML execution log](https://quadram-institute-bioscience.github.io/dadaist2/mqc/log.html)
 
 You can [read more](introduction) about the features.
 
