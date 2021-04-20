@@ -19,8 +19,12 @@ multiqc -f .
 * **Taxonomy plots** are reported for a preliminary overview
 * A correlation **matrix** allows to check if replicates are indeed closely correlated
 * **Octave plots**, based on the distribution of counts per sample, allow to evaluate the level of _noisy sequences_
+* Beta diversity **matrix**
+
 
 ## Screenshot
 
-![popup](../img/multiqc.png)å
+An [example](https://quadram-institute-bioscience.github.io/dadaist2/mqc/) is available on this website.
+
+![popup](../img/multiqc.png)
 
