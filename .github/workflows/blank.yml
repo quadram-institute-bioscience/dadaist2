@@ -43,6 +43,7 @@ jobs:
           use-mamba: true
           # Architecture of Miniconda that should be installed. Available options on GitHub-hosted runners are "x86" and "x64". Default is "x64".
           architecture: "x64"
+          mamba-version: "*"
       - name: Install requirements.
         run: mamba install -y --only-deps dadaist2
       - name: Test Dadaist
