@@ -13,7 +13,7 @@ while (my $line=<STDIN>) {
     chomp($line);
 	my @f = split /\t/, $line;
     if (compareStrings(@f)) {
-    	say "<OK>", removeLast($f[0])
+    	say "<OK> $f[0]"
     } else {
     	$wrong++;
     	say "$c <ERR>", removeLast($f[0]);

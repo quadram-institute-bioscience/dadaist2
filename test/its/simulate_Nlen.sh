@@ -1,10 +1,20 @@
 set -euxo pipefail 
 
-DB=~/volume/dadaist2/refs/uniref.fa.gz
-IN=unite-long.fa
-IN=/home/ubuntu/volume/dadaist2/test/its/unite-long550-unique.fa
+DB=../../refs/uniref.fa.gz
+IN=unite-long550-unique.fa
 LEN=300
 T=8
+
+if [[ ! -e $DB ]]; then
+   echo Missing database $DB. Download it first.
+   exit 1
+fi
+
+if [[ ! -e $IN ]]; then
+    echo Missing input files: $IN
+    exit 1
+fi
+
 
 mkdir -p ref
 ~/volume/dadaist2/bin/dadaist2-assigntax  -t $T -i $IN -o ref/ -r $DB
