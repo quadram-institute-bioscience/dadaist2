@@ -201,5 +201,4 @@ sudo singularity build dadaist2-dev.simg dadaist2-dev.def
 **dadaist2** will install the following programs:
 
 * `dadaist2`, the main program
-* `makeSampleSheet`, a helper tool to draft a sample sheet
 * `dadaist2-...`, a set of wrappers and tools all using the _dadaist2-_ prefix to make them easy to find (using [TAB](https://www.howtogeek.com/195207/use-tab-completion-to-type-commands-faster-on-any-operating-system/))

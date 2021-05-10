@@ -27,6 +27,7 @@ release:
 
 ### QC test
 
+The QC is available via `cutadapt` or via `fastp`. 
 ### DADA2 test
 
 DADA2 provides [a tutorial](https://benjjneb.github.io/dada2/tutorial_1_8.html)
