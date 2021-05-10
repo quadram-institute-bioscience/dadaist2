@@ -1,0 +1,123 @@
+#!/usr/bin/env perl
+
+use 5.012;
+use warnings;
+use Pod::Usage;
+use Getopt::Long;
+use FindBin qw($RealBin);
+use File::Basename;
+use File::Spec;
+use File::Spec::Functions;
+use File::Copy;
+use Term::ANSIColor qw(color);
+ 
+my (
+	$opt_phyloseq,
+  $opt_outdir,
+  $opt_version,
+  $opt_verbose,
+  $opt_force,
+  $opt_help,
+); 
+my @output_files = ('bubble_plots.pdf', 'abundance_bar_plots.pdf');
+
+my $rscript = File::Spec->catfile($RealBin, 'D2-AbundancesPhyloseq.R');
+ 
+GetOptions(
+	'i|input-file=s' => \$opt_phyloseq,
+  'o|output-dir=s' => \$opt_outdir,
+	'verbose'        => \$opt_verbose,
+	'version'        => \$opt_version,
+	'force'          => \$opt_force,
+	'help'           => \$opt_help,
+);
+
+say STDERR color('magenta bold'), " DADAIST2 Plot Taxonomy from PhyloSeq", color('reset');
+
+$opt_version && version();
+$opt_help    && pod2usage({-exitval => 0, -verbose => 2});
+
+
+# Check parameters
+die "ERROR: Missing script ($rscript).\n" unless (-e $rscript);
+die "Missing parameters. Use --help for full manual.\n" if (!$opt_phyloseq or !$opt_outdir); 
+die "ERROR: Input file not found: $opt_phyloseq\n" if  (not -e $opt_phyloseq);
+
+ 
+
+# Set defaults, convert paths
+$opt_phyloseq = File::Spec->rel2abs($opt_phyloseq);
+$opt_outdir   = File::Spec->rel2abs($opt_outdir);
+$opt_outdir .= '/' if ($opt_outdir !~/\/$/);
+
+if (not -d $opt_outdir) {
+  mkdir "$opt_outdir" || die "FATAL ERROR:\nUnable to create output directory: $opt_outdir.\n$!\n";
+} 
+
+my $cmd = qq(Rscript --vanilla $rscript "$opt_phyloseq" "$opt_outdir"); 
+
+if ($opt_verbose) {
+  say STDERR "$cmd";
+}
+my $captured = `$cmd 2>&1`;
+
+if ($?) {
+  say STDERR color('magenta'), $captured, color('reset'), "\n";
+  die " ERROR: Execution of Rhea script failed.\n";
+} else {
+  for my $file (@output_files) {
+    if (-e File::Spec->catfile($opt_outdir, $file) ) {
+      say STDERR " * Generated: $file";
+    } else {
+      say STDERR " ERROR: Expected file not found: $file";
+    }
+  }
+}
+ 
+__END__
+
+=head1 NAME
+
+B<dadaist2-taxaplot> - Automatically plot taxonomy barbplots
+from a PhyloSeq object
+
+=head1 AUTHORS
+
+Andrea Telatin and Rebecca Ansorge
+
+=head1 USAGE
+
+  dadaist2-taxaplot [options] -i PHYLOSEQFILE -o OUTDIR 
+
+=over 4
+
+=item I<-i>, I<--input-file> FILE
+
+Input file, the B<normalized> OTU table
+
+=item I<-o>, I<--output-dir> DIR
+
+Output directory
+ 
+=back
+
+
+=head1 OUTPUT FILES
+
+=over 4
+
+=item I<abundance_bar_plots.pdf>
+
+Stacked barchart taxonomy plot.
+
+=item I<bubble_plots.pdf>
+
+Bubble plot (PDF) with the top taxa found in the analysed samples.
+
+=back
+ 
+=head1 SOURCE CODE AND DOCUMENTATION
+
+This wrapper is part of B<Dadaist2> freely available at 
+L<https://quadram-institute-bioscience.github.io/dadaist2>
+released under the MIT licence. The website contains further DOCUMENTATION.

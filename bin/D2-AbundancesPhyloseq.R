@@ -77,7 +77,7 @@ dev.off()
 
 ## Create bubble plots
 
-pdf((paste(out.dir,"/my_bubble_plots.pdf",sep='')))
+pdf((paste(out.dir,"/bubble_plots.pdf",sep='')))
 # bubble Class
 my_physeq_filt_rel_Class = tax_glom(my_physeq_filt_rel, "Class")
 my_barClass <- plot_bar(my_physeq_filt_rel_Class) 

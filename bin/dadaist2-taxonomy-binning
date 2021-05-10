@@ -32,17 +32,19 @@ my $rhea_binning = File::Spec->catfile($RealBin, 'rhea-binning.R');
 GetOptions(
 	'o|output-directory=s'      => \$opt_outdir,
 	'i|input-table=s'           => \$opt_input_table,
-  
-	'verbose'        => \$opt_verbose,
-	'version'        => \$opt_version,
-	'force'          => \$opt_force,
-	'help'           => \$opt_help,
+	'verbose'                   => \$opt_verbose,
+	'version'                   => \$opt_version,
+	'force'                     => \$opt_force,
+	'help'                      => \$opt_help,
 );
 
 say STDERR color('magenta bold'), " DADAIST2 Summarize by Taxonomy", color('reset');
 
 $opt_version && version();
-$opt_help    && pod2usage({-exitval => 0, -verbose => 2});
+$opt_help    && pod2usage({
+   -exitval => 0, 
+   -verbose => 2
+  });
 
 
 # Check parameters
