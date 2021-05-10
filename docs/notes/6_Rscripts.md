@@ -32,9 +32,13 @@ The manual R workflow [is available here](plot.html), while the Dadaist2 script 
 
 The two workflow produce identical PhyloSeq objects and identical plots.
 
-<img src="img/r-taxa.png">
+
+<img src="../img/r-taxa.png">
+
 Taxonomy barplots (manually generated from R, _left_, and automatically generated, _right_)
 
-<img src="img/r-bubble.png">
+
+<img src="../img/r-bubble.png">
+
 Taxonomy bubble plots (manually generated from R, _left_, and automatically generated, _right_)
 
