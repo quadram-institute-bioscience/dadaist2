@@ -26,6 +26,15 @@ We performed a manual analysis in R requiring the generation of a PhyloSeq objec
 by the generation of a taxonomy plot (using PhyloSeq) and a bubble plot with custom
 R commands.
 
-The manual output [is available here](plot.html).
+The manual R workflow [is available here](plot.html), while the Dadaist2 script used is `dadaist2-taxplot`.
 
+## Results
+
+The two workflow produce identical PhyloSeq objects and identical plots.
+
+<img src="img/r-taxa.png">
+Taxonomy barplots (manually generated from R, _left_, and automatically generated, _right_)
+
+<img src="img/r-bubble.png">
+Taxonomy bubble plots (manually generated from R, _left_, and automatically generated, _right_)
 
