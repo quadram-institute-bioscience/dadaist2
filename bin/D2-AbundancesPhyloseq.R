@@ -59,17 +59,20 @@ while (i > 1 & i <= length(sample_variables(my_physeq_filt_rel))) {
 ### PLOT ABUNDANCES ###
 
 # Family colored but OTU level separation
-my_barPhyl_pure <- plot_bar(my_physeq_filt_rel, fill="Phylum") + scale_fill_discrete(na.value="grey90") + ggtitle("Relative abundances at Phylum level") # color by Phylum
-my_barClass_pure <- plot_bar(my_physeq_filt_rel, fill="Class") + scale_fill_discrete(na.value="grey90") + ggtitle("Relative abundances at Class level") # color by Class
-my_barFam_pure <- plot_bar(my_physeq_filt_rel, fill="Family") + scale_fill_discrete(na.value="grey90") + ggtitle("Relative abundances at Family level")# color by Family
-my_barGen_pure <- plot_bar(my_physeq_filt_rel, fill="Genus") + scale_fill_discrete(na.value="grey90") + ggtitle("Relative abundances at Genus level")# color by Genus
+my_physeq_filt_rel_P <- tax_glom(my_physeq_filt_rel,taxrank = "Phylum")
+my_barPhyl_pure <- plot_bar(my_physeq_filt_rel_P, fill="Phylum") + scale_fill_discrete(na.value="grey90") + ggtitle("Relative abundances at Phylum level") # color by Phylum
+my_physeq_filt_rel_C <- tax_glom(my_physeq_filt_rel,taxrank = "Class")
+my_barClass_pure <- plot_bar(my_physeq_filt_rel_C, fill="Class") + scale_fill_discrete(na.value="grey90") + ggtitle("Relative abundances at Class level") # color by Class
+my_physeq_filt_rel_O <- tax_glom(my_physeq_filt_rel,taxrank = "Order")
+my_barOrder_pure <- plot_bar(my_physeq_filt_rel_O, fill="Order") + scale_fill_discrete(na.value="grey90") + ggtitle("Relative abundances at Order level") # color by Class
 
 # show bar plots
 pdf(paste(out.dir,"/abundance_bar_plots.pdf",sep=''))
   my_barPhyl_pure 
   my_barClass_pure
-  my_barFam_pure
-  my_barGen_pure
+  if (ntaxa(my_physeq_filt_rel_O) <=14){
+    print(my_barOrder_pure)
+  }
 dev.off()
 
 ## Create bubble plots
@@ -105,6 +108,40 @@ for ( n in 1:(i-2) ) {
   } else {
     print(my_bubbleClass)
   }  
+}
+
+# bubble Order
+if  (ntaxa(my_physeq_filt_rel_O) >14) {
+  my_physeq_filt_rel_Order = tax_glom(my_physeq_filt_rel, "Order")
+  my_barOrder <- plot_bar(my_physeq_filt_rel_Order) 
+  my_barOrder$layers <- my_barOrder$layers[-1]
+  maxC<-max(otu_table(my_physeq_filt_rel_Order))
+  for ( n in 1:(i-2) ) {
+    var <- paste("var", n, sep="")
+    x <- get(var)
+    my_bubbleOrder <- my_barOrder + 
+      geom_point(aes_string(x="Sample", y="Order", size="Abundance", color = x ), alpha = 0.7 ) +
+      scale_size_continuous(limits = c(0.001,maxC)) +
+      xlab("Sample") +
+      ylab("Order") +
+      ggtitle("Relative abundances at Order level") + 
+      labs(caption = "Abundances below 0.001 were considered absent") + 
+      theme(strip.text = element_text(face="bold", size=14),
+            axis.text.x = element_text(color = "black", size = 8, angle = 90, hjust = 1, vjust = 0.5, face = "plain"),
+            axis.text.y = element_text(color = "black", size = 8, angle = 0, hjust = 1, vjust = 0.5, face = "plain"),
+            axis.title.x = element_text(color = "black", size = 10, angle = 0, hjust = .5, vjust = 0, face = "plain"),
+            axis.title.y = element_text(color = "black", size = 10, angle = 90, hjust = .5, vjust = .5, face = "plain"),
+            plot.title = element_text(size = 12),
+            plot.caption = element_text(size = 6),
+            legend.title = element_text(size = 10),
+            legend.text = element_text(size = 8))
+    if (x == "NoMetadata" | x =="Files") {
+      my_bubbleOrdernm <- my_bubbleOrder + guides(color=FALSE)
+      print(my_bubbleOrdernm)
+    } else {
+      print(my_bubbleOrder)
+    }  
+  }
 }
 
 
@@ -177,37 +214,41 @@ for ( n in 1:(i-2) ) {
 # test if species exist
 bla <- as.vector(tax_table(my_physeq_filt_rel)[,"Species"])
 if ( sum(grep('*', bla)) == 0 ) {
-  print("no Species level affiliation")
+  cat("\nno Species level affiliation\n")
 } else {
   my_physeq_filt_rel_Spec = tax_glom(my_physeq_filt_rel, "Species")
-  my_barSpec <- plot_bar(my_physeq_filt_rel_Spec) 
-  my_barSpec$layers <- my_barSpec$layers[-1]
-  maxC<-max(otu_table(my_physeq_filt_rel_Spec))
-  for ( n in 1:(i-2) ) {
-    var <- paste("var", n, sep="")
-    x <- get(var)
-    my_bubbleSpec <- my_barSpec + 
-      geom_point(aes_string(x="Sample", y="Species", size="Abundance", color = x ), alpha = 0.7) +
-      scale_size_continuous(limits = c(0.001,maxC)) +
-      xlab("Sample") +
-      ylab("Species") +
-      ggtitle("Relative abundances at Species level") + 
-      labs(caption = "Abundances below 0.001 were considered absent") + 
-      theme(strip.text = element_text(face="bold", size=14),
-            axis.text.x = element_text(color = "black", size = 8, angle = 90, hjust = 1, vjust = 0.5, face = "plain"),
-            axis.text.y = element_text(color = "black", size = 8, angle = 0, hjust = 1, vjust = 0.5, face = "plain"),
-            axis.title.x = element_text(color = "black", size = 10, angle = 0, hjust = .5, vjust = 0, face = "plain"),
-            axis.title.y = element_text(color = "black", size = 10, angle = 90, hjust = .5, vjust = .5, face = "plain"),
-            plot.title = element_text(size = 12),
-            plot.caption = element_text(size = 6),
-            legend.title = element_text(size = 10),
-            legend.text = element_text(size = 8))
-    if (x == "NoMetadata" | x =="Files") {
-      my_bubbleSpecnm <- my_bubbleSpec + guides(color=FALSE)
-      print(my_bubbleSpecnm)
-    } else {
-      print(my_bubbleSpec)
+  if  (ntaxa(my_physeq_filt_rel_Spec) < 60) { 
+    my_barSpec <- plot_bar(my_physeq_filt_rel_Spec) 
+    my_barSpec$layers <- my_barSpec$layers[-1]
+    maxC<-max(otu_table(my_physeq_filt_rel_Spec))
+    for ( n in 1:(i-2) ) {
+      var <- paste("var", n, sep="")
+      x <- get(var)
+      my_bubbleSpec <- my_barSpec + 
+        geom_point(aes_string(x="Sample", y="Species", size="Abundance", color = x ), alpha = 0.7) +
+        scale_size_continuous(limits = c(0.001,maxC)) +
+        xlab("Sample") +
+        ylab("Species") +
+        ggtitle("Relative abundances at Species level") + 
+        labs(caption = "Abundances below 0.001 were considered absent") + 
+        theme(strip.text = element_text(face="bold", size=14),
+              axis.text.x = element_text(color = "black", size = 8, angle = 90, hjust = 1, vjust = 0.5, face = "plain"),
+              axis.text.y = element_text(color = "black", size = 8, angle = 0, hjust = 1, vjust = 0.5, face = "plain"),
+              axis.title.x = element_text(color = "black", size = 10, angle = 0, hjust = .5, vjust = 0, face = "plain"),
+              axis.title.y = element_text(color = "black", size = 10, angle = 90, hjust = .5, vjust = .5, face = "plain"),
+              plot.title = element_text(size = 12),
+              plot.caption = element_text(size = 6),
+              legend.title = element_text(size = 10),
+              legend.text = element_text(size = 8))
+      if (x == "NoMetadata" | x =="Files") {
+        my_bubbleSpecnm <- my_bubbleSpec + guides(color=FALSE)
+        print(my_bubbleSpecnm)
+      } else {
+        print(my_bubbleSpec)
+      }
     }
+  } else {
+    cat("\nToo many species ( >60 ) to be plotted\n")
   }
 }
 dev.off()
