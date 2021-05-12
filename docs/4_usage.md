@@ -103,7 +103,7 @@ The output folder contains a subdirectory called _MicrobiomeAnalyst_.
 We can go to [MicrobiomeAnalyst](https://www.microbiomeanalyst.ca/MicrobiomeAnalyst/upload/OtuUploadView.xhtml)
 and upload our table, taxonomy and metadata:
 
-<img src="img/ma-form.png">
+<img src="img/ma-form.png" width="500" height="250" >
 
 After deciding if and how to normalize or rescale our data (we used the defaults settings here),
 you'll land on the tool box page:
