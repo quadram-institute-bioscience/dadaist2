@@ -9,7 +9,7 @@ OUT="$BASEDIR/output/"
 PASS="\e[32mPASS\e[0m"
 FAIL="\e[31m** FAIL **\e[0m"
 mkdir -p "$OUT/"
-
+conda activate dadaist
 echo '--------------'
 echo -e "Test dir:\t$TEST_DIR"
 echo -e "Base dir:\t$BASEDIR"

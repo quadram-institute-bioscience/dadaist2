@@ -1,5 +1,5 @@
 <a href="https://quadram-institute-bioscience.github.io/dadaist2" description="Dadaist documentation">
-<img src="img/dadaist.png">
+<img src="img/dadaist2.png">
 </a>
 <br/>
 
