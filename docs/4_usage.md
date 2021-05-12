@@ -103,17 +103,17 @@ The output folder contains a subdirectory called _MicrobiomeAnalyst_.
 We can go to [MicrobiomeAnalyst](https://www.microbiomeanalyst.ca/MicrobiomeAnalyst/upload/OtuUploadView.xhtml)
 and upload our table, taxonomy and metadata:
 
-<img src="img/ma-form.png" width="500" height="250" >
+<img src="img/ma-form.png" width="500" height="250"  alt="MicrobiomeAnalyst input form">
 
 After deciding if and how to normalize or rescale our data (we used the defaults settings here),
 you'll land on the tool box page:
 
-<img src="img/ma-tools.png">
+<img src="img/ma-tools.png" width="570" height="300" alt="MicrobiomeAnalyst menu">
 
 We can perform a PCA analysis and check if there is a separation between the "Early" and "Late"
 samples, as shown in the original paper:
 
-<img src="img/ma-pca.png">
+<img src="img/ma-pca.png" >
 
 
 # Documentation
