@@ -1,6 +1,6 @@
 # dadaist2
 
-[![Dadaist2 logo](docs/dadaist.png)](https://quadram-institute-bioscience.github.io/dadaist2/)
+[![Dadaist2 logo](docs/img/dadaist2.png)](https://quadram-institute-bioscience.github.io/dadaist2/)
 
 [![release](https://img.shields.io/github/v/release/quadram-institute-bioscience/dadaist2?label=github%20release)](https://github.com/quadram-institute-bioscience/dadaist2/releases)
 [![version](
