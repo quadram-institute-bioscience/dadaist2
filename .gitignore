@@ -30,3 +30,5 @@ rdp_species_assign*
 data/diet
 tmp
 data/qiime-*
+data/its-mock/
+paper

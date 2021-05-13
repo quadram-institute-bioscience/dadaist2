@@ -5,7 +5,7 @@
 use 5.012;
 use warnings;
 use Pod::Usage;
-my $VERSION = "1.0.5"; 
+my $VERSION = "1.0.6"; 
 use Getopt::Long;
 use Data::Dumper;
 use FindBin qw($RealBin);
@@ -67,7 +67,7 @@ if ($opt_format eq 'TXT') {
 		}
 		my $id = shift(@ranks);
 		die "Expected 6 ranks in Dadaist2 format: ", scalar @ranks, " found at line $c:\n$line\n"
-		 if (scalar @ranks != 6);
+		 if (scalar @ranks > 7);
 		
 		my $seq = $FASTA->getRead();
 		say '>', $seq->{name}, $opt_separator, join(";", @ranks);
@@ -124,22 +124,17 @@ Andrea Telatin <andrea.telatin@quadram.ac.uk>
 
 Taxonomy assignment method (default: DECIPHER)
 
-=item I<-i>, I<--input> FASTA
+=item I<-f>, I<--fasta> FASTA
 
 Input file in FASTA format (or in DADA2 table format)
 
-=item I<-o>, I<--outdir> DIR
+=item I<-o>, I<--output> FASTA
 
-Output directory, or the current working directory if not specified.
+Output file in FASTA format
 
-=item I<-r>, I<--reference> FILE
+=item I<-t>, I<--taxonomy> FILE
 
-RData file with the training set in DECIPHER format.
-
-=item I<-u>, I<--underscore-join>
-
-Join taxa names that have spaces with an underscore (default:
-use double quotes)
+"taxonomy.tsv" file as produced by C<dadaist2-assigntax>
 
 =back
 
