@@ -15,22 +15,17 @@ Andrea Telatin <andrea.telatin@quadram.ac.uk>
 
     Taxonomy assignment method (default: DECIPHER)
 
-- _-i_, _--input_ FASTA
+- _-f_, _--fasta_ FASTA
 
     Input file in FASTA format (or in DADA2 table format)
 
-- _-o_, _--outdir_ DIR
+- _-o_, _--output_ FASTA
 
-    Output directory, or the current working directory if not specified.
+    Output file in FASTA format
 
-- _-r_, _--reference_ FILE
+- _-t_, _--taxonomy_ FILE
 
-    RData file with the training set in DECIPHER format.
-
-- _-u_, _--underscore-join_
-
-    Join taxa names that have spaces with an underscore (default:
-    use double quotes)
+    "taxonomy.tsv" file as produced by `dadaist2-assigntax`
 
 ## Source code and documentation
 The program is freely available at [https://quadram-institute-bioscience.github.io/dadaist2](https://quadram-institute-bioscience.github.io/dadaist2)
