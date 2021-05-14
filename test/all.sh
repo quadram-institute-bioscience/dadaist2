@@ -9,7 +9,7 @@ OUT="$BASEDIR/output/"
 PASS="\e[32mPASS\e[0m"
 FAIL="\e[31m** FAIL **\e[0m"
 mkdir -p "$OUT/"
-conda activate dadaist
+which conda && conda activate dadaist
 echo '--------------'
 echo -e "Test dir:\t$TEST_DIR"
 echo -e "Base dir:\t$BASEDIR"
@@ -25,6 +25,11 @@ echo -e "list_binaries:\t"$(ls "$SCRIPTS")
 echo '--------------'
 
 set -eux pipefail
+
+# TEST: VERSION
+echo " [0] Check version"
+perl "$SCRIPTS"/dadaist2 --version && printf  " * $PASS: Version $($SCRIPTS/dadaist2 --version )\n";
+
 
 # TEST: NO TAXONOMY
 echo " [1] Test basic settings"
