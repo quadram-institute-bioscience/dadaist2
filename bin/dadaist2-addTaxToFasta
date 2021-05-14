@@ -42,6 +42,10 @@ GetOptions(
 
 say STDERR color('magenta bold'), " DADAIST2 Add Taxonomy to Fasta", color('reset');
 
+my $O;
+if ($opt_output) {
+	open $O, '>', "$opt_output" || die " FATAL ERROR: Unable to write to $opt_output.\n";
+}
 $opt_version && version();
 $opt_help    && pod2usage({-exitval => 0, -verbose => 2});
 
@@ -70,8 +74,14 @@ if ($opt_format eq 'TXT') {
 		 if (scalar @ranks > 7);
 		
 		my $seq = $FASTA->getRead();
-		say '>', $seq->{name}, $opt_separator, join(";", @ranks);
-		say $seq->{seq};
+		if ($opt_output) {
+			say {$O} '>', $seq->{name}, $opt_separator, join(";", @ranks);
+			say {$O} $seq->{seq};
+		} else {
+			say '>', $seq->{name}, $opt_separator, join(";", @ranks);
+			say $seq->{seq};
+		}
+		
 	}
 }
 
@@ -125,7 +135,7 @@ Input file in FASTA format (or in DADA2 table format)
 
 =item I<-o>, I<--output> FASTA
 
-Output file in FASTA format
+Output file in FASTA format. If not provided will be printed to the standard output.
 
 =item I<-t>, I<--taxonomy> FILE
 

@@ -17,7 +17,7 @@ Andrea Telatin <andrea.telatin@quadram.ac.uk>
 
 - _-o_, _--output_ FASTA
 
-    Output file in FASTA format
+    Output file in FASTA format. If not provided will be printed to the standard output.
 
 - _-t_, _--taxonomy_ FILE
 
