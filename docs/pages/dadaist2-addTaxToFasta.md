@@ -11,10 +11,6 @@ Andrea Telatin <andrea.telatin@quadram.ac.uk>
 ## Usage
     dadaist2-assigntax -i FASTA -o DIR -r REFERENCE [-t THREADS]
 
-- _-m_, _--method_
-
-    Taxonomy assignment method (default: DECIPHER)
-
 - _-f_, _--fasta_ FASTA
 
     Input file in FASTA format (or in DADA2 table format)

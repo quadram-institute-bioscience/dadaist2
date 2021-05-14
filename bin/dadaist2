@@ -34,6 +34,8 @@ Andrea Telatin <andrea.telatin@quadram.ac.uk>
 =cut
 
 # Minichangelog
+# 1.0.0  - Accepted release, documentation updates, GitHub actions 
+# 0.9.0  - Improved support tools (addTaxToFasta..), bug fixes
 # 0.8.0  - `--dada-pool`
 # 0.7.7  - MultiQC, Rhea support, bugfixes...
 # 0.7.5  - Crosstalk

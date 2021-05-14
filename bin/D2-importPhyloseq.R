@@ -2,6 +2,12 @@
 cat(R.version$version.string, "\n")
 SAMPLEID=1
 
+# Requires MA output:
+#  * table.csv
+#  * taxonomy.csv
+#  * rep-seqs.tree
+#  * metadata.csv
+
 errQuit <- function(mesg, status=1) { message("Error: ", mesg); q(status=status) }
 getN <- function(x) sum(getUniques(x))
 args <- commandArgs(TRUE)
