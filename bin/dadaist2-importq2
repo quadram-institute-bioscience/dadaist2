@@ -32,13 +32,25 @@ my @cmds = ();
 my $opt_temp_dir = File::Temp->newdir( 'dadaist2_XXXXXX',
 		CLEANUP => 0,
 		DIR => File::Spec->tmpdir());
- 
+
+say STDERR " DADAIST2 - Import from Qiime2 Artifacts
+"; 
 say STDERR " Temp dir: $opt_temp_dir" if ($opt_verbose);
-say STDERR " Checking files" if ($opt_verbose);
+
 if (not defined $qza_table or not defined $qza_tree or not defined $qza_taxonomy or not defined $metadata) {
     die "Missing required files: table, taxonomy, rep-seqs, metadata, tree.
 Use --help for more help.\n";
 }
+
+say STDERR " Required files:
+  * Feature table:    $qza_table
+  * Taxonomy:         $qza_taxonomy
+  * Rep seqs:         $qza_repseqs
+  * Tree:             $qza_tree
+  * Metadata:         $metadata
+";
+
+say STDERR " Checking files" if ($opt_verbose);
 if (-e "$qza_table") {
     push(@cmds, "qax extract -k -o \"$opt_temp_dir\" \"$qza_table\"");
 } else {
@@ -88,6 +100,9 @@ my $taxcol = File::Spec->catfile($opt_temp_dir, "taxonomy.col");
 my $taxtab = File::Spec->catfile($opt_temp_dir, "table-tax.tsv");
 my $Rfile = File::Spec->catfile($opt_temp_dir, "script.R");
 
+my $log = File::Spec->catfile($opt_temp_dir, "log.txt");
+my $dump = File::Spec->catfile($opt_temp_dir, "dump.txt");
+
 @cmds = (
     "biom convert --to-tsv -i \"$biom\" -o \"$raw\"",
     "tail -n +2 \"$raw\" > \"$tab\"",
@@ -103,14 +118,37 @@ for my $cmd (@cmds) {
 my $R = qq(
 library("phyloseq")
 data = import_qiime("$taxtab", "$metadata", "$tree", "$seqs")
-
 saveRDS(data, file = "$output_ps")
+cat("---\n")
+data
 );
 
 open(my $O, '>', "$Rfile") || die " Unable to write to $Rfile\n";
 print {$O} "$R";
-say STDERR " Importing to Rls " if ($opt_verbose);
-`Rscript --vanilla "$Rfile"`;
+say STDERR " Importing to R (phyloseq) " if ($opt_verbose);
+`Rscript --vanilla "$Rfile" 2> "$log" > "$dump"`;
+if ($?) {
+    say STDERR " ERROR importing into PhyloSeq:";
+    pfile($log);
+} else {
+    say STDERR "\n PhyloSeq data:";
+    pfile($dump, "---");
+    say STDERR " PhyloSeq object saved to: $output_ps";
+    system("rm -rf \"$opt_temp_dir\" ");
+}
+
+sub pfile {
+    my ($file, $checkpoint) = @_;
+    my $print = 1;
+    $print = 0 if (defined $checkpoint);
+    open (my $I, '<', "$file") || die "";
+    while (my $l = readline($I)) {
+        print STDERR $l if ($print);
+        if (defined $checkpoint and $l =~/$checkpoint/) {
+            $print = 1;
+        }
+    }
+}
 __END__
 
 

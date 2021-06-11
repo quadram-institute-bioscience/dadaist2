@@ -1,5 +1,5 @@
 ---
-sort: 11
+sort: 12
 ---
 ## dadaist2-phyloseqMake
 **dadaist2-phyloseqMake** - Generate PhyloSeq object from the command line

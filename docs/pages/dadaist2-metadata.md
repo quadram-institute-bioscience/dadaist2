@@ -1,5 +1,5 @@
 ---
-sort: 8
+sort: 9
 ---
 ## dadaist2-metadata
 **dadaist2-metadata** - create a sample sheet from a list of Paired End FASTQ files,
