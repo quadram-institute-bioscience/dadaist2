@@ -1,0 +1,167 @@
+#!/usr/bin/env perl
+use 5.012;
+use warnings;
+use Getopt::Long;
+use File::Spec;
+use File::Basename;
+use Data::Dumper;
+use Pod::Usage;
+use File::Temp;
+
+my $VERSION = "1.0.0";
+
+my $output_ps = 'phyloseq.rds';
+my ($qza_table, $qza_tree, $qza_repseqs, $qza_taxonomy, $metadata, $opt_version, $opt_help, $opt_verbose);
+GetOptions(
+  'x|taxonomy=s'      => \$qza_taxonomy,
+  't|table|feature-table=s' => \$qza_table,
+  'T|tree=s'          => \$qza_tree,
+  'r|rep-seqs=s'      => \$qza_repseqs,
+  'm|metadata=s'      => \$metadata,
+  'o|output-phyloseq=s' => \$output_ps,
+  'verbose'  => \$opt_verbose,
+  'version'  => \$opt_version,
+  'help'     => \$opt_help,
+);
+
+$opt_version && version();
+$opt_help    && pod2usage({-exitval => 0, -verbose => 2});
+
+my @cmds = ();
+# Where to place the temporary directory
+my $opt_temp_dir = File::Temp->newdir( 'dadaist2_XXXXXX',
+		CLEANUP => 0,
+		DIR => File::Spec->tmpdir());
+ 
+say STDERR " Temp dir: $opt_temp_dir" if ($opt_verbose);
+say STDERR " Checking files" if ($opt_verbose);
+if (not defined $qza_table or not defined $qza_tree or not defined $qza_taxonomy or not defined $metadata) {
+    die "Missing required files: table, taxonomy, rep-seqs, metadata, tree.
+Use --help for more help.\n";
+}
+if (-e "$qza_table") {
+    push(@cmds, "qax extract -k -o \"$opt_temp_dir\" \"$qza_table\"");
+} else {
+    die "ERROR: File not found: --feature-table TABLE.qza. Use --help for more help.\n";
+}
+
+if (-e "$qza_taxonomy") {
+    push(@cmds, "qax extract -k -o \"$opt_temp_dir\" \"$qza_taxonomy\"");
+} else {
+    die "ERROR: File not found: --taxonomy TAXONOMY.qza. Use --help for more help.\n";
+}
+
+if (-e "$qza_tree") {
+    push(@cmds, "qax extract -k -o \"$opt_temp_dir\" \"$qza_tree\"");
+} else {
+    die "ERROR: File not found: --tree TREE.qza. Use --help for more help.\n";
+}
+if (-e "$metadata") {
+    push(@cmds, "cp \"$metadata\" \"$opt_temp_dir\"");
+}else {
+    die "ERROR: File not found: metadata --metadata FILE. Use --help for more help.\n";
+}
+
+if (-e "$qza_repseqs") {
+    push(@cmds, "qax extract -k -o \"$opt_temp_dir\" \"$qza_repseqs\"");
+}else {
+    die "ERROR: File not found: sequences --rep-seqs FILE. Use --help for more help.\n";
+}
+
+
+for my $cmd (@cmds) {
+    system($cmd);
+    die "Unable to extract artifact:\n# $cmd\n" if ($?);
+}
+
+say STDERR " Preparing taxonomy and table" if ($opt_verbose);
+## Process table / taxonomy
+my $biom = File::Spec->catfile($opt_temp_dir, "feature-table.biom");
+
+my $raw = File::Spec->catfile($opt_temp_dir, "table.raw");
+my $tab = File::Spec->catfile($opt_temp_dir, "table.tab");
+my $tree = File::Spec->catfile($opt_temp_dir, "tree.nwk");
+my $seqs = File::Spec->catfile($opt_temp_dir, "dna-sequences.fasta");
+
+my $tax = File::Spec->catfile($opt_temp_dir, "taxonomy.tsv");
+my $taxcol = File::Spec->catfile($opt_temp_dir, "taxonomy.col");
+my $taxtab = File::Spec->catfile($opt_temp_dir, "table-tax.tsv");
+my $Rfile = File::Spec->catfile($opt_temp_dir, "script.R");
+
+@cmds = (
+    "biom convert --to-tsv -i \"$biom\" -o \"$raw\"",
+    "tail -n +2 \"$raw\" > \"$tab\"",
+    "cut -f 2 \"$tax\" | sed '1s/Taxon/Consensus Lineage/' > \"$taxcol\"",
+    "paste \"$tab\" \"$taxcol\" > \"$taxtab\""
+);
+
+for my $cmd (@cmds) {
+    system($cmd);
+    die "Conversion table:\n# $cmd\n" if ($?);
+}
+
+my $R = qq(
+library("phyloseq")
+data = import_qiime("$taxtab", "$metadata", "$tree", "$seqs")
+
+saveRDS(data, file = "$output_ps")
+);
+
+open(my $O, '>', "$Rfile") || die " Unable to write to $Rfile\n";
+print {$O} "$R";
+say STDERR " Importing to Rls " if ($opt_verbose);
+`Rscript --vanilla "$Rfile"`;
+__END__
+
+
+=head1 NAME
+
+B<dadaist2-importq2> - create a PhyloSeq object from a set of
+Qiime2 artifacts.
+
+=head1 AUTHOR
+
+Andrea Telatin <andrea.telatin@quadram.ac.uk>
+
+=head1 SYNOPSIS
+
+  dadaist2-importq2 [options] 
+
+=head1 PARAMETERS
+
+=over 4
+
+=item I<-t>, I<--feature-table> ARTIFACT
+
+The feature table (e.g. from DADA2)
+
+=item I<-m>, I<--metadata-file> FILE
+
+The metadata file used by Qiime2
+
+=item I<-e> I<--tree> ARTIFACT
+
+Rooted tree artifact.
+
+=item I<-x> I<--taxonomy> ARTIFACT
+
+Taxonomy table artifact.
+
+=item I<-r>, I<--rep-seqs> ARTIFACT
+
+Representative sequences (e.g. from DADA2)
+
+=item I<-o>, I<--output-phyloseq> FILE
+
+The filename for the PhyloSeq object to produce (default: phyloseq.rds)
+
+=item I<--version>
+
+Print version and exit.
+
+=back
+
+=head1 SOURCE CODE AND DOCUMENTATION
+
+The program is freely available at L<https://quadram-institute-bioscience.github.io/dadaist2>
+released under the MIT licence. The website contains further DOCUMENTATION.
