@@ -28,20 +28,20 @@ my $url_db = {
 		cite => 'Quast C, Pruesse E, Yilmaz P, Gerken J, Schweer T, Yarza P, Peplies J, Glöckner FO (2013) The SILVA ribosomal RNA gene database project: improved data processing and web-based tools. Opens external link in new windowNucl. Acids Res. 41 (D1): D590-D596. ',
 		ver  => '138',
 	},
-	'dada2-silva-species-138' => {
-		desc => 'SILVA release 138 (species)',
-		url  => 'https://zenodo.org/record/3731176/files/silva_species_assignment_v138.fa.gz?download=1',
-		md5  => '0ba301cbdd6e3684db25fae78fad8158',
-		cite => 'Quast C, Pruesse E, Yilmaz P, Gerken J, Schweer T, Yarza P, Peplies J, Glöckner FO (2013) The SILVA ribosomal RNA gene database project: improved data processing and web-based tools. Opens external link in new windowNucl. Acids Res. 41 (D1): D590-D596. ',
-		ver  => '138',
-	},
-	'dada2-rdp-species-16' => {
-		desc => 'RDP taxonomic training data formatted for DADA2 (RDP trainset 16/release 11.5)',
-		url  => 'https://zenodo.org/record/801828/files/rdp_species_assignment_16.fa.gz?download=1',
-		md5  => 'd68d4980326be10c58aaaa74cc6cdb6e',
-		cite => 'Cole, J. R., Q. Wang, J. A. Fish, B. Chai, D. M. McGarrell, Y. Sun, C. T. Brown, A. Porras-Alfaro, C. R. Kuske, and J. M. Tiedje. 2014. Ribosomal Database Project: data and tools for high throughput rRNA analysis Nucl. Acids Res. 42(Database issue):D633-D642; doi: 10.1093/nar/gkt1244 ',
-		ver  => '11.5',
-	},
+	# 'dada2-silva-species-138' => {
+	# 	desc => 'SILVA release 138 (species)',
+	# 	url  => 'https://zenodo.org/record/3731176/files/silva_species_assignment_v138.fa.gz?download=1',
+	# 	md5  => '0ba301cbdd6e3684db25fae78fad8158',
+	# 	cite => 'Quast C, Pruesse E, Yilmaz P, Gerken J, Schweer T, Yarza P, Peplies J, Glöckner FO (2013) The SILVA ribosomal RNA gene database project: improved data processing and web-based tools. Opens external link in new windowNucl. Acids Res. 41 (D1): D590-D596. ',
+	# 	ver  => '138',
+	# },
+	# 'dada2-rdp-species-16' => {
+	# 	desc => 'RDP taxonomic training data formatted for DADA2 (RDP trainset 16/release 11.5)',
+	# 	url  => 'https://zenodo.org/record/801828/files/rdp_species_assignment_16.fa.gz?download=1',
+	# 	md5  => 'd68d4980326be10c58aaaa74cc6cdb6e',
+	# 	cite => 'Cole, J. R., Q. Wang, J. A. Fish, B. Chai, D. M. McGarrell, Y. Sun, C. T. Brown, A. Porras-Alfaro, C. R. Kuske, and J. M. Tiedje. 2014. Ribosomal Database Project: data and tools for high throughput rRNA analysis Nucl. Acids Res. 42(Database issue):D633-D642; doi: 10.1093/nar/gkt1244 ',
+	# 	ver  => '11.5',
+	# },
 	'dada2-rdp-train-16' => {
 		desc => 'RDP taxonomic training data formatted for DADA2 (RDP trainset 16/release 11.5)',
 		url  => 'https://zenodo.org/record/801828/files/rdp_train_set_16.fa.gz?download=1',
@@ -115,6 +115,7 @@ use File::Temp;
 
 my ($opt_query,$opt_urls_db, $opt_force, $opt_list, @opt_db, $opt_output_dir, $opt_help, $opt_version);
 
+my $opt_temp_dir = File::Spec->tmpdir();
 GetOptions(
 	'u|url-db=s'     => \$opt_urls_db,
 	'l|list'         => \$opt_list,
@@ -122,7 +123,8 @@ GetOptions(
 	'd|database=s'   => \@opt_db,
 	'o|output-dir=s' => \$opt_output_dir,
 	'f|force'        => \$opt_force,
-	'version'        => \$opt_version,
+	't|temp-dir=s'   => \$opt_temp_dir,
+ 	'version'        => \$opt_version,
 	'help'           => \$opt_help,
 );
 my $query = shift @ARGV;
@@ -133,7 +135,9 @@ $opt_version && version();
 $opt_help    && pod2usage({-exitval => 0, -verbose => 2});
 
 $url_db = $opt_urls_db ? load_db_from_file($opt_urls_db) : $url_db;
-my $log_filename = File::Temp->new(TEMPLATE => "dadaist2-downloader-XXXXXXX");
+my $log_filename = File::Temp->new(
+	TEMPLATE => "dadaist2-downloader-XXXXXXX",
+	DIR => $opt_temp_dir);
 my $S = FASTX::ScriptHelper->new({
 	verbose => 1,
 	logfile  => $log_filename,
@@ -307,6 +311,10 @@ Download all databases matching the query string ('.' for all)
 =item I<-o>, I<--output-dir> DIR
 
 Output directory, or the current working directory if not specified.
+
+=item I<-t>, I<--temp-dir> DIR
+
+Temporary directory (default: C<$TMPDIR>).
 
 =back
 

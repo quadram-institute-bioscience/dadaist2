@@ -1,0 +1,4 @@
+#SampleID	Files
+A01	A01_S0_L001_R1_001.fastq.gz,A01_S0_L001_R2_001.fastq.gz
+A02	A02_S0_L001_R1_001.fastq.gz,A02_S0_L001_R2_001.fastq.gz
+F99	F99_S0_L001_R1_001.fastq.gz,F99_S0_L001_R2_001.fastq.gz

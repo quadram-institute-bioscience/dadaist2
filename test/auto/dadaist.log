@@ -1,0 +1,95 @@
+[2021-05-27 12:00:30] dadaist2 0.8.0
+[2021-05-27 12:00:30] Taxonomy database found: refs/rdp_train_set_16.fa.gz
+[2021-05-27 12:00:30] Checking dependencies
+[2021-05-27 12:00:30] Shell> Rscript  --version 2>&1
+[2021-05-27 12:00:31]     +> Elapsed time: 0.16s; Exit status: 0;
+[2021-05-27 12:00:31] Shell> /Users/telatin/miniconda3/envs/dadaist/bin/dadaist2-assigntax --version
+[2021-05-27 12:00:31]     +> Elapsed time: 0.38s; Exit status: 0;
+[2021-05-27 12:00:31] Shell> /Users/telatin/miniconda3/envs/dadaist/bin/dadaist2-assigntax --version
+[2021-05-27 12:00:31]     +> Elapsed time: 0.41s; Exit status: 0;
+[2021-05-27 12:00:31] Shell> clustalo --version 2>&1
+[2021-05-27 12:00:32]     +> Elapsed time: 0.29s; Exit status: 0;
+[2021-05-27 12:00:32] Shell> echo "library(dada2)" | R --no-save > /dev/null
+[2021-05-27 12:00:55]     +> Elapsed time: 23.62s; Exit status: 0;
+[2021-05-27 12:00:55] Shell> /Users/telatin/miniconda3/envs/dadaist/bin/dadaist2-metadata --version
+[2021-05-27 12:00:56]     +> Elapsed time: 0.24s; Exit status: 0;
+[2021-05-27 12:00:56] Shell> /Users/telatin/miniconda3/envs/dadaist/bin/dadaist2-exporter --version
+[2021-05-27 12:00:56]     +> Elapsed time: 0.27s; Exit status: 0;
+[2021-05-27 12:00:56] Shell> fastp --version 2>&1
+[2021-05-27 12:00:56]     +> Elapsed time: 0.15s; Exit status: 0;
+[2021-05-27 12:00:56] Shell> fasttree 2>&1 | head -n 1 | cut -c 11-
+[2021-05-27 12:00:56]     +> Elapsed time: 0.17s; Exit status: 0;
+[2021-05-27 12:00:56] Shell> fu-primers --version 2>&1
+[2021-05-27 12:00:56]     +> Elapsed time: 0.32s; Exit status: 0;
+[2021-05-27 12:00:56] Shell> /Users/telatin/miniconda3/envs/dadaist/bin/dadaist2-metadata -i "data/16S/" -o "/Users/telatin/git/dadaist2/test/auto/metadata.tsv"
+[2021-05-27 12:00:57]     +> Elapsed time: 0.08s; Exit status: 0;
+[2021-05-27 12:00:57] Temporary directory: /var/folders/v_/xwpxqp0s5jj2n4xq_hrh2r_c0000gn/T/dadaist2_1nociV
+[2021-05-27 12:00:57] Threads: 2
+[2021-05-27 12:00:57] Output directory: /Users/telatin/git/dadaist2/test/auto/
+[2021-05-27 12:00:57] Input directory "data/16S/": 3 found (paired-end) 
+[2021-05-27 12:00:57] (1/3) Processing A01: fastp
+[2021-05-27 12:00:57] Shell> fastp -w 2 -i "/Users/telatin/git/dadaist2/data/16S/A01_S0_L001_R1_001.fastq.gz" -I "/Users/telatin/git/dadaist2/data/16S/A01_S0_L001_R2_001.fastq.gz" -o "/var/folders/v_/xwpxqp0s5jj2n4xq_hrh2r_c0000gn/T/dadaist2_1nociV"/for/A01_R1.fastq.gz -O  "/var/folders/v_/xwpxqp0s5jj2n4xq_hrh2r_c0000gn/T/dadaist2_1nociV"/rev/A01_R2.fastq.gz   --trim_front1 20 --trim_front2  20  --detect_adapter_for_pe --disable_quality_filtering --n_base_limit  1   --json "/var/folders/v_/xwpxqp0s5jj2n4xq_hrh2r_c0000gn/T/dadaist2_1nociV/A01.json" --html /dev/null  --trim_tail1 0 --trim_tail2 0 --length_required 110 
+[2021-05-27 12:00:57]     +> Elapsed time: 0.77s; Exit status: 0;
+[2021-05-27 12:00:57] Shell> cat "/var/folders/v_/xwpxqp0s5jj2n4xq_hrh2r_c0000gn/T/dadaist2_1nociV/A01.json"
+[2021-05-27 12:00:57]     +> Elapsed time: 0.02s; Exit status: 0;
+[2021-05-27 12:00:58] 12210/12274 (99.48%) reads kept.
+ * Average insert size: 465 bp
+ * Q30: 0.770816
+ * Qualified region: [0 - 264]/281, [0 - 203]/281
+[2021-05-27 12:00:58] (2/3) Processing A02: fastp
+[2021-05-27 12:00:58] Shell> fastp -w 2 -i "/Users/telatin/git/dadaist2/data/16S/A02_S0_L001_R1_001.fastq.gz" -I "/Users/telatin/git/dadaist2/data/16S/A02_S0_L001_R2_001.fastq.gz" -o "/var/folders/v_/xwpxqp0s5jj2n4xq_hrh2r_c0000gn/T/dadaist2_1nociV"/for/A02_R1.fastq.gz -O  "/var/folders/v_/xwpxqp0s5jj2n4xq_hrh2r_c0000gn/T/dadaist2_1nociV"/rev/A02_R2.fastq.gz   --trim_front1 20 --trim_front2  20  --detect_adapter_for_pe --disable_quality_filtering --n_base_limit  1   --json "/var/folders/v_/xwpxqp0s5jj2n4xq_hrh2r_c0000gn/T/dadaist2_1nociV/A02.json" --html /dev/null  --trim_tail1 0 --trim_tail2 0 --length_required 110 
+[2021-05-27 12:00:58]     +> Elapsed time: 0.71s; Exit status: 0;
+[2021-05-27 12:00:58] Shell> cat "/var/folders/v_/xwpxqp0s5jj2n4xq_hrh2r_c0000gn/T/dadaist2_1nociV/A02.json"
+[2021-05-27 12:00:58]     +> Elapsed time: 0.01s; Exit status: 0;
+[2021-05-27 12:00:59] 10798/10828 (99.72%) reads kept.
+ * Average insert size: 465 bp
+ * Q30: 0.772788
+ * Qualified region: [0 - 264]/281, [0 - 214]/281
+[2021-05-27 12:00:59] (3/3) Processing F99: fastp
+[2021-05-27 12:00:59] Shell> fastp -w 2 -i "/Users/telatin/git/dadaist2/data/16S/F99_S0_L001_R1_001.fastq.gz" -I "/Users/telatin/git/dadaist2/data/16S/F99_S0_L001_R2_001.fastq.gz" -o "/var/folders/v_/xwpxqp0s5jj2n4xq_hrh2r_c0000gn/T/dadaist2_1nociV"/for/F99_R1.fastq.gz -O  "/var/folders/v_/xwpxqp0s5jj2n4xq_hrh2r_c0000gn/T/dadaist2_1nociV"/rev/F99_R2.fastq.gz   --trim_front1 20 --trim_front2  20  --detect_adapter_for_pe --disable_quality_filtering --n_base_limit  1   --json "/var/folders/v_/xwpxqp0s5jj2n4xq_hrh2r_c0000gn/T/dadaist2_1nociV/F99.json" --html /dev/null  --trim_tail1 0 --trim_tail2 0 --length_required 110 
+[2021-05-27 12:00:59]     +> Elapsed time: 0.64s; Exit status: 0;
+[2021-05-27 12:00:59] Shell> cat "/var/folders/v_/xwpxqp0s5jj2n4xq_hrh2r_c0000gn/T/dadaist2_1nociV/F99.json"
+[2021-05-27 12:00:59]     +> Elapsed time: 0.01s; Exit status: 0;
+[2021-05-27 12:00:59] 9072/9106 (99.63%) reads kept.
+ * Average insert size: 465 bp
+ * Q30: 0.771572
+ * Qualified region: [0 - 265]/281, [0 - 207]/281
+[2021-05-27 12:00:59] Running DADA2...
+[2021-05-27 12:00:59] Shell> Rscript --vanilla /Users/telatin/miniconda3/envs/dadaist/bin/D2-dada.R /var/folders/v_/xwpxqp0s5jj2n4xq_hrh2r_c0000gn/T/dadaist2_1nociV/for /var/folders/v_/xwpxqp0s5jj2n4xq_hrh2r_c0000gn/T/dadaist2_1nociV/rev /var/folders/v_/xwpxqp0s5jj2n4xq_hrh2r_c0000gn/T/dadaist2_1nociV/dada2/dada2.tsv /var/folders/v_/xwpxqp0s5jj2n4xq_hrh2r_c0000gn/T/dadaist2_1nociV/dada2/stats.tsv /var/folders/v_/xwpxqp0s5jj2n4xq_hrh2r_c0000gn/T/dadaist2_1nociV/for/filtered /var/folders/v_/xwpxqp0s5jj2n4xq_hrh2r_c0000gn/T/dadaist2_1nociV/rev/filtered 265 207 0 0 1 1.5 10 consensus 1 2 10000 /var/folders/v_/xwpxqp0s5jj2n4xq_hrh2r_c0000gn/T/dadaist2_1nociV do_plots refs/rdp_train_set_16.fa.gz no 0 0
+[2021-05-27 12:01:35]     +> Elapsed time: 35.45s; Exit status: 0;
+[2021-05-27 12:01:35] Shell> rm -rf "/var/folders/v_/xwpxqp0s5jj2n4xq_hrh2r_c0000gn/T/dadaist2_1nociV"/for "/var/folders/v_/xwpxqp0s5jj2n4xq_hrh2r_c0000gn/T/dadaist2_1nociV"/rev
+[2021-05-27 12:01:35]     +> Elapsed time: 0.02s; Exit status: 0;
+[2021-05-27 12:01:35] DADA2 Finished.
+[2021-05-27 12:01:35] Converting dada2 taxonomy output: /var/folders/v_/xwpxqp0s5jj2n4xq_hrh2r_c0000gn/T/dadaist2_1nociV/taxonomy.tsv
+[2021-05-27 12:01:35] 38 representative sequences found.
+[2021-05-27 12:01:35] DADA2 filtered 33.4040% from total 16040 to 5358
+[2021-05-27 12:01:35] Multiple sequence alignment and tree generation
+[2021-05-27 12:01:35] Shell> clustalo -i "/Users/telatin/git/dadaist2/test/auto/rep-seqs.fasta" -o "/Users/telatin/git/dadaist2/test/auto/rep-seqs.msa" --outfmt=fasta --force
+[2021-05-27 12:01:36]     +> Elapsed time: 0.93s; Exit status: 0;
+[2021-05-27 12:01:36] Shell> fasttree -nt -gtr -no2nd -spr 4 -quiet "/Users/telatin/git/dadaist2/test/auto/rep-seqs.msa" > "/Users/telatin/git/dadaist2/test/auto/rep-seqs.tree"
+[2021-05-27 12:01:36]     +> Elapsed time: 0.48s; Exit status: 0;
+[2021-05-27 12:01:36] Feature tree generated
+[2021-05-27 12:01:36] Shell> /Users/telatin/miniconda3/envs/dadaist/bin/dadaist2-exporter -i "/Users/telatin/git/dadaist2/test/auto/"
+[2021-05-27 12:01:37]     +> Elapsed time: 0.26s; Exit status: 0;
+[2021-05-27 12:01:37] Exporting MicrobiomeAnalyst
+[2021-05-27 12:01:37] Shell> /Users/telatin/miniconda3/envs/dadaist/bin/dadaist2-phyloseqMake -i "/Users/telatin/git/dadaist2/test/auto/" -o "/Users/telatin/git/dadaist2/test/auto/R/phyloseq.rds"
+[2021-05-27 12:01:47]     +> Elapsed time: 10.39s; Exit status: 0;
+[2021-05-27 12:01:47] Generating PhyloSeq object
+[2021-05-27 12:01:47] Shell> /Users/telatin/miniconda3/envs/dadaist/bin/dadaist2-normalize -i "/Users/telatin/git/dadaist2/test/auto/Rhea/OTUs-Table.tab" -o "/Users/telatin/git/dadaist2/test/auto/Rhea"
+[2021-05-27 12:02:06]     +> Elapsed time: 18.61s; Exit status: 0;
+[2021-05-27 12:02:06] Shell> /Users/telatin/miniconda3/envs/dadaist/bin/dadaist2-alpha -i "/Users/telatin/git/dadaist2/test/auto/Rhea/OTUs_Table-norm.tab" -o "/Users/telatin/git/dadaist2/test/auto/Rhea"
+[2021-05-27 12:02:09]     +> Elapsed time: 3.28s; Exit status: 0;
+[2021-05-27 12:02:09] Rhea normalization/alpha finished.
+[2021-05-27 12:02:09] Dadaist finished, output files saved:
+ * dada-taxonomy-table: /Users/telatin/git/dadaist2/test/auto/taxonomy.txt
+ * feature-table: /Users/telatin/git/dadaist2/test/auto/feature-table.tsv
+ * features-tree: /Users/telatin/git/dadaist2/test/auto/rep-seqs.tree
+ * mba-files: /Users/telatin/git/dadaist2/test/auto/MicrobiomeAnalyst
+ * multiple-alignment: /Users/telatin/git/dadaist2/test/auto/rep-seqs.msa
+ * phyloseq: /Users/telatin/git/dadaist2/test/auto/R/phyloseq.rds
+ * rep-seqs: /Users/telatin/git/dadaist2/test/auto/rep-seqs.fasta
+ * rhea: /Users/telatin/git/dadaist2/test/auto/Rhea
+
+[2021-05-27 12:02:09] Cleaning up
+[2021-05-27 12:02:09] Shell> rm -rf "/var/folders/v_/xwpxqp0s5jj2n4xq_hrh2r_c0000gn/T/dadaist2_1nociV"
+[2021-05-27 12:02:09]     +> Elapsed time: 0.02s; Exit status: 0;
