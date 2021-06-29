@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+ 
+<style>
+h1, h2, h3, h4, h5, h6, table, td, p { font-family: Helvetica, Verdana, Arial; }
+pre { white-space: pre-wrap; 
+overflow-x: auto;
+background-color: lightyellow;
+font-family: Consolas, "Andale Mono WT", "Andale Mono", "Lucida Console", "Lucida Sans Typewriter", "DejaVu Sans Mono", "Bitstream Vera Sans Mono", "Liberation Mono", "Nimbus Mono L", Monaco, "Courier New", Courier, monospace; }
+h1{ color: #b44;}
+.accordion {
+  background-color: #eee;
+  color: #444;
+  cursor: pointer;
+  padding: 18px;
+  width: 100%;
+  border: none;
+  text-align: left;
+  outline: none;
+  font-size: 15px;
+  transition: 0.4s;
+}
+
+.active, .accordion:hover {
+  background-color: #ccc;
+}
+
+.accordion:after {
+  content: '\002B';
+  color: #777;
+  font-weight: bold;
+  float: right;
+  margin-left: 5px;
+}
+
+.active:after {
+  content: "\2212";
+}
+
+.panel {
+  padding: 0 18px;
+  background-color: white;
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.2s ease-out;
+}
+
+/* Table */
+
+table {
+  font-family: arial, sans-serif;
+  border-collapse: collapse;
+  width: 100%;
+}
+
+td, th {
+  border: 1px solid #eee;
+  text-align: left;
+  padding: 8px;
+}
+th {
+  background-color: #ddd;
+}
+tr:nth-child(odd) {
+  background-color: #eee;
+}
+
+.bar .bar-item{padding:8px 16px;float:left;width:auto;border:none;display:block;outline:0}
+.bar .button{white-space:normal}
+.bar .dropdown-hover,.bar .dropdown-click{position:static;float:left}
+.bar-block .bar-item{width:100%;display:block;padding:8px 16px;text-align:left;border:none;white-space:normal;float:none;outline:0}
+.bar-block .dropdown-hover .button,.bar-block .dropdown-click .button{width:100%;text-align:left;padding:8px 16px}
+.bar-block .dropdown-hover .dropdown-content,.bar-block .dropdown-click .dropdown-content{min-width:100%}
+.bar-block .dropdown-hover,.bar-block .dropdown-click{width:100%}
+.bar-block.center .bar-item{text-align:center}.block{display:block;width:100%}
+.bar-block.center .bar-item{text-align:center}.block{display:block;width:100%}
+.bar{width:100%;overflow:hidden}.center .bar{display:inline-block;width:auto}
+.bar{width:100%;overflow:hidden}.center .bar{display:inline-block;width:auto}
+.black,.hover-black:hover{color:#fff!important;background-color:#000!important}
+.btn,.button{-webkit-touch-callout:none;-webkit-user-select:none;-khtml-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none}   
+.btn,.button{border:none;display:inline-block;padding:8px 16px;vertical-align:middle;overflow:hidden;text-decoration:none;color:inherit;background-color:inherit;text-align:center;cursor:pointer;white-space:nowrap}
+.button:hover{color:#000!important;background-color:#ccc!important}
+.cell-row:before,.cell-row:after,.clear:after,.clear:before,.bar:before,.bar:after{content:"";display:table;clear:both}
+.cell-row:before,.cell-row:after,.clear:after,.clear:before,.bar:before,.bar:after{content:"";display:table;clear:both}
+.cell-row:before,.cell-row:after,.clear:after,.clear:before,.bar:before,.bar:after{content:"";display:table;clear:both} 
+.container:after,.container:before,.panel:after,.panel:before,.row:after,.row:before,.row-padding:after,.row-padding:before,
+.disabled,.btn:disabled,.button:disabled{cursor:not-allowed;opacity:0.3}.disabled *,:disabled *{pointer-events:none}
+.display-topleft{position:absolute;left:0;top:0}.display-topright{position:absolute;right:0;top:0}
+.dropdown-hover.mobile,.dropdown-hover.mobile .btn,.dropdown-hover.mobile .button,.dropdown-click.mobile,.dropdown-click.mobile .btn,.dropdown-click.mobile .button{width:100%}}
+.dropdown-hover:hover > .button:first-child,.dropdown-click:hover > .button:first-child{background-color:#ccc;color:#000}
+.hide-small{display:none!important}.mobile{display:block;width:100%!important}.bar-item.mobile,.dropdown-hover.mobile,.dropdown-click.mobile{text-align:center}
+.tooltip,.display-container{position:relative}.tooltip .text{display:none}.tooltip:hover .text{display:inline-block}
+
+.responsive {
+  width: 100%;
+  height: auto;
+}
+</style>
+</head>
+<body>
+<h1>Dadaist2 1.0.2 execution log</h1>
+<p>
+This is not a report with the results of the pipeline, but the log of the events occurred to generate it.
+</p>
+<button class="accordion">Summary</button>
+<div class="panel">
+
+<!--summary -->
+ 
+
+<div class="bar black">
+  <button class="bar-item button" onclick="openCity('Summary')">Summary</button>
+  <button class="bar-item button" onclick="openCity('Parameters')">Parameters</button>
+  <button class="bar-item button" onclick="openCity('Host')">Machine</button>
+</div>
+
+<div id="Summary" class="container display-container city">
+  <span onclick="this.parentElement.style.display='none'"
+  class="button large display-topright">&times;</span>
+
+  <h2>Summary</h2>
+  <p>This reports contain technical details on the execution of 
+  <a href="https://quadram-institute-bioscience.github.io/dadaist2">Dadaist2</a>.</p>
+
+<table>
+  <tr>
+    <th>Parameter</th>
+    <th>Value</th>
+  </tr>
+  <tr>
+    <td>Input</td>
+    <td>/Users/telatin/git/dadaist2/data/MiSeq_SOP</td>
+  </tr>
+  <tr>
+    <td>Output</td>
+    <td>/Users/telatin/git/dadaist2/test/sop-old-skip</td>
+  </tr>
+  <tr>
+    <td>Timestamp</td>
+    <td>20210625 11:50:54</td>
+  </tr>
+  <tr>
+    <td>Execution time</td>
+    <td>47.00s</td>
+  </tr>
+
+</table>
+
+
+</div>
+
+<div id="Parameters" class="container display-container city" style="display:none">
+  <span onclick="this.parentElement.style.display='none'"
+  class="button large display-topright">&times;</span>
+  <h2>Parameters</h2>  
+	<table>
+  <tr>
+    <th>Parameter</th>
+    <th>Value</th>
+  </tr>
+	<br><tr>
+    	<td>Database</td>
+    	<td>/Users/telatin/git/dadaist2/refs/rdp_train_set_16.fa.gz</td>
+  	</tr><br><tr>
+    	<td>Metadata</td>
+    	<td>/Users/telatin/git/dadaist2</td>
+  	</tr><br><tr>
+    	<td>Threads</td>
+    	<td>/Users/telatin/git/dadaist2/6</td>
+  	</tr>
+	</table>
+</div>
+
+<div id="Host" class="container display-container city" style="display:none">
+  <span onclick="this.parentElement.style.display='none'"
+  class="button large display-topright">&times;</span>
+  <h2>Machine details</h2>
+<table>
+  <tr>
+    <th>Timestamp</th>
+    <th>Event</th>
+  </tr>
+  <tr>
+    <td>Processors</td>
+    <td>2</td>
+  </tr>
+  <tr>
+    <td>RAM</td>
+    <td>8 Gb</td>
+  </tr>
+  <tr>
+    <td>OS</td>
+    <td><table><tr><td>Model Name</td><td>MacBook Pro</td></tr>
+<tr><td>Model Identifier</td><td>MacBookPro12,1</td></tr>
+<tr><td>Processor Name</td><td>Dual-Core Intel Core i5</td></tr>
+<tr><td>Processor Speed</td><td>2.9 GHz</td></tr>
+<tr><td>Number of Processors</td><td>1</td></tr>
+<tr><td>Total Number of Cores</td><td>2</td></tr>
+<tr><td>L2 Cache (per Core)</td><td>256 KB</td></tr>
+<tr><td>L3 Cache</td><td>3 MB</td></tr>
+<tr><td>Hyper-Threading Technology</td><td>Enabled</td></tr>
+<tr><td>Memory</td><td>8 GB</td></tr>
+<tr><td>System Firmware Version</td><td>427.0.0.0.0</td></tr>
+<tr><td>SMC Version (system)</td><td>2.28f7</td></tr>
+<tr><td>Serial Number (system)</td><td>C02PLBPLFVH7</td></tr>
+<tr><td>Hardware UUID</td><td>CB501583-0E97-57D3-B561-ECDFAEB79933</td></tr>
+<tr><td>Provisioning UDID</td><td>CB501583-0E97-57D3-B561-ECDFAEB79933</td></tr>
+</table>
+</td>
+  </tr>
+</table>
+</div>
+
+ <br>
+</div>
+<!--/summary-->
+
+
+
+
+
+<button class="accordion">Read trimming (process)</button>
+<div class="panel">
+  <p>Not available.</p>
+</div>
+
+<button class="accordion">DADA2 Denoising (process)</button>
+<div class="panel">
+  <p><h3>Shell command <span style="color: #b44">Rscript</span></h3><p>Executed at <em>2021-06-25 11:51:40</em> for <em>0.85s</em> and  returned 256 </p>'<p><strong>Command</strong><pre>Rscript <br><b>--vanilla</b> /Users/telatin/miniconda3/envs/dadaist/bin/D2-dada.R /var/folders/v_/xwpxqp0s5jj2n4xq_hrh2r_c0000gn/T/dadaist2_YnGNiT/for /var/folders/v_/xwpxqp0s5jj2n4xq_hrh2r_c0000gn/T/dadaist2_YnGNiT/rev /var/folders/v_/xwpxqp0s5jj2n4xq_hrh2r_c0000gn/T/dadaist2_YnGNiT/dada2/dada2.tsv /var/folders/v_/xwpxqp0s5jj2n4xq_hrh2r_c0000gn/T/dadaist2_YnGNiT/dada2/stats.tsv /var/folders/v_/xwpxqp0s5jj2n4xq_hrh2r_c0000gn/T/dadaist2_YnGNiT/for/filtered /var/folders/v_/xwpxqp0s5jj2n4xq_hrh2r_c0000gn/T/dadaist2_YnGNiT/rev/filtered   0 0 1 1.5 10 consensus 1 6 0 /var/folders/v_/xwpxqp0s5jj2n4xq_hrh2r_c0000gn/T/dadaist2_YnGNiT do_plots refs/rdp_train_set_16.fa.gz no 0 0</pre></p>
+<p><strong>Standard output</strong><pre>R version 4.0.5 (2021-03-31) <p><strong>Standard error</strong><pre>Warning message:
+NAs introduced by coercion 
+Warning message:
+NAs introduced by coercion 
+Warning message:
+NAs introduced by coercion 
+Error in args[[22]] : subscript out of bounds
+Execution halted</p>
+
+</div>
+
+<button class="accordion">Taxonomy (process)</button>
+<div class="panel">
+  <p>Not available.</p>
+</div>
+
+
+<button class="accordion">Initial checks</button>
+<div class="panel">
+	<br><p><h3>Shell command <span style="color: #b44">Rscript</span></h3><p>Executed at <em>2021-06-25 11:50:57</em> for <em>0.01s</em> and  returned 0 </p>'<p><strong>Command</strong><pre>Rscript  <br><b>--version</b> 2>&1</pre></p>
+<p><strong>Standard output</strong><pre>R scripting front-end version 4.0.5 (2021-03-31)<p><strong>Standard error</strong><pre></p>
+<br><p><h3>Shell command <span style="color: #b44">/Users/telatin/miniconda3/envs/dadaist/bin/dadaist2-assigntax</span></h3><p>Executed at <em>2021-06-25 11:50:57</em> for <em>0.43s</em> and  returned 0 </p>'<p><strong>Command</strong><pre>/Users/telatin/miniconda3/envs/dadaist/bin/dadaist2-assigntax --version</pre></p>
+<p><strong>Standard output</strong><pre>dadaist2-assigntax 1.1.3<p><strong>Standard error</strong><pre>[35;1m DADAIST2 Assign Taxonomy[0m</p>
+<br><p><h3>Shell command <span style="color: #b44">/Users/telatin/miniconda3/envs/dadaist/bin/dadaist2-assigntax</span></h3><p>Executed at <em>2021-06-25 11:50:57</em> for <em>0.62s</em> and  returned 0 </p>'<p><strong>Command</strong><pre>/Users/telatin/miniconda3/envs/dadaist/bin/dadaist2-assigntax --version</pre></p>
+<p><strong>Standard output</strong><pre>dadaist2-assigntax 1.1.3<p><strong>Standard error</strong><pre>[35;1m DADAIST2 Assign Taxonomy[0m</p>
+<br><p><h3>Shell command <span style="color: #b44">clustalo</span></h3><p>Executed at <em>2021-06-25 11:50:58</em> for <em>0.02s</em> and  returned 0 </p>'<p><strong>Command</strong><pre>clustalo <br><b>--version</b> 2>&1</pre></p>
+<p><strong>Standard output</strong><pre>1.2.4<p><strong>Standard error</strong><pre></p>
+<br><p><h3>Shell command <span style="color: #b44">echo</span></h3><p>Executed at <em>2021-06-25 11:50:58</em> for <em>19.98s</em> and  returned 0 </p>'<p><strong>Command</strong><pre>echo "library(dada2)" | R <br><b>--no-save</b> > /dev/null</pre></p>
+<p><strong>Standard output</strong><pre><p><strong>Standard error</strong><pre>Loading required package: Rcpp</p>
+<br><p><h3>Shell command <span style="color: #b44">/Users/telatin/miniconda3/envs/dadaist/bin/dadaist2-metadata</span></h3><p>Executed at <em>2021-06-25 11:51:18</em> for <em>0.26s</em> and  returned 0 </p>'<p><strong>Command</strong><pre>/Users/telatin/miniconda3/envs/dadaist/bin/dadaist2-metadata --version</pre></p>
+<p><strong>Standard output</strong><pre>dadaist2-metadata 1.0.0<p><strong>Standard error</strong><pre></p>
+<br><p><h3>Shell command <span style="color: #b44">/Users/telatin/miniconda3/envs/dadaist/bin/dadaist2-exporter</span></h3><p>Executed at <em>2021-06-25 11:51:18</em> for <em>0.18s</em> and  returned 0 </p>'<p><strong>Command</strong><pre>/Users/telatin/miniconda3/envs/dadaist/bin/dadaist2-exporter --version</pre></p>
+<p><strong>Standard output</strong><pre>dadaist2-exporter 1.4.0<p><strong>Standard error</strong><pre></p>
+<br><p><h3>Shell command <span style="color: #b44">fastp</span></h3><p>Executed at <em>2021-06-25 11:51:18</em> for <em>0.02s</em> and  returned 0 </p>'<p><strong>Command</strong><pre>fastp <br><b>--version</b> 2>&1</pre></p>
+<p><strong>Standard output</strong><pre>fastp 0.20.1<p><strong>Standard error</strong><pre></p>
+<br><p><h3>Shell command <span style="color: #b44">fasttree</span></h3><p>Executed at <em>2021-06-25 11:51:18</em> for <em>0.07s</em> and  returned 0 </p>'<p><strong>Command</strong><pre>fasttree 2>&1 | head <br><b>-n</b> 1 | cut <br><b>-c</b> 11-</pre></p>
+<p><strong>Standard output</strong><pre>FastTree version 2.1.10 Double precision (No SSE3):<p><strong>Standard error</strong><pre></p>
+<br><p><h3>Shell command <span style="color: #b44">fu-primers</span></h3><p>Executed at <em>2021-06-25 11:51:18</em> for <em>0.03s</em> and  returned 0 </p>'<p><strong>Command</strong><pre>fu-primers <br><b>--version</b> 2>&1</pre></p>
+<p><strong>Standard output</strong><pre>fu-primers 1.3.3<p><strong>Standard error</strong><pre></p>
+
+</div>
+
+
+<script>
+var acc = document.getElementsByClassName("accordion");
+var i;
+
+for (i = 0; i < acc.length; i++) {
+  acc[i].addEventListener("click", function() {
+    this.classList.toggle("active");
+    var panel = this.nextElementSibling;
+    if (panel.style.maxHeight) {
+      panel.style.maxHeight = null;
+    } else {
+      panel.style.maxHeight = panel.scrollHeight + "px";
+    } 
+  });
+}
+</script>
+
+
+<script>
+function openCity(cityName) {
+  var i;
+  var x = document.getElementsByClassName("city");
+  for (i = 0; i < x.length; i++) {
+    x[i].style.display = "none";  
+  }
+  document.getElementById(cityName).style.display = "block";  
+}
+</script>
+</body>
+
+
+
+</html>
+

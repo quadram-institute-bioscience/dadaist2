@@ -163,6 +163,7 @@ if(!(dir.exists(inp.dirF) && dir.exists(inp.dirR))) {
   if(length(unfiltsF) != length(unfiltsR)) {
     errQuit("Different numbers of forward and reverse .fastq.gz files.")
   }
+  cat("# Received ", length(unfiltsF), " paired-end samples.\n")
 }
 
 # Output files are to be filenames (not directories) and are to be
@@ -172,6 +173,7 @@ for(fn in c(out.path, out.track)) {
     errQuit("Output filename ", fn, " is a directory.")
   } else if(file.exists(fn)) {
     invisible(file.remove(fn))
+    cat("# removing: ", fn, "\n")
   }
 }
 
@@ -185,12 +187,12 @@ if(nthreads < 0) {
 } else {
   multithread <- nthreads
 }
-
+cat("# Threads: ", nthreads, "\n")
 
 ### LOAD LIBRARIES ###
 suppressWarnings(library(methods))
 suppressWarnings(library(dada2))
-cat("#DADA2:", as.character(packageVersion("dada2")), "/",
+cat("# DADA2:", as.character(packageVersion("dada2")), "/",
     "Rcpp:", as.character(packageVersion("Rcpp")), "/",
     "RcppParallel:", as.character(packageVersion("RcppParallel")), "\n")
 
@@ -198,7 +200,7 @@ cat("#DADA2:", as.character(packageVersion("dada2")), "/",
 cat(format(Sys.time(), "%Y-%m-%d %H:%M:%S"), "\t[1] Filtering reads ")
 filtsF <- file.path(filtered_dirF, basename(unfiltsF))
 filtsR <- file.path(filtered_dirR, basename(unfiltsR))
-
+cat("\n")
 
 
 ### QUALITY PLOTS
@@ -223,6 +225,8 @@ out <- suppressWarnings(filterAndTrim(unfiltsF, filtsF, unfiltsR, filtsR,
                                       truncLen=c(truncLenF, truncLenR), trimLeft=c(trimLeftF, trimLeftR),
                                       maxEE=c(maxEEF, maxEER), truncQ=truncQ, rm.phix=TRUE,
                                       multithread=multithread))
+
+cat(" Filter and Trim, finished\n")
 cat(ifelse(file.exists(filtsF), ".", "x"), sep="")
 filtsF <- list.files(filtered_dirF, pattern=".fastq.gz$", full.names=TRUE)
 filtsR <- list.files(filtered_dirR, pattern=".fastq.gz$", full.names=TRUE)

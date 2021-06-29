@@ -2,7 +2,7 @@
 #ABSTRACT: A program to run DADA2 from the CLI
 use 5.012;
 use warnings;
-my $VERSION          = '1.0.3';
+my $VERSION  = '1.0.9';
 
 BEGIN { 
 		
@@ -34,6 +34,7 @@ Andrea Telatin <andrea.telatin@quadram.ac.uk>
 =cut
 
 # Minichangelog
+# 1.0.9  - Seqfu qual, improved cutadapt
 # 1.0.0  - Accepted release, documentation updates, GitHub actions 
 # 0.9.0  - Improved support tools (addTaxToFasta..), bug fixes
 # 0.8.0  - `--dada-pool`
@@ -101,12 +102,14 @@ my $opt_seqfu        = undef;
 # FASTP Preprocess
 # To be autocalculated:
 my $opt_notrim;
+my $opt_fastp_qc;
 my $fastp_trim_front1 = 20;
 my $fastp_trim_front2 = 20;
 my $fastp_trim_tail1  = 0;
 my $fastp_trim_tail2  = 0;
 my $fastp_minlen      = 110;
 my $opt_skip_qc       = undef;
+
 # AmpliCheck
 my $opt_primers       = undef;
 my $primer_for        = undef;
@@ -137,7 +140,7 @@ my $tot_reads = 0;
 my ($opt_help,  $opt_log_filename, $opt_input_directory, $opt_output_directory, $opt_version, $opt_skip_plots);
 
 my $chooser = {
-	'filtering' => 'fastp',
+	'filtering' => 'skip',
 	'database'  => undef,
 };
 
@@ -185,6 +188,7 @@ my $parsed = GetOptions(
  'no-trunc'                        => \$opt_no_trunc,
  'skip-plots'                      => \$opt_skip_plots,
  'skip-qc'                         => \$opt_skip_qc,
+ 'fastp'													 => \$opt_fastp_qc,
 # Misc
  'quiet'                           => \$opt_quiet,
  'verbose'                         => \$opt_verbose,
@@ -235,9 +239,9 @@ with I<fastp> (see below).
 Do not try merging paired end reads, just concatenate. 
 I<Experimental>.
 
-=item I<--skip-qc>
+=item I<--fastp>
 
-Do not perform any filtering. 
+Perform the legacy "fastp" QC
 
 =item I<--no-trim>
 
@@ -255,10 +259,13 @@ Pool samples in DADA2 analysis (experimental)
 
 =over 4
 
+=item I<--trunc-len-1> and I<--trunc-len-2> INT
+
+Position at which truncate reads (forward and reverse, respectively).
+
 =item I<-q>, I<--min-qual> FLOAT
 
 Minimum average quality for DADA2 truncation (default: 28)
-
 
 =item I<--no-trunc>
 
@@ -344,13 +351,16 @@ my $fastp_threads = $opt_threads > 8 ? 8 : $opt_threads;
 usage("Missing parameter(s): input directory (-i DIR).")  if (not defined $opt_input_directory);
 usage("Missing parameter(s): output directory (-o DIR).") if (not defined $opt_output_directory);
 
-
+# [*] Splash screen - here starts the user communication
 say STDERR color('bold magenta'), " Dadaist2 ", color('reset')
  if not $opt_quiet;
 
+# [-] Check input directory
 if ( ! -d "$opt_input_directory") {
   die " FATAL ERROR: Input directory not found: $opt_input_directory\n"
 }
+
+# [-] Check taxonomy database
 if ( $opt_tax_db ne 'skip' and ! -e "$opt_tax_db") {
   die " FATAL ERROR: Taxonomy database not found: $opt_tax_db\n"
 }
@@ -363,8 +373,8 @@ my $dada2_temp = File::Spec->catdir("$temp_dir", 'dada2');
 
 # Prepare output directory
 $opt_output_directory = File::Spec->rel2abs($opt_output_directory) . "/";
-
 $opt_output_directory .= '/' if ($opt_output_directory !~/\/$/);
+
 if ( ! -d "$opt_output_directory") {
 	mkdir "$opt_output_directory"    || die " FATAL ERROR:\n Unable to create directory $opt_output_directory/\n $!\n";
 }
@@ -383,6 +393,7 @@ our $STARTED = 1;
 $S->verbose("$PROGRAM $VERSION");
 notify_message("Starting dadaist2");
 
+# [***] Remove primers if provided 					[ >>>>>    <<<<< ]
 if ($opt_primers) {
 	($primer_for, $primer_rev) = split /:/, $opt_primers;
 	die " ERROR: Primers should be in the format --primers FORWARD:REVERSE. Semicolon not found.\n" 
@@ -393,16 +404,23 @@ if ($opt_primers) {
 		$chooser->{'filtering'}  = 'cutadapt';
 		$dependencies{'cutadapt'} = 'cutadapt --version';
 	}
+} elsif ($opt_fastp_qc) {
+	$chooser->{'filtering'} = "fastp";
 } elsif ($opt_skip_qc) {
+	# TODO - Check primer management here /* warning is temporary */
+	$S->verbose(" [WARNING] Primer sequence provided, but skipping QC implies no trimming!");
 	$chooser->{'filtering'}  = 'skip';
-
 	$S->verbose("Preparing to skip QC: " . $chooser->{'filtering'}) if ($opt_debug);
+
+
 }	
+
 if ($opt_save_rds) {
   $save_rds = 'save';
 }
 
 # If metadata is not supplied, check Metadata maker
+# TODO - Switch to "seqfu metadata"
 if (! $opt_metadata) {
   $dependencies{'dadaist2-metadata'} = File::Spec->catfile($RealBin, 'dadaist2-metadata') . ' --version';
 }
@@ -410,29 +428,32 @@ if (! $opt_metadata) {
 if ($opt_crosstalk ) {
 	$dependencies{'crosstalk'} = File::Spec->catfile($RealBin, 'dadaist2-crosstalk') . ' --version';
 }
+
 # Check taxonomy database
 if ($opt_tax_db ne 'skip') {
-	$dependencies{'assign-taxonomy'} = "$RealBin/dadaist2-assigntax --version";
-	if ($opt_tax_db =~/RData$/i ) {
-		$chooser->{'database'} = 'decipher';
- 		# This is a Decipher database
-		$dependencies{'DECIPHER'} = 'echo "library(DECIPHER)" | R --no-save > /dev/null';
-		
-		$decipher_db = $opt_tax_db;
-		$opt_tax_db = 'skip';
-		$S->verbose("DECIPHER Taxonomy database found: $decipher_db");
-	} else {
-		# This is a DADA2 Naive classifier database
-		if (valid_gzipped_fasta($opt_tax_db)) {
-			$chooser->{'database'} = 'dada2';
-			$dependencies{'Taxonomy'} = File::Spec->catfile($RealBin, 'dadaist2-assigntax') . ' --version';
-			$S->verbose("Taxonomy database found: $opt_tax_db");
-		} else {
-			$S->verbose("Taxonomy database not valid: $opt_tax_db. Taxonomy will be skipped.");
+		$dependencies{'assign-taxonomy'} = "$RealBin/dadaist2-assigntax --version";
+		if ($opt_tax_db =~/RData$/i ) {
+			$chooser->{'database'} = 'decipher';
+			# This is a Decipher database
+			$dependencies{'DECIPHER'} = 'echo "library(DECIPHER)" | R --no-save > /dev/null';
+			
+			$decipher_db = $opt_tax_db;
 			$opt_tax_db = 'skip';
-		}
-	}	
-}  
+			$S->verbose("DECIPHER Taxonomy database found: $decipher_db");
+		} else {
+			# This is a DADA2 Naive classifier database
+			if (valid_gzipped_fasta($opt_tax_db)) {
+				$chooser->{'database'} = 'dada2';
+				$dependencies{'Taxonomy'} = File::Spec->catfile($RealBin, 'dadaist2-assigntax') . ' --version';
+				$S->verbose("Taxonomy database found: $opt_tax_db");
+			} else {
+				$S->verbose("Taxonomy database not valid: $opt_tax_db. Taxonomy will be skipped.");
+				$opt_tax_db = 'skip';
+			}
+		}	
+} else {
+	$S->verbose("[WARNING] Reference-free denoising is not fully supported.")
+}
 
 ## Parameters
 addToTemplate($LOG_TEMPLATE, 'INPUT_PATH', File::Spec->rel2abs( $opt_input_directory));
@@ -450,6 +471,39 @@ if ($opt_verbose) {
 	say STDERR " * ", color('reset'), "Temporary directory: ", color('blue'),  $temp_dir, color('reset');
 	say STDERR " * ", color('reset'), "QC strategy: ", color('blue'),  $chooser->{'filtering'}, color('reset');
 }
+
+
+# Check Seqfu Qual
+
+if ( 
+	    (! defined $opt_trunc_len_1 or ! defined $opt_trunc_len_2) 
+    and
+			( $chooser->{'filtering'} eq 'skip' or $chooser->{'filtering'} eq 'cutadapt' ) 
+	) {
+	# Seqfu Qual
+	my $max_len = 350; #TODO: change with reads length?
+	my $cmd_for = qq(seqfu qual --max 5000 --maxlen $max_len --skip 3 "$opt_input_directory"/*${opt_for_tag}*);
+	my $cmd_rev = qq(seqfu qual --max 5000 --maxlen $max_len --skip 3 "$opt_input_directory"/*${opt_rev_tag}*);
+	my $QC_for = $S->run($cmd_for);
+	my $QC_rev = $S->run($cmd_rev);
+	
+	my ($qualified_for, $low_samples_for) = get_qualified_from_seqfu($QC_for->{'stdout'});
+	my ($qualified_rev, $low_samples_rev) = get_qualified_from_seqfu($QC_rev->{'stdout'});
+	
+	if ($$low_samples_for[0]) {
+		$S->verbose("Low quality R1 samples: ", $low_samples_for)
+	}
+	if ($$low_samples_rev[0]) {
+		$S->verbose("Low quality R2 samples: ", $low_samples_rev)
+	}
+	
+	$S->verbose("SeqFu quality truncation at: $qualified_for - $qualified_rev");
+
+	$opt_trunc_len_1 = $qualified_for;
+	$opt_trunc_len_2 = $qualified_rev;
+	
+}
+
 
 # Dependency check
 $S->verbose("Checking dependencies");
@@ -485,6 +539,7 @@ $S->verbose("Input directory \"$opt_input_directory\": $samples_count found ($li
 my $opt_R =  File::Spec->catdir($opt_output_directory, 'R');
 mkdir "$opt_R";
 
+
 # Input sanitation with "fastp"
 my @failed_samples = ();
 my $counter_samples = 0;
@@ -497,18 +552,20 @@ for my $sample (sort keys %{ $files_hash } ) {
 	my $out;
 
 	if ( $chooser->{'filtering'} eq 'fastp' and not defined $primer_for) {
+		# [1.0] Removed max ns 1
+
 		if ($$files_hash{$sample}{rev}) {
 			# Paired reads
 			$filt_cmd = qq(fastp -w $fastp_threads -i "$$files_hash{$sample}{for}" -I "$$files_hash{$sample}{rev}" -o "$temp_dir"/for/${sample}_R1.fastq.gz -O  "$temp_dir"/rev/${sample}_R2.fastq.gz  ) .
 						qq( --trim_front1 $fastp_trim_front1 --trim_front2  $fastp_trim_front2 ).
-						qq( --detect_adapter_for_pe --disable_quality_filtering --n_base_limit  1  ).
+						qq( --detect_adapter_for_pe --disable_quality_filtering  ).
 						qq( --json "$json_file" --html /dev/null ).
 						qq( --trim_tail1 $fastp_trim_tail1 --trim_tail2 $fastp_trim_tail2 --length_required $fastp_minlen );
 		} else {
 			# Single end
 			$filt_cmd = qq(fastp -w $fastp_threads -i "$$files_hash{$sample}{for}" -o "$temp_dir"/for/${sample}_R1.fastq.gz   ) .
 					qq( --trim_front1 $fastp_trim_front1  ).
-					qq( --disable_quality_filtering --n_base_limit  1  ).
+					qq( --disable_quality_filtering  ).
 					qq( --json "$json_file" --html /dev/null ).
 					qq( --trim_tail1 $fastp_trim_tail1 - --length_required $fastp_minlen );
 					die " FATAL ERROR: Single end processing is not supported at the moment.\n";
@@ -521,13 +578,14 @@ for my $sample (sort keys %{ $files_hash } ) {
 		} else {
 			addToTemplate($LOG_TEMPLATE, 'TRIMMING_LOG', runToHtml($out), 1);
 		}
-	# Use Amplicheck (SeqFu) 
+	# Use Amplicheck (cutadapt)
 	} elsif ($chooser->{'filtering'} eq 'cutadapt' and defined $primer_for) {
 		my $rev_rc = iupac_rc($primer_rev);
 		my $for_rc = iupac_rc($primer_for);
 
 		$filt_cmd = qq(cutadapt -a "$primer_for...$rev_rc" -A "$primer_rev...$for_rc" ).
-		qq(--discard-untrimmed -o "$temp_dir"/for/${sample}_R1.fastq.gz -p "$temp_dir"/rev/${sample}_R2.fastq.gz "$$files_hash{$sample}{for}" "$$files_hash{$sample}{rev}");
+		qq( --minimum-length $fastp_minlen --discard-untrimmed ) .
+		qq( -o "$temp_dir"/for/${sample}_R1.fastq.gz -p "$temp_dir"/rev/${sample}_R2.fastq.gz "$$files_hash{$sample}{for}" "$$files_hash{$sample}{rev}");
 
 		my $cutadapt = $S->run($filt_cmd, { candie => 1});
 		if ($cutadapt->{exit} != 0) {
@@ -556,6 +614,11 @@ for my $sample (sort keys %{ $files_hash } ) {
 		my $rev_dir = File::Spec->catdir($temp_dir, 'rev');
 		my $for_name = basename($$files_hash{$sample}{for});
 		my $rev_name = basename($$files_hash{$sample}{rev});
+
+		if (not defined $opt_trunc_len_1 or not defined $opt_trunc_len_2) {
+			$S->verbose("ERROR: Missing boundaries --trunc-len-1 and --trunc-len-2 to operate in QC-less mode.");
+			exit;
+		}
 		$trunc_len_1 = $opt_trunc_len_1;
 		$trunc_len_2 = $opt_trunc_len_2;
 		$for_name =~s/\.(fq|FQ|FASTQ)/.fastq/;
@@ -631,6 +694,7 @@ for my $sample (sort keys %{ $files_hash } ) {
 	}
 }
 
+# Failed samples
 $S->verbose(scalar @failed_samples . " failed samples: " . join(",", @failed_samples))
   if (scalar @failed_samples);
 
@@ -770,15 +834,20 @@ $S->verbose("Running DADA2...");
 my $cmd_dada_paired = "Rscript --vanilla $RealBin/D2-dada.R " . join(" ", @dada_paired_args);
 
 $S->verbose($cmd_dada_paired) if ($opt_debug);
-if ($opt_debug) {
-  $S->verbose("Dada2 script parameters:");
-  my $i_index = 0;
-  for my $arg (@dada_paired_args) {
-    my $label = $dada_paired_parameter_labels[$i_index];
-    $i_index++;
-    say STDERR  " * [$i_index]", color('blue'), " $label: " , color('reset'), "$arg";
-  }
+$S->verbose("Dada2 script parameters:");
+my $i_index = 0;
+for my $arg (@dada_paired_args) {
+  my $label = $dada_paired_parameter_labels[$i_index];
+  $i_index++;
+	if ($opt_debug) {
+	  say STDERR  " * [$i_index]", color('blue'), " $label: " , color('reset'), "$arg";
+	} else {
+		$S->writelog("Dada2 parameter\t$label\t$arg");
+	}
+
 }
+
+# RUN_DADA2
 my $dada2_execution = $S->run($cmd_dada_paired, { candie => 1 });
 addToTemplate($LOG_TEMPLATE, 'DADA2_LOG', runToHtml($dada2_execution));
 notify_message("DADA2 finished. Finalizing...");
@@ -1131,6 +1200,46 @@ sub loadTaxonomyArray {
 	
   return @results;
 }
+
+sub get_qualified_from_seqfu { 
+
+	my ($output_raw) = @_;
+	my @lines = split /\n/, $output_raw;
+	my %sample_qual = (); 
+	my $tot = 0;
+	my $sum = 0;
+	my @discarded_samples = ();
+	for my $line (@lines) {
+		my ($sample, undef, undef, undef, undef, $qual) = split /\t/, $line;
+		$sample_qual{$sample}  = $qual;
+		$sum += $qual;
+		$tot += 1;
+	}
+  if ($tot == 0) {
+		die " Qualified quality from SeqFu: 0 samples received.\n";
+	}
+
+	my $avg = sprintf("%.2f", $sum/$tot);
+	my $ths = $avg - ($avg * 0.25);
+	
+	$tot = 0;
+	$sum = 0;
+	for my $sample_ID (sort { $sample_qual{$a} <=> $sample_qual{$b}} keys %sample_qual) {
+		if ( $sample_qual{$sample_ID} < $ths ) {
+			push(@discarded_samples, $sample_ID)
+		} else {
+			$tot+=1;
+			$sum+=$sample_qual{$sample_ID};
+
+		}
+	}
+
+	my $qualified_avg = sprintf("%.2f", $sum/$tot);
+	return (int($qualified_avg), \@discarded_samples);
+	
+
+}
+
 sub get_qualified_positions {
 	# Scan a list of qualityes and return the boundaries of qualified quality
 	my $len = @_;

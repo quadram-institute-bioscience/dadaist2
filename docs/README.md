@@ -5,6 +5,8 @@
 
 # Dadaist2: highway to R
 
+:package: See the **[repository](https://github.com/quadram-institute-bioscience/dadaist2)**
+
 [![release](https://img.shields.io/github/v/release/quadram-institute-bioscience/dadaist2?label=github%20release)](https://github.com/quadram-institute-bioscience/dadaist2/releases)
 [![version](https://img.shields.io/conda/v/bioconda/dadaist2?label=bioconda)](https://bioconda.github.io/recipes/dadaist2/README.html)
 [![Conda](https://img.shields.io/conda/dn/bioconda/dadaist2)](https://bioconda.github.io/recipes/dadaist2/README.html)
@@ -31,9 +33,6 @@ In addition to this, Dadaist:
 * Produces an easy to inspect [HTML execution log](https://quadram-institute-bioscience.github.io/dadaist2/mqc/log.html)
 
 You can [read more](introduction) about the features.
-
-:package: See the **[repository](https://github.com/quadram-institute-bioscience/dadaist2)**
-
 
 ## The workflow
 

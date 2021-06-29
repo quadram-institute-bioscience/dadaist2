@@ -5,7 +5,7 @@ BASEDIR=$(readlink -f "$TEST_DIR/.." || readlinkf "$TEST_DIR/..")
 SCRIPTS="$BASEDIR/bin"
 DATA="$BASEDIR/data/16S/"
 INPUT="$DATA/test.fa"
-OUT="$BASEDIR/output/"
+OUT="$BASEDIR/output/test/"
 PASS="\e[32mPASS\e[0m"
 FAIL="\e[31m** FAIL **\e[0m"
 mkdir -p "$OUT/"
@@ -24,6 +24,7 @@ echo -e "current_path:\t$PWD"
 echo -e "list_binaries:\t"$(ls "$SCRIPTS")
 echo '--------------'
 
+rm -rf "$OUT"/*
 set -eux pipefail
 
 # TEST: VERSION

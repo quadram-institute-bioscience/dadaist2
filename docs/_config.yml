@@ -1,7 +1,7 @@
-title: dadaist2 docs
+title: "Dadaist2 - Metabarcoding analysis from reads to R"
 repository: quadram-institute-bioscience/dadaist2
 lang: en
-description: "dadaist2: wrapper for DADA2 amplicon analysis from the command line"
+description: "dadaist2: toolkit for a complete DADA2 amplicon analysis from the command line"
 
 readme_index:
   with_frontmatter: true

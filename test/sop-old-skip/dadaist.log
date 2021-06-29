@@ -1,0 +1,143 @@
+[2021-06-25 11:50:57] dadaist2 1.0.2
+[2021-06-25 11:50:57] Taxonomy database found: refs/rdp_train_set_16.fa.gz
+[2021-06-25 11:50:57] Checking dependencies
+[2021-06-25 11:50:57] Shell> Rscript  --version 2>&1
+[2021-06-25 11:50:57]     +> Elapsed time: 0.01s; Exit status: 0;
+[2021-06-25 11:50:57] Shell> /Users/telatin/miniconda3/envs/dadaist/bin/dadaist2-assigntax --version
+[2021-06-25 11:50:57]     +> Elapsed time: 0.43s; Exit status: 0;
+[2021-06-25 11:50:57] Shell> /Users/telatin/miniconda3/envs/dadaist/bin/dadaist2-assigntax --version
+[2021-06-25 11:50:58]     +> Elapsed time: 0.62s; Exit status: 0;
+[2021-06-25 11:50:58] Shell> clustalo --version 2>&1
+[2021-06-25 11:50:58]     +> Elapsed time: 0.02s; Exit status: 0;
+[2021-06-25 11:50:58] Shell> echo "library(dada2)" | R --no-save > /dev/null
+[2021-06-25 11:51:18]     +> Elapsed time: 19.98s; Exit status: 0;
+[2021-06-25 11:51:18] Shell> /Users/telatin/miniconda3/envs/dadaist/bin/dadaist2-metadata --version
+[2021-06-25 11:51:18]     +> Elapsed time: 0.26s; Exit status: 0;
+[2021-06-25 11:51:18] Shell> /Users/telatin/miniconda3/envs/dadaist/bin/dadaist2-exporter --version
+[2021-06-25 11:51:18]     +> Elapsed time: 0.18s; Exit status: 0;
+[2021-06-25 11:51:18] Shell> fastp --version 2>&1
+[2021-06-25 11:51:18]     +> Elapsed time: 0.02s; Exit status: 0;
+[2021-06-25 11:51:18] Shell> fasttree 2>&1 | head -n 1 | cut -c 11-
+[2021-06-25 11:51:18]     +> Elapsed time: 0.07s; Exit status: 0;
+[2021-06-25 11:51:18] Shell> fu-primers --version 2>&1
+[2021-06-25 11:51:18]     +> Elapsed time: 0.03s; Exit status: 0;
+[2021-06-25 11:51:18] Shell> /Users/telatin/miniconda3/envs/dadaist/bin/dadaist2-metadata -i "data/MiSeq_SOP/" -o "/Users/telatin/git/dadaist2/test/sop-old-skip/metadata.tsv"
+[2021-06-25 11:51:19]     +> Elapsed time: 0.18s; Exit status: 0;
+[2021-06-25 11:51:19] Temporary directory: /var/folders/v_/xwpxqp0s5jj2n4xq_hrh2r_c0000gn/T/dadaist2_YnGNiT
+[2021-06-25 11:51:19] Threads: 6
+[2021-06-25 11:51:19] Output directory: /Users/telatin/git/dadaist2/test/sop-old-skip/
+[2021-06-25 11:51:19] Input directory "data/MiSeq_SOP/": 20 found (paired-end) 
+[2021-06-25 11:51:19] (1/20) Processing F3D0: skip
+[2021-06-25 11:51:19] Shell> gzip "/var/folders/v_/xwpxqp0s5jj2n4xq_hrh2r_c0000gn/T/dadaist2_YnGNiT/for/F3D0_S188_L001_R1_001.fastq"
+[2021-06-25 11:51:19]     +> Elapsed time: 0.43s; Exit status: 0;
+[2021-06-25 11:51:19] Shell> gzip "/var/folders/v_/xwpxqp0s5jj2n4xq_hrh2r_c0000gn/T/dadaist2_YnGNiT/rev/F3D0_S188_L001_R2_001.fastq"
+[2021-06-25 11:51:20]     +> Elapsed time: 0.59s; Exit status: 0;
+[2021-06-25 11:51:20] (2/20) Processing F3D1: skip
+[2021-06-25 11:51:20] Shell> gzip "/var/folders/v_/xwpxqp0s5jj2n4xq_hrh2r_c0000gn/T/dadaist2_YnGNiT/for/F3D1_S189_L001_R1_001.fastq"
+[2021-06-25 11:51:20]     +> Elapsed time: 0.36s; Exit status: 0;
+[2021-06-25 11:51:20] Shell> gzip "/var/folders/v_/xwpxqp0s5jj2n4xq_hrh2r_c0000gn/T/dadaist2_YnGNiT/rev/F3D1_S189_L001_R2_001.fastq"
+[2021-06-25 11:51:20]     +> Elapsed time: 0.46s; Exit status: 0;
+[2021-06-25 11:51:20] (3/20) Processing F3D141: skip
+[2021-06-25 11:51:20] Shell> gzip "/var/folders/v_/xwpxqp0s5jj2n4xq_hrh2r_c0000gn/T/dadaist2_YnGNiT/for/F3D141_S207_L001_R1_001.fastq"
+[2021-06-25 11:51:21]     +> Elapsed time: 0.36s; Exit status: 0;
+[2021-06-25 11:51:21] Shell> gzip "/var/folders/v_/xwpxqp0s5jj2n4xq_hrh2r_c0000gn/T/dadaist2_YnGNiT/rev/F3D141_S207_L001_R2_001.fastq"
+[2021-06-25 11:51:21]     +> Elapsed time: 0.34s; Exit status: 0;
+[2021-06-25 11:51:21] (4/20) Processing F3D142: skip
+[2021-06-25 11:51:21] Shell> gzip "/var/folders/v_/xwpxqp0s5jj2n4xq_hrh2r_c0000gn/T/dadaist2_YnGNiT/for/F3D142_S208_L001_R1_001.fastq"
+[2021-06-25 11:51:21]     +> Elapsed time: 0.21s; Exit status: 0;
+[2021-06-25 11:51:21] Shell> gzip "/var/folders/v_/xwpxqp0s5jj2n4xq_hrh2r_c0000gn/T/dadaist2_YnGNiT/rev/F3D142_S208_L001_R2_001.fastq"
+[2021-06-25 11:51:22]     +> Elapsed time: 0.20s; Exit status: 0;
+[2021-06-25 11:51:22] (5/20) Processing F3D143: skip
+[2021-06-25 11:51:22] Shell> gzip "/var/folders/v_/xwpxqp0s5jj2n4xq_hrh2r_c0000gn/T/dadaist2_YnGNiT/for/F3D143_S209_L001_R1_001.fastq"
+[2021-06-25 11:51:22]     +> Elapsed time: 0.19s; Exit status: 0;
+[2021-06-25 11:51:22] Shell> gzip "/var/folders/v_/xwpxqp0s5jj2n4xq_hrh2r_c0000gn/T/dadaist2_YnGNiT/rev/F3D143_S209_L001_R2_001.fastq"
+[2021-06-25 11:51:22]     +> Elapsed time: 0.18s; Exit status: 0;
+[2021-06-25 11:51:22] (6/20) Processing F3D144: skip
+[2021-06-25 11:51:22] Shell> gzip "/var/folders/v_/xwpxqp0s5jj2n4xq_hrh2r_c0000gn/T/dadaist2_YnGNiT/for/F3D144_S210_L001_R1_001.fastq"
+[2021-06-25 11:51:22]     +> Elapsed time: 0.25s; Exit status: 0;
+[2021-06-25 11:51:22] Shell> gzip "/var/folders/v_/xwpxqp0s5jj2n4xq_hrh2r_c0000gn/T/dadaist2_YnGNiT/rev/F3D144_S210_L001_R2_001.fastq"
+[2021-06-25 11:51:23]     +> Elapsed time: 0.29s; Exit status: 0;
+[2021-06-25 11:51:23] (7/20) Processing F3D145: skip
+[2021-06-25 11:51:23] Shell> gzip "/var/folders/v_/xwpxqp0s5jj2n4xq_hrh2r_c0000gn/T/dadaist2_YnGNiT/for/F3D145_S211_L001_R1_001.fastq"
+[2021-06-25 11:51:23]     +> Elapsed time: 0.47s; Exit status: 0;
+[2021-06-25 11:51:23] Shell> gzip "/var/folders/v_/xwpxqp0s5jj2n4xq_hrh2r_c0000gn/T/dadaist2_YnGNiT/rev/F3D145_S211_L001_R2_001.fastq"
+[2021-06-25 11:51:23]     +> Elapsed time: 0.47s; Exit status: 0;
+[2021-06-25 11:51:23] (8/20) Processing F3D146: skip
+[2021-06-25 11:51:23] Shell> gzip "/var/folders/v_/xwpxqp0s5jj2n4xq_hrh2r_c0000gn/T/dadaist2_YnGNiT/for/F3D146_S212_L001_R1_001.fastq"
+[2021-06-25 11:51:24]     +> Elapsed time: 0.29s; Exit status: 0;
+[2021-06-25 11:51:24] Shell> gzip "/var/folders/v_/xwpxqp0s5jj2n4xq_hrh2r_c0000gn/T/dadaist2_YnGNiT/rev/F3D146_S212_L001_R2_001.fastq"
+[2021-06-25 11:51:24]     +> Elapsed time: 0.38s; Exit status: 0;
+[2021-06-25 11:51:24] (9/20) Processing F3D147: skip
+[2021-06-25 11:51:24] Shell> gzip "/var/folders/v_/xwpxqp0s5jj2n4xq_hrh2r_c0000gn/T/dadaist2_YnGNiT/for/F3D147_S213_L001_R1_001.fastq"
+[2021-06-25 11:51:25]     +> Elapsed time: 0.85s; Exit status: 0;
+[2021-06-25 11:51:25] Shell> gzip "/var/folders/v_/xwpxqp0s5jj2n4xq_hrh2r_c0000gn/T/dadaist2_YnGNiT/rev/F3D147_S213_L001_R2_001.fastq"
+[2021-06-25 11:51:26]     +> Elapsed time: 1.08s; Exit status: 0;
+[2021-06-25 11:51:26] (10/20) Processing F3D148: skip
+[2021-06-25 11:51:26] Shell> gzip "/var/folders/v_/xwpxqp0s5jj2n4xq_hrh2r_c0000gn/T/dadaist2_YnGNiT/for/F3D148_S214_L001_R1_001.fastq"
+[2021-06-25 11:51:27]     +> Elapsed time: 0.56s; Exit status: 0;
+[2021-06-25 11:51:27] Shell> gzip "/var/folders/v_/xwpxqp0s5jj2n4xq_hrh2r_c0000gn/T/dadaist2_YnGNiT/rev/F3D148_S214_L001_R2_001.fastq"
+[2021-06-25 11:51:28]     +> Elapsed time: 0.76s; Exit status: 0;
+[2021-06-25 11:51:28] (11/20) Processing F3D149: skip
+[2021-06-25 11:51:28] Shell> gzip "/var/folders/v_/xwpxqp0s5jj2n4xq_hrh2r_c0000gn/T/dadaist2_YnGNiT/for/F3D149_S215_L001_R1_001.fastq"
+[2021-06-25 11:51:28]     +> Elapsed time: 0.69s; Exit status: 0;
+[2021-06-25 11:51:28] Shell> gzip "/var/folders/v_/xwpxqp0s5jj2n4xq_hrh2r_c0000gn/T/dadaist2_YnGNiT/rev/F3D149_S215_L001_R2_001.fastq"
+[2021-06-25 11:51:29]     +> Elapsed time: 0.83s; Exit status: 0;
+[2021-06-25 11:51:29] (12/20) Processing F3D150: skip
+[2021-06-25 11:51:29] Shell> gzip "/var/folders/v_/xwpxqp0s5jj2n4xq_hrh2r_c0000gn/T/dadaist2_YnGNiT/for/F3D150_S216_L001_R1_001.fastq"
+[2021-06-25 11:51:30]     +> Elapsed time: 0.50s; Exit status: 0;
+[2021-06-25 11:51:30] Shell> gzip "/var/folders/v_/xwpxqp0s5jj2n4xq_hrh2r_c0000gn/T/dadaist2_YnGNiT/rev/F3D150_S216_L001_R2_001.fastq"
+[2021-06-25 11:51:30]     +> Elapsed time: 0.51s; Exit status: 0;
+[2021-06-25 11:51:30] (13/20) Processing F3D2: skip
+[2021-06-25 11:51:30] Shell> gzip "/var/folders/v_/xwpxqp0s5jj2n4xq_hrh2r_c0000gn/T/dadaist2_YnGNiT/for/F3D2_S190_L001_R1_001.fastq"
+[2021-06-25 11:51:31]     +> Elapsed time: 1.18s; Exit status: 0;
+[2021-06-25 11:51:31] Shell> gzip "/var/folders/v_/xwpxqp0s5jj2n4xq_hrh2r_c0000gn/T/dadaist2_YnGNiT/rev/F3D2_S190_L001_R2_001.fastq"
+[2021-06-25 11:51:33]     +> Elapsed time: 1.44s; Exit status: 0;
+[2021-06-25 11:51:33] (14/20) Processing F3D3: skip
+[2021-06-25 11:51:33] Shell> gzip "/var/folders/v_/xwpxqp0s5jj2n4xq_hrh2r_c0000gn/T/dadaist2_YnGNiT/for/F3D3_S191_L001_R1_001.fastq"
+[2021-06-25 11:51:34]     +> Elapsed time: 0.99s; Exit status: 0;
+[2021-06-25 11:51:34] Shell> gzip "/var/folders/v_/xwpxqp0s5jj2n4xq_hrh2r_c0000gn/T/dadaist2_YnGNiT/rev/F3D3_S191_L001_R2_001.fastq"
+[2021-06-25 11:51:34]     +> Elapsed time: 0.49s; Exit status: 0;
+[2021-06-25 11:51:34] (15/20) Processing F3D5: skip
+[2021-06-25 11:51:34] Shell> gzip "/var/folders/v_/xwpxqp0s5jj2n4xq_hrh2r_c0000gn/T/dadaist2_YnGNiT/for/F3D5_S193_L001_R1_001.fastq"
+[2021-06-25 11:51:35]     +> Elapsed time: 0.34s; Exit status: 0;
+[2021-06-25 11:51:35] Shell> gzip "/var/folders/v_/xwpxqp0s5jj2n4xq_hrh2r_c0000gn/T/dadaist2_YnGNiT/rev/F3D5_S193_L001_R2_001.fastq"
+[2021-06-25 11:51:35]     +> Elapsed time: 0.51s; Exit status: 0;
+[2021-06-25 11:51:35] (16/20) Processing F3D6: skip
+[2021-06-25 11:51:35] Shell> gzip "/var/folders/v_/xwpxqp0s5jj2n4xq_hrh2r_c0000gn/T/dadaist2_YnGNiT/for/F3D6_S194_L001_R1_001.fastq"
+[2021-06-25 11:51:36]     +> Elapsed time: 0.40s; Exit status: 0;
+[2021-06-25 11:51:36] Shell> gzip "/var/folders/v_/xwpxqp0s5jj2n4xq_hrh2r_c0000gn/T/dadaist2_YnGNiT/rev/F3D6_S194_L001_R2_001.fastq"
+[2021-06-25 11:51:36]     +> Elapsed time: 0.61s; Exit status: 0;
+[2021-06-25 11:51:36] (17/20) Processing F3D7: skip
+[2021-06-25 11:51:36] Shell> gzip "/var/folders/v_/xwpxqp0s5jj2n4xq_hrh2r_c0000gn/T/dadaist2_YnGNiT/for/F3D7_S195_L001_R1_001.fastq"
+[2021-06-25 11:51:37]     +> Elapsed time: 0.38s; Exit status: 0;
+[2021-06-25 11:51:37] Shell> gzip "/var/folders/v_/xwpxqp0s5jj2n4xq_hrh2r_c0000gn/T/dadaist2_YnGNiT/rev/F3D7_S195_L001_R2_001.fastq"
+[2021-06-25 11:51:37]     +> Elapsed time: 0.64s; Exit status: 0;
+[2021-06-25 11:51:37] (18/20) Processing F3D8: skip
+[2021-06-25 11:51:37] Shell> gzip "/var/folders/v_/xwpxqp0s5jj2n4xq_hrh2r_c0000gn/T/dadaist2_YnGNiT/for/F3D8_S196_L001_R1_001.fastq"
+[2021-06-25 11:51:38]     +> Elapsed time: 0.39s; Exit status: 0;
+[2021-06-25 11:51:38] Shell> gzip "/var/folders/v_/xwpxqp0s5jj2n4xq_hrh2r_c0000gn/T/dadaist2_YnGNiT/rev/F3D8_S196_L001_R2_001.fastq"
+[2021-06-25 11:51:38]     +> Elapsed time: 0.67s; Exit status: 0;
+[2021-06-25 11:51:38] (19/20) Processing F3D9: skip
+[2021-06-25 11:51:38] Shell> gzip "/var/folders/v_/xwpxqp0s5jj2n4xq_hrh2r_c0000gn/T/dadaist2_YnGNiT/for/F3D9_S197_L001_R1_001.fastq"
+[2021-06-25 11:51:39]     +> Elapsed time: 0.59s; Exit status: 0;
+[2021-06-25 11:51:39] Shell> gzip "/var/folders/v_/xwpxqp0s5jj2n4xq_hrh2r_c0000gn/T/dadaist2_YnGNiT/rev/F3D9_S197_L001_R2_001.fastq"
+[2021-06-25 11:51:40]     +> Elapsed time: 0.50s; Exit status: 0;
+[2021-06-25 11:51:40] (20/20) Processing Mock: skip
+[2021-06-25 11:51:40] Shell> gzip "/var/folders/v_/xwpxqp0s5jj2n4xq_hrh2r_c0000gn/T/dadaist2_YnGNiT/for/Mock_S280_L001_R1_001.fastq"
+[2021-06-25 11:51:40]     +> Elapsed time: 0.27s; Exit status: 0;
+[2021-06-25 11:51:40] Shell> gzip "/var/folders/v_/xwpxqp0s5jj2n4xq_hrh2r_c0000gn/T/dadaist2_YnGNiT/rev/Mock_S280_L001_R2_001.fastq"
+[2021-06-25 11:51:40]     +> Elapsed time: 0.35s; Exit status: 0;
+[2021-06-25 11:51:40] Running DADA2...
+[2021-06-25 11:51:40] Shell> Rscript --vanilla /Users/telatin/miniconda3/envs/dadaist/bin/D2-dada.R /var/folders/v_/xwpxqp0s5jj2n4xq_hrh2r_c0000gn/T/dadaist2_YnGNiT/for /var/folders/v_/xwpxqp0s5jj2n4xq_hrh2r_c0000gn/T/dadaist2_YnGNiT/rev /var/folders/v_/xwpxqp0s5jj2n4xq_hrh2r_c0000gn/T/dadaist2_YnGNiT/dada2/dada2.tsv /var/folders/v_/xwpxqp0s5jj2n4xq_hrh2r_c0000gn/T/dadaist2_YnGNiT/dada2/stats.tsv /var/folders/v_/xwpxqp0s5jj2n4xq_hrh2r_c0000gn/T/dadaist2_YnGNiT/for/filtered /var/folders/v_/xwpxqp0s5jj2n4xq_hrh2r_c0000gn/T/dadaist2_YnGNiT/rev/filtered   0 0 1 1.5 10 consensus 1 6 0 /var/folders/v_/xwpxqp0s5jj2n4xq_hrh2r_c0000gn/T/dadaist2_YnGNiT do_plots refs/rdp_train_set_16.fa.gz no 0 0
+[2021-06-25 11:51:41]     +> Elapsed time: 0.85s; Exit status: 256;
+[2021-06-25 11:51:41] DADA2 Failed:
+> Warning message:
+NAs introduced by coercion 
+Warning message:
+NAs introduced by coercion 
+Warning message:
+NAs introduced by coercion 
+Error in args[[22]] : subscript out of bounds
+Execution halted
+> R version 4.0.5 (2021-03-31) 
+[2021-06-25 11:51:41] Input files: /var/folders/v_/xwpxqp0s5jj2n4xq_hrh2r_c0000gn/T/dadaist2_YnGNiT/{for,rev}

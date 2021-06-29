@@ -1,0 +1,248 @@
+[2021-06-25 11:39:41] dadaist2 1.0.2
+[2021-06-25 11:39:41] Taxonomy database found: refs/rdp_train_set_16.fa.gz
+[2021-06-25 11:39:41] Checking dependencies
+[2021-06-25 11:39:41] Shell> Rscript  --version 2>&1
+[2021-06-25 11:39:41]     +> Elapsed time: 0.01s; Exit status: 0;
+[2021-06-25 11:39:41] Shell> /Users/telatin/miniconda3/envs/dadaist/bin/dadaist2-assigntax --version
+[2021-06-25 11:39:41]     +> Elapsed time: 0.21s; Exit status: 0;
+[2021-06-25 11:39:41] Shell> /Users/telatin/miniconda3/envs/dadaist/bin/dadaist2-assigntax --version
+[2021-06-25 11:39:41]     +> Elapsed time: 0.21s; Exit status: 0;
+[2021-06-25 11:39:41] Shell> clustalo --version 2>&1
+[2021-06-25 11:39:41]     +> Elapsed time: 0.02s; Exit status: 0;
+[2021-06-25 11:39:41] Shell> echo "library(dada2)" | R --no-save > /dev/null
+[2021-06-25 11:39:59]     +> Elapsed time: 17.63s; Exit status: 0;
+[2021-06-25 11:39:59] Shell> /Users/telatin/miniconda3/envs/dadaist/bin/dadaist2-metadata --version
+[2021-06-25 11:39:59]     +> Elapsed time: 0.15s; Exit status: 0;
+[2021-06-25 11:39:59] Shell> /Users/telatin/miniconda3/envs/dadaist/bin/dadaist2-exporter --version
+[2021-06-25 11:39:59]     +> Elapsed time: 0.11s; Exit status: 0;
+[2021-06-25 11:39:59] Shell> fastp --version 2>&1
+[2021-06-25 11:39:59]     +> Elapsed time: 0.03s; Exit status: 0;
+[2021-06-25 11:39:59] Shell> fasttree 2>&1 | head -n 1 | cut -c 11-
+[2021-06-25 11:39:59]     +> Elapsed time: 0.02s; Exit status: 0;
+[2021-06-25 11:39:59] Shell> fu-primers --version 2>&1
+[2021-06-25 11:39:59]     +> Elapsed time: 0.02s; Exit status: 0;
+[2021-06-25 11:39:59] Shell> /Users/telatin/miniconda3/envs/dadaist/bin/dadaist2-metadata -i "data/MiSeq_SOP/" -o "/Users/telatin/git/dadaist2/test/sop-old-vanilla/metadata.tsv"
+[2021-06-25 11:39:59]     +> Elapsed time: 0.09s; Exit status: 0;
+[2021-06-25 11:39:59] Temporary directory: /var/folders/v_/xwpxqp0s5jj2n4xq_hrh2r_c0000gn/T/dadaist2_mMGzcj
+[2021-06-25 11:39:59] Threads: 6
+[2021-06-25 11:39:59] Output directory: /Users/telatin/git/dadaist2/test/sop-old-vanilla/
+[2021-06-25 11:39:59] Input directory "data/MiSeq_SOP/": 20 found (paired-end) 
+[2021-06-25 11:39:59] (1/20) Processing F3D0: fastp
+[2021-06-25 11:39:59] Shell> fastp -w 6 -i "/Users/telatin/git/dadaist2/data/MiSeq_SOP/F3D0_S188_L001_R1_001.fastq" -I "/Users/telatin/git/dadaist2/data/MiSeq_SOP/F3D0_S188_L001_R2_001.fastq" -o "/var/folders/v_/xwpxqp0s5jj2n4xq_hrh2r_c0000gn/T/dadaist2_mMGzcj"/for/F3D0_R1.fastq.gz -O  "/var/folders/v_/xwpxqp0s5jj2n4xq_hrh2r_c0000gn/T/dadaist2_mMGzcj"/rev/F3D0_R2.fastq.gz   --trim_front1 20 --trim_front2  20  --detect_adapter_for_pe --disable_quality_filtering --n_base_limit  1   --json "/var/folders/v_/xwpxqp0s5jj2n4xq_hrh2r_c0000gn/T/dadaist2_mMGzcj/F3D0.json" --html /dev/null  --trim_tail1 0 --trim_tail2 0 --length_required 110 
+[2021-06-25 11:40:00]     +> Elapsed time: 1.00s; Exit status: 0;
+[2021-06-25 11:40:00] Shell> cat "/var/folders/v_/xwpxqp0s5jj2n4xq_hrh2r_c0000gn/T/dadaist2_mMGzcj/F3D0.json"
+[2021-06-25 11:40:00]     +> Elapsed time: 0.04s; Exit status: 0;
+[2021-06-25 11:40:01] 15586/15586 (100%) reads kept.
+ * Average insert size: 253 bp
+ * Q30: 0.867891
+ * Qualified region: [0 - 231]/231, [0 - 179]/231
+[2021-06-25 11:40:01] (2/20) Processing F3D1: fastp
+[2021-06-25 11:40:01] Shell> fastp -w 6 -i "/Users/telatin/git/dadaist2/data/MiSeq_SOP/F3D1_S189_L001_R1_001.fastq" -I "/Users/telatin/git/dadaist2/data/MiSeq_SOP/F3D1_S189_L001_R2_001.fastq" -o "/var/folders/v_/xwpxqp0s5jj2n4xq_hrh2r_c0000gn/T/dadaist2_mMGzcj"/for/F3D1_R1.fastq.gz -O  "/var/folders/v_/xwpxqp0s5jj2n4xq_hrh2r_c0000gn/T/dadaist2_mMGzcj"/rev/F3D1_R2.fastq.gz   --trim_front1 20 --trim_front2  20  --detect_adapter_for_pe --disable_quality_filtering --n_base_limit  1   --json "/var/folders/v_/xwpxqp0s5jj2n4xq_hrh2r_c0000gn/T/dadaist2_mMGzcj/F3D1.json" --html /dev/null  --trim_tail1 0 --trim_tail2 0 --length_required 110 
+[2021-06-25 11:40:02]     +> Elapsed time: 1.61s; Exit status: 0;
+[2021-06-25 11:40:02] Shell> cat "/var/folders/v_/xwpxqp0s5jj2n4xq_hrh2r_c0000gn/T/dadaist2_mMGzcj/F3D1.json"
+[2021-06-25 11:40:02]     +> Elapsed time: 0.02s; Exit status: 0;
+[2021-06-25 11:40:03] 11738/11738 (100%) reads kept.
+ * Average insert size: 253 bp
+ * Q30: 0.867655
+ * Qualified region: [0 - 231]/231, [0 - 183]/231
+[2021-06-25 11:40:03] (3/20) Processing F3D141: fastp
+[2021-06-25 11:40:03] Shell> fastp -w 6 -i "/Users/telatin/git/dadaist2/data/MiSeq_SOP/F3D141_S207_L001_R1_001.fastq" -I "/Users/telatin/git/dadaist2/data/MiSeq_SOP/F3D141_S207_L001_R2_001.fastq" -o "/var/folders/v_/xwpxqp0s5jj2n4xq_hrh2r_c0000gn/T/dadaist2_mMGzcj"/for/F3D141_R1.fastq.gz -O  "/var/folders/v_/xwpxqp0s5jj2n4xq_hrh2r_c0000gn/T/dadaist2_mMGzcj"/rev/F3D141_R2.fastq.gz   --trim_front1 20 --trim_front2  20  --detect_adapter_for_pe --disable_quality_filtering --n_base_limit  1   --json "/var/folders/v_/xwpxqp0s5jj2n4xq_hrh2r_c0000gn/T/dadaist2_mMGzcj/F3D141.json" --html /dev/null  --trim_tail1 0 --trim_tail2 0 --length_required 110 
+[2021-06-25 11:40:04]     +> Elapsed time: 1.47s; Exit status: 0;
+[2021-06-25 11:40:04] Shell> cat "/var/folders/v_/xwpxqp0s5jj2n4xq_hrh2r_c0000gn/T/dadaist2_mMGzcj/F3D141.json"
+[2021-06-25 11:40:04]     +> Elapsed time: 0.01s; Exit status: 0;
+[2021-06-25 11:40:05] 11916/11916 (100%) reads kept.
+ * Average insert size: 252 bp
+ * Q30: 0.863426
+ * Qualified region: [0 - 231]/231, [0 - 152]/231
+[2021-06-25 11:40:05] (4/20) Processing F3D142: fastp
+[2021-06-25 11:40:05] Shell> fastp -w 6 -i "/Users/telatin/git/dadaist2/data/MiSeq_SOP/F3D142_S208_L001_R1_001.fastq" -I "/Users/telatin/git/dadaist2/data/MiSeq_SOP/F3D142_S208_L001_R2_001.fastq" -o "/var/folders/v_/xwpxqp0s5jj2n4xq_hrh2r_c0000gn/T/dadaist2_mMGzcj"/for/F3D142_R1.fastq.gz -O  "/var/folders/v_/xwpxqp0s5jj2n4xq_hrh2r_c0000gn/T/dadaist2_mMGzcj"/rev/F3D142_R2.fastq.gz   --trim_front1 20 --trim_front2  20  --detect_adapter_for_pe --disable_quality_filtering --n_base_limit  1   --json "/var/folders/v_/xwpxqp0s5jj2n4xq_hrh2r_c0000gn/T/dadaist2_mMGzcj/F3D142.json" --html /dev/null  --trim_tail1 0 --trim_tail2 0 --length_required 110 
+[2021-06-25 11:40:06]     +> Elapsed time: 1.60s; Exit status: 0;
+[2021-06-25 11:40:06] Shell> cat "/var/folders/v_/xwpxqp0s5jj2n4xq_hrh2r_c0000gn/T/dadaist2_mMGzcj/F3D142.json"
+[2021-06-25 11:40:06]     +> Elapsed time: 0.01s; Exit status: 0;
+[2021-06-25 11:40:07] 6366/6366 (100%) reads kept.
+ * Average insert size: 252 bp
+ * Q30: 0.857929
+ * Qualified region: [0 - 231]/231, [0 - 151]/231
+[2021-06-25 11:40:07] (5/20) Processing F3D143: fastp
+[2021-06-25 11:40:07] Shell> fastp -w 6 -i "/Users/telatin/git/dadaist2/data/MiSeq_SOP/F3D143_S209_L001_R1_001.fastq" -I "/Users/telatin/git/dadaist2/data/MiSeq_SOP/F3D143_S209_L001_R2_001.fastq" -o "/var/folders/v_/xwpxqp0s5jj2n4xq_hrh2r_c0000gn/T/dadaist2_mMGzcj"/for/F3D143_R1.fastq.gz -O  "/var/folders/v_/xwpxqp0s5jj2n4xq_hrh2r_c0000gn/T/dadaist2_mMGzcj"/rev/F3D143_R2.fastq.gz   --trim_front1 20 --trim_front2  20  --detect_adapter_for_pe --disable_quality_filtering --n_base_limit  1   --json "/var/folders/v_/xwpxqp0s5jj2n4xq_hrh2r_c0000gn/T/dadaist2_mMGzcj/F3D143.json" --html /dev/null  --trim_tail1 0 --trim_tail2 0 --length_required 110 
+[2021-06-25 11:40:08]     +> Elapsed time: 1.14s; Exit status: 0;
+[2021-06-25 11:40:08] Shell> cat "/var/folders/v_/xwpxqp0s5jj2n4xq_hrh2r_c0000gn/T/dadaist2_mMGzcj/F3D143.json"
+[2021-06-25 11:40:08]     +> Elapsed time: 0.02s; Exit status: 0;
+[2021-06-25 11:40:08] 6356/6356 (100%) reads kept.
+ * Average insert size: 0 bp
+ * Q30: 0.860878
+ * Qualified region: [0 - 231]/231, [0 - 151]/231
+[2021-06-25 11:40:08] (6/20) Processing F3D144: fastp
+[2021-06-25 11:40:08] Shell> fastp -w 6 -i "/Users/telatin/git/dadaist2/data/MiSeq_SOP/F3D144_S210_L001_R1_001.fastq" -I "/Users/telatin/git/dadaist2/data/MiSeq_SOP/F3D144_S210_L001_R2_001.fastq" -o "/var/folders/v_/xwpxqp0s5jj2n4xq_hrh2r_c0000gn/T/dadaist2_mMGzcj"/for/F3D144_R1.fastq.gz -O  "/var/folders/v_/xwpxqp0s5jj2n4xq_hrh2r_c0000gn/T/dadaist2_mMGzcj"/rev/F3D144_R2.fastq.gz   --trim_front1 20 --trim_front2  20  --detect_adapter_for_pe --disable_quality_filtering --n_base_limit  1   --json "/var/folders/v_/xwpxqp0s5jj2n4xq_hrh2r_c0000gn/T/dadaist2_mMGzcj/F3D144.json" --html /dev/null  --trim_tail1 0 --trim_tail2 0 --length_required 110 
+[2021-06-25 11:40:10]     +> Elapsed time: 1.82s; Exit status: 0;
+[2021-06-25 11:40:10] Shell> cat "/var/folders/v_/xwpxqp0s5jj2n4xq_hrh2r_c0000gn/T/dadaist2_mMGzcj/F3D144.json"
+[2021-06-25 11:40:10]     +> Elapsed time: 0.03s; Exit status: 0;
+[2021-06-25 11:40:10] 9654/9654 (100%) reads kept.
+ * Average insert size: 252 bp
+ * Q30: 0.838044
+ * Qualified region: [0 - 231]/231, [0 - 143]/231
+[2021-06-25 11:40:10] (7/20) Processing F3D145: fastp
+[2021-06-25 11:40:10] Shell> fastp -w 6 -i "/Users/telatin/git/dadaist2/data/MiSeq_SOP/F3D145_S211_L001_R1_001.fastq" -I "/Users/telatin/git/dadaist2/data/MiSeq_SOP/F3D145_S211_L001_R2_001.fastq" -o "/var/folders/v_/xwpxqp0s5jj2n4xq_hrh2r_c0000gn/T/dadaist2_mMGzcj"/for/F3D145_R1.fastq.gz -O  "/var/folders/v_/xwpxqp0s5jj2n4xq_hrh2r_c0000gn/T/dadaist2_mMGzcj"/rev/F3D145_R2.fastq.gz   --trim_front1 20 --trim_front2  20  --detect_adapter_for_pe --disable_quality_filtering --n_base_limit  1   --json "/var/folders/v_/xwpxqp0s5jj2n4xq_hrh2r_c0000gn/T/dadaist2_mMGzcj/F3D145.json" --html /dev/null  --trim_tail1 0 --trim_tail2 0 --length_required 110 
+[2021-06-25 11:40:12]     +> Elapsed time: 1.62s; Exit status: 0;
+[2021-06-25 11:40:12] Shell> cat "/var/folders/v_/xwpxqp0s5jj2n4xq_hrh2r_c0000gn/T/dadaist2_mMGzcj/F3D145.json"
+[2021-06-25 11:40:12]     +> Elapsed time: 0.02s; Exit status: 0;
+[2021-06-25 11:40:12] 14754/14754 (100%) reads kept.
+ * Average insert size: 252 bp
+ * Q30: 0.843392
+ * Qualified region: [0 - 231]/231, [0 - 143]/231
+[2021-06-25 11:40:12] (8/20) Processing F3D146: fastp
+[2021-06-25 11:40:12] Shell> fastp -w 6 -i "/Users/telatin/git/dadaist2/data/MiSeq_SOP/F3D146_S212_L001_R1_001.fastq" -I "/Users/telatin/git/dadaist2/data/MiSeq_SOP/F3D146_S212_L001_R2_001.fastq" -o "/var/folders/v_/xwpxqp0s5jj2n4xq_hrh2r_c0000gn/T/dadaist2_mMGzcj"/for/F3D146_R1.fastq.gz -O  "/var/folders/v_/xwpxqp0s5jj2n4xq_hrh2r_c0000gn/T/dadaist2_mMGzcj"/rev/F3D146_R2.fastq.gz   --trim_front1 20 --trim_front2  20  --detect_adapter_for_pe --disable_quality_filtering --n_base_limit  1   --json "/var/folders/v_/xwpxqp0s5jj2n4xq_hrh2r_c0000gn/T/dadaist2_mMGzcj/F3D146.json" --html /dev/null  --trim_tail1 0 --trim_tail2 0 --length_required 110 
+[2021-06-25 11:40:14]     +> Elapsed time: 1.41s; Exit status: 0;
+[2021-06-25 11:40:14] Shell> cat "/var/folders/v_/xwpxqp0s5jj2n4xq_hrh2r_c0000gn/T/dadaist2_mMGzcj/F3D146.json"
+[2021-06-25 11:40:14]     +> Elapsed time: 0.02s; Exit status: 0;
+[2021-06-25 11:40:14] 10040/10042 (99.98%) reads kept.
+ * Average insert size: 252 bp
+ * Q30: 0.862561
+ * Qualified region: [0 - 231]/231, [0 - 152]/231
+[2021-06-25 11:40:14] (9/20) Processing F3D147: fastp
+[2021-06-25 11:40:14] Shell> fastp -w 6 -i "/Users/telatin/git/dadaist2/data/MiSeq_SOP/F3D147_S213_L001_R1_001.fastq" -I "/Users/telatin/git/dadaist2/data/MiSeq_SOP/F3D147_S213_L001_R2_001.fastq" -o "/var/folders/v_/xwpxqp0s5jj2n4xq_hrh2r_c0000gn/T/dadaist2_mMGzcj"/for/F3D147_R1.fastq.gz -O  "/var/folders/v_/xwpxqp0s5jj2n4xq_hrh2r_c0000gn/T/dadaist2_mMGzcj"/rev/F3D147_R2.fastq.gz   --trim_front1 20 --trim_front2  20  --detect_adapter_for_pe --disable_quality_filtering --n_base_limit  1   --json "/var/folders/v_/xwpxqp0s5jj2n4xq_hrh2r_c0000gn/T/dadaist2_mMGzcj/F3D147.json" --html /dev/null  --trim_tail1 0 --trim_tail2 0 --length_required 110 
+[2021-06-25 11:40:26]     +> Elapsed time: 11.42s; Exit status: 0;
+[2021-06-25 11:40:26] Shell> cat "/var/folders/v_/xwpxqp0s5jj2n4xq_hrh2r_c0000gn/T/dadaist2_mMGzcj/F3D147.json"
+[2021-06-25 11:40:26]     +> Elapsed time: 0.02s; Exit status: 0;
+[2021-06-25 11:40:26] 34140/34140 (100%) reads kept.
+ * Average insert size: 252 bp
+ * Q30: 0.849771
+ * Qualified region: [0 - 231]/231, [0 - 143]/231
+[2021-06-25 11:40:26] (10/20) Processing F3D148: fastp
+[2021-06-25 11:40:26] Shell> fastp -w 6 -i "/Users/telatin/git/dadaist2/data/MiSeq_SOP/F3D148_S214_L001_R1_001.fastq" -I "/Users/telatin/git/dadaist2/data/MiSeq_SOP/F3D148_S214_L001_R2_001.fastq" -o "/var/folders/v_/xwpxqp0s5jj2n4xq_hrh2r_c0000gn/T/dadaist2_mMGzcj"/for/F3D148_R1.fastq.gz -O  "/var/folders/v_/xwpxqp0s5jj2n4xq_hrh2r_c0000gn/T/dadaist2_mMGzcj"/rev/F3D148_R2.fastq.gz   --trim_front1 20 --trim_front2  20  --detect_adapter_for_pe --disable_quality_filtering --n_base_limit  1   --json "/var/folders/v_/xwpxqp0s5jj2n4xq_hrh2r_c0000gn/T/dadaist2_mMGzcj/F3D148.json" --html /dev/null  --trim_tail1 0 --trim_tail2 0 --length_required 110 
+[2021-06-25 11:40:32]     +> Elapsed time: 6.07s; Exit status: 0;
+[2021-06-25 11:40:32] Shell> cat "/var/folders/v_/xwpxqp0s5jj2n4xq_hrh2r_c0000gn/T/dadaist2_mMGzcj/F3D148.json"
+[2021-06-25 11:40:32]     +> Elapsed time: 0.01s; Exit status: 0;
+[2021-06-25 11:40:32] 24810/24810 (100%) reads kept.
+ * Average insert size: 252 bp
+ * Q30: 0.859891
+ * Qualified region: [0 - 231]/231, [0 - 151]/231
+[2021-06-25 11:40:32] (11/20) Processing F3D149: fastp
+[2021-06-25 11:40:32] Shell> fastp -w 6 -i "/Users/telatin/git/dadaist2/data/MiSeq_SOP/F3D149_S215_L001_R1_001.fastq" -I "/Users/telatin/git/dadaist2/data/MiSeq_SOP/F3D149_S215_L001_R2_001.fastq" -o "/var/folders/v_/xwpxqp0s5jj2n4xq_hrh2r_c0000gn/T/dadaist2_mMGzcj"/for/F3D149_R1.fastq.gz -O  "/var/folders/v_/xwpxqp0s5jj2n4xq_hrh2r_c0000gn/T/dadaist2_mMGzcj"/rev/F3D149_R2.fastq.gz   --trim_front1 20 --trim_front2  20  --detect_adapter_for_pe --disable_quality_filtering --n_base_limit  1   --json "/var/folders/v_/xwpxqp0s5jj2n4xq_hrh2r_c0000gn/T/dadaist2_mMGzcj/F3D149.json" --html /dev/null  --trim_tail1 0 --trim_tail2 0 --length_required 110 
+[2021-06-25 11:40:39]     +> Elapsed time: 6.41s; Exit status: 0;
+[2021-06-25 11:40:39] Shell> cat "/var/folders/v_/xwpxqp0s5jj2n4xq_hrh2r_c0000gn/T/dadaist2_mMGzcj/F3D149.json"
+[2021-06-25 11:40:39]     +> Elapsed time: 0.01s; Exit status: 0;
+[2021-06-25 11:40:39] 26166/26166 (100%) reads kept.
+ * Average insert size: 252 bp
+ * Q30: 0.859834
+ * Qualified region: [0 - 231]/231, [0 - 151]/231
+[2021-06-25 11:40:39] (12/20) Processing F3D150: fastp
+[2021-06-25 11:40:39] Shell> fastp -w 6 -i "/Users/telatin/git/dadaist2/data/MiSeq_SOP/F3D150_S216_L001_R1_001.fastq" -I "/Users/telatin/git/dadaist2/data/MiSeq_SOP/F3D150_S216_L001_R2_001.fastq" -o "/var/folders/v_/xwpxqp0s5jj2n4xq_hrh2r_c0000gn/T/dadaist2_mMGzcj"/for/F3D150_R1.fastq.gz -O  "/var/folders/v_/xwpxqp0s5jj2n4xq_hrh2r_c0000gn/T/dadaist2_mMGzcj"/rev/F3D150_R2.fastq.gz   --trim_front1 20 --trim_front2  20  --detect_adapter_for_pe --disable_quality_filtering --n_base_limit  1   --json "/var/folders/v_/xwpxqp0s5jj2n4xq_hrh2r_c0000gn/T/dadaist2_mMGzcj/F3D150.json" --html /dev/null  --trim_tail1 0 --trim_tail2 0 --length_required 110 
+[2021-06-25 11:40:40]     +> Elapsed time: 0.80s; Exit status: 0;
+[2021-06-25 11:40:40] Shell> cat "/var/folders/v_/xwpxqp0s5jj2n4xq_hrh2r_c0000gn/T/dadaist2_mMGzcj/F3D150.json"
+[2021-06-25 11:40:40]     +> Elapsed time: 0.01s; Exit status: 0;
+[2021-06-25 11:40:40] 11018/11018 (100%) reads kept.
+ * Average insert size: 252 bp
+ * Q30: 0.860257
+ * Qualified region: [0 - 231]/231, [0 - 152]/231
+[2021-06-25 11:40:40] (13/20) Processing F3D2: fastp
+[2021-06-25 11:40:40] Shell> fastp -w 6 -i "/Users/telatin/git/dadaist2/data/MiSeq_SOP/F3D2_S190_L001_R1_001.fastq" -I "/Users/telatin/git/dadaist2/data/MiSeq_SOP/F3D2_S190_L001_R2_001.fastq" -o "/var/folders/v_/xwpxqp0s5jj2n4xq_hrh2r_c0000gn/T/dadaist2_mMGzcj"/for/F3D2_R1.fastq.gz -O  "/var/folders/v_/xwpxqp0s5jj2n4xq_hrh2r_c0000gn/T/dadaist2_mMGzcj"/rev/F3D2_R2.fastq.gz   --trim_front1 20 --trim_front2  20  --detect_adapter_for_pe --disable_quality_filtering --n_base_limit  1   --json "/var/folders/v_/xwpxqp0s5jj2n4xq_hrh2r_c0000gn/T/dadaist2_mMGzcj/F3D2.json" --html /dev/null  --trim_tail1 0 --trim_tail2 0 --length_required 110 
+[2021-06-25 11:40:48]     +> Elapsed time: 8.43s; Exit status: 0;
+[2021-06-25 11:40:48] Shell> cat "/var/folders/v_/xwpxqp0s5jj2n4xq_hrh2r_c0000gn/T/dadaist2_mMGzcj/F3D2.json"
+[2021-06-25 11:40:48]     +> Elapsed time: 0.02s; Exit status: 0;
+[2021-06-25 11:40:49] 39240/39240 (100%) reads kept.
+ * Average insert size: 252 bp
+ * Q30: 0.865363
+ * Qualified region: [0 - 231]/231, [0 - 152]/231
+[2021-06-25 11:40:49] (14/20) Processing F3D3: fastp
+[2021-06-25 11:40:49] Shell> fastp -w 6 -i "/Users/telatin/git/dadaist2/data/MiSeq_SOP/F3D3_S191_L001_R1_001.fastq" -I "/Users/telatin/git/dadaist2/data/MiSeq_SOP/F3D3_S191_L001_R2_001.fastq" -o "/var/folders/v_/xwpxqp0s5jj2n4xq_hrh2r_c0000gn/T/dadaist2_mMGzcj"/for/F3D3_R1.fastq.gz -O  "/var/folders/v_/xwpxqp0s5jj2n4xq_hrh2r_c0000gn/T/dadaist2_mMGzcj"/rev/F3D3_R2.fastq.gz   --trim_front1 20 --trim_front2  20  --detect_adapter_for_pe --disable_quality_filtering --n_base_limit  1   --json "/var/folders/v_/xwpxqp0s5jj2n4xq_hrh2r_c0000gn/T/dadaist2_mMGzcj/F3D3.json" --html /dev/null  --trim_tail1 0 --trim_tail2 0 --length_required 110 
+[2021-06-25 11:40:50]     +> Elapsed time: 0.78s; Exit status: 0;
+[2021-06-25 11:40:50] Shell> cat "/var/folders/v_/xwpxqp0s5jj2n4xq_hrh2r_c0000gn/T/dadaist2_mMGzcj/F3D3.json"
+[2021-06-25 11:40:50]     +> Elapsed time: 0.01s; Exit status: 0;
+[2021-06-25 11:40:50] 13516/13516 (100%) reads kept.
+ * Average insert size: 252 bp
+ * Q30: 0.859551
+ * Qualified region: [0 - 231]/231, [0 - 151]/231
+[2021-06-25 11:40:50] (15/20) Processing F3D5: fastp
+[2021-06-25 11:40:50] Shell> fastp -w 6 -i "/Users/telatin/git/dadaist2/data/MiSeq_SOP/F3D5_S193_L001_R1_001.fastq" -I "/Users/telatin/git/dadaist2/data/MiSeq_SOP/F3D5_S193_L001_R2_001.fastq" -o "/var/folders/v_/xwpxqp0s5jj2n4xq_hrh2r_c0000gn/T/dadaist2_mMGzcj"/for/F3D5_R1.fastq.gz -O  "/var/folders/v_/xwpxqp0s5jj2n4xq_hrh2r_c0000gn/T/dadaist2_mMGzcj"/rev/F3D5_R2.fastq.gz   --trim_front1 20 --trim_front2  20  --detect_adapter_for_pe --disable_quality_filtering --n_base_limit  1   --json "/var/folders/v_/xwpxqp0s5jj2n4xq_hrh2r_c0000gn/T/dadaist2_mMGzcj/F3D5.json" --html /dev/null  --trim_tail1 0 --trim_tail2 0 --length_required 110 
+[2021-06-25 11:40:50]     +> Elapsed time: 0.65s; Exit status: 0;
+[2021-06-25 11:40:50] Shell> cat "/var/folders/v_/xwpxqp0s5jj2n4xq_hrh2r_c0000gn/T/dadaist2_mMGzcj/F3D5.json"
+[2021-06-25 11:40:50]     +> Elapsed time: 0.01s; Exit status: 0;
+[2021-06-25 11:40:51] 8896/8896 (100%) reads kept.
+ * Average insert size: 253 bp
+ * Q30: 0.858632
+ * Qualified region: [0 - 231]/231, [0 - 152]/231
+[2021-06-25 11:40:51] (16/20) Processing F3D6: fastp
+[2021-06-25 11:40:51] Shell> fastp -w 6 -i "/Users/telatin/git/dadaist2/data/MiSeq_SOP/F3D6_S194_L001_R1_001.fastq" -I "/Users/telatin/git/dadaist2/data/MiSeq_SOP/F3D6_S194_L001_R2_001.fastq" -o "/var/folders/v_/xwpxqp0s5jj2n4xq_hrh2r_c0000gn/T/dadaist2_mMGzcj"/for/F3D6_R1.fastq.gz -O  "/var/folders/v_/xwpxqp0s5jj2n4xq_hrh2r_c0000gn/T/dadaist2_mMGzcj"/rev/F3D6_R2.fastq.gz   --trim_front1 20 --trim_front2  20  --detect_adapter_for_pe --disable_quality_filtering --n_base_limit  1   --json "/var/folders/v_/xwpxqp0s5jj2n4xq_hrh2r_c0000gn/T/dadaist2_mMGzcj/F3D6.json" --html /dev/null  --trim_tail1 0 --trim_tail2 0 --length_required 110 
+[2021-06-25 11:40:51]     +> Elapsed time: 0.75s; Exit status: 0;
+[2021-06-25 11:40:51] Shell> cat "/var/folders/v_/xwpxqp0s5jj2n4xq_hrh2r_c0000gn/T/dadaist2_mMGzcj/F3D6.json"
+[2021-06-25 11:40:51]     +> Elapsed time: 0.01s; Exit status: 0;
+[2021-06-25 11:40:52] 15978/15978 (100%) reads kept.
+ * Average insert size: 252 bp
+ * Q30: 0.867273
+ * Qualified region: [0 - 231]/231, [0 - 152]/231
+[2021-06-25 11:40:52] (17/20) Processing F3D7: fastp
+[2021-06-25 11:40:52] Shell> fastp -w 6 -i "/Users/telatin/git/dadaist2/data/MiSeq_SOP/F3D7_S195_L001_R1_001.fastq" -I "/Users/telatin/git/dadaist2/data/MiSeq_SOP/F3D7_S195_L001_R2_001.fastq" -o "/var/folders/v_/xwpxqp0s5jj2n4xq_hrh2r_c0000gn/T/dadaist2_mMGzcj"/for/F3D7_R1.fastq.gz -O  "/var/folders/v_/xwpxqp0s5jj2n4xq_hrh2r_c0000gn/T/dadaist2_mMGzcj"/rev/F3D7_R2.fastq.gz   --trim_front1 20 --trim_front2  20  --detect_adapter_for_pe --disable_quality_filtering --n_base_limit  1   --json "/var/folders/v_/xwpxqp0s5jj2n4xq_hrh2r_c0000gn/T/dadaist2_mMGzcj/F3D7.json" --html /dev/null  --trim_tail1 0 --trim_tail2 0 --length_required 110 
+[2021-06-25 11:40:52]     +> Elapsed time: 0.69s; Exit status: 0;
+[2021-06-25 11:40:52] Shell> cat "/var/folders/v_/xwpxqp0s5jj2n4xq_hrh2r_c0000gn/T/dadaist2_mMGzcj/F3D7.json"
+[2021-06-25 11:40:52]     +> Elapsed time: 0.02s; Exit status: 0;
+[2021-06-25 11:40:53] 10258/10258 (100%) reads kept.
+ * Average insert size: 252 bp
+ * Q30: 0.866271
+ * Qualified region: [0 - 231]/231, [0 - 151]/231
+[2021-06-25 11:40:53] (18/20) Processing F3D8: fastp
+[2021-06-25 11:40:53] Shell> fastp -w 6 -i "/Users/telatin/git/dadaist2/data/MiSeq_SOP/F3D8_S196_L001_R1_001.fastq" -I "/Users/telatin/git/dadaist2/data/MiSeq_SOP/F3D8_S196_L001_R2_001.fastq" -o "/var/folders/v_/xwpxqp0s5jj2n4xq_hrh2r_c0000gn/T/dadaist2_mMGzcj"/for/F3D8_R1.fastq.gz -O  "/var/folders/v_/xwpxqp0s5jj2n4xq_hrh2r_c0000gn/T/dadaist2_mMGzcj"/rev/F3D8_R2.fastq.gz   --trim_front1 20 --trim_front2  20  --detect_adapter_for_pe --disable_quality_filtering --n_base_limit  1   --json "/var/folders/v_/xwpxqp0s5jj2n4xq_hrh2r_c0000gn/T/dadaist2_mMGzcj/F3D8.json" --html /dev/null  --trim_tail1 0 --trim_tail2 0 --length_required 110 
+[2021-06-25 11:40:53]     +> Elapsed time: 0.68s; Exit status: 0;
+[2021-06-25 11:40:53] Shell> cat "/var/folders/v_/xwpxqp0s5jj2n4xq_hrh2r_c0000gn/T/dadaist2_mMGzcj/F3D8.json"
+[2021-06-25 11:40:53]     +> Elapsed time: 0.01s; Exit status: 0;
+[2021-06-25 11:40:53] 10588/10588 (100%) reads kept.
+ * Average insert size: 253 bp
+ * Q30: 0.873322
+ * Qualified region: [0 - 231]/231, [0 - 184]/231
+[2021-06-25 11:40:53] (19/20) Processing F3D9: fastp
+[2021-06-25 11:40:53] Shell> fastp -w 6 -i "/Users/telatin/git/dadaist2/data/MiSeq_SOP/F3D9_S197_L001_R1_001.fastq" -I "/Users/telatin/git/dadaist2/data/MiSeq_SOP/F3D9_S197_L001_R2_001.fastq" -o "/var/folders/v_/xwpxqp0s5jj2n4xq_hrh2r_c0000gn/T/dadaist2_mMGzcj"/for/F3D9_R1.fastq.gz -O  "/var/folders/v_/xwpxqp0s5jj2n4xq_hrh2r_c0000gn/T/dadaist2_mMGzcj"/rev/F3D9_R2.fastq.gz   --trim_front1 20 --trim_front2  20  --detect_adapter_for_pe --disable_quality_filtering --n_base_limit  1   --json "/var/folders/v_/xwpxqp0s5jj2n4xq_hrh2r_c0000gn/T/dadaist2_mMGzcj/F3D9.json" --html /dev/null  --trim_tail1 0 --trim_tail2 0 --length_required 110 
+[2021-06-25 11:40:54]     +> Elapsed time: 0.74s; Exit status: 0;
+[2021-06-25 11:40:54] Shell> cat "/var/folders/v_/xwpxqp0s5jj2n4xq_hrh2r_c0000gn/T/dadaist2_mMGzcj/F3D9.json"
+[2021-06-25 11:40:54]     +> Elapsed time: 0.01s; Exit status: 0;
+[2021-06-25 11:40:54] 14140/14140 (100%) reads kept.
+ * Average insert size: 253 bp
+ * Q30: 0.874286
+ * Qualified region: [0 - 231]/231, [0 - 183]/231
+[2021-06-25 11:40:54] (20/20) Processing Mock: fastp
+[2021-06-25 11:40:54] Shell> fastp -w 6 -i "/Users/telatin/git/dadaist2/data/MiSeq_SOP/Mock_S280_L001_R1_001.fastq" -I "/Users/telatin/git/dadaist2/data/MiSeq_SOP/Mock_S280_L001_R2_001.fastq" -o "/var/folders/v_/xwpxqp0s5jj2n4xq_hrh2r_c0000gn/T/dadaist2_mMGzcj"/for/Mock_R1.fastq.gz -O  "/var/folders/v_/xwpxqp0s5jj2n4xq_hrh2r_c0000gn/T/dadaist2_mMGzcj"/rev/Mock_R2.fastq.gz   --trim_front1 20 --trim_front2  20  --detect_adapter_for_pe --disable_quality_filtering --n_base_limit  1   --json "/var/folders/v_/xwpxqp0s5jj2n4xq_hrh2r_c0000gn/T/dadaist2_mMGzcj/Mock.json" --html /dev/null  --trim_tail1 0 --trim_tail2 0 --length_required 110 
+[2021-06-25 11:40:55]     +> Elapsed time: 0.67s; Exit status: 0;
+[2021-06-25 11:40:55] Shell> cat "/var/folders/v_/xwpxqp0s5jj2n4xq_hrh2r_c0000gn/T/dadaist2_mMGzcj/Mock.json"
+[2021-06-25 11:40:55]     +> Elapsed time: 0.01s; Exit status: 0;
+[2021-06-25 11:40:55] 9558/9558 (100%) reads kept.
+ * Average insert size: 0 bp
+ * Q30: 0.881336
+ * Qualified region: [0 - 231]/231, [0 - 215]/231
+[2021-06-25 11:40:55] Running DADA2...
+[2021-06-25 11:40:55] Shell> Rscript --vanilla /Users/telatin/miniconda3/envs/dadaist/bin/D2-dada.R /var/folders/v_/xwpxqp0s5jj2n4xq_hrh2r_c0000gn/T/dadaist2_mMGzcj/for /var/folders/v_/xwpxqp0s5jj2n4xq_hrh2r_c0000gn/T/dadaist2_mMGzcj/rev /var/folders/v_/xwpxqp0s5jj2n4xq_hrh2r_c0000gn/T/dadaist2_mMGzcj/dada2/dada2.tsv /var/folders/v_/xwpxqp0s5jj2n4xq_hrh2r_c0000gn/T/dadaist2_mMGzcj/dada2/stats.tsv /var/folders/v_/xwpxqp0s5jj2n4xq_hrh2r_c0000gn/T/dadaist2_mMGzcj/for/filtered /var/folders/v_/xwpxqp0s5jj2n4xq_hrh2r_c0000gn/T/dadaist2_mMGzcj/rev/filtered 231 215 0 0 1 1.5 10 consensus 1 6 10000 /var/folders/v_/xwpxqp0s5jj2n4xq_hrh2r_c0000gn/T/dadaist2_mMGzcj do_plots refs/rdp_train_set_16.fa.gz no 0 0
+[2021-06-25 11:49:59]     +> Elapsed time: 543.80s; Exit status: 0;
+[2021-06-25 11:49:59] Shell> rm -rf "/var/folders/v_/xwpxqp0s5jj2n4xq_hrh2r_c0000gn/T/dadaist2_mMGzcj"/for "/var/folders/v_/xwpxqp0s5jj2n4xq_hrh2r_c0000gn/T/dadaist2_mMGzcj"/rev
+[2021-06-25 11:49:59]     +> Elapsed time: 0.07s; Exit status: 0;
+[2021-06-25 11:49:59] DADA2 Finished.
+[2021-06-25 11:49:59] Converting dada2 taxonomy output: /var/folders/v_/xwpxqp0s5jj2n4xq_hrh2r_c0000gn/T/dadaist2_mMGzcj/taxonomy.tsv
+[2021-06-25 11:49:59] 218 representative sequences found.
+[2021-06-25 11:49:59] DADA2 filtered 56.9097% from total 152359 to 86707
+[2021-06-25 11:49:59] Multiple sequence alignment and tree generation
+[2021-06-25 11:49:59] Shell> clustalo -i "/Users/telatin/git/dadaist2/test/sop-old-vanilla/rep-seqs.fasta" -o "/Users/telatin/git/dadaist2/test/sop-old-vanilla/rep-seqs.msa" --outfmt=fasta --force
+[2021-06-25 11:50:04]     +> Elapsed time: 4.26s; Exit status: 0;
+[2021-06-25 11:50:04] Shell> fasttree -nt -gtr -no2nd -spr 4 -quiet "/Users/telatin/git/dadaist2/test/sop-old-vanilla/rep-seqs.msa" > "/Users/telatin/git/dadaist2/test/sop-old-vanilla/rep-seqs.tree"
+[2021-06-25 11:50:07]     +> Elapsed time: 3.94s; Exit status: 0;
+[2021-06-25 11:50:07] Feature tree generated
+[2021-06-25 11:50:07] Shell> /Users/telatin/miniconda3/envs/dadaist/bin/dadaist2-exporter -i "/Users/telatin/git/dadaist2/test/sop-old-vanilla/"
+[2021-06-25 11:50:08]     +> Elapsed time: 0.27s; Exit status: 0;
+[2021-06-25 11:50:08] Exporting MicrobiomeAnalyst
+[2021-06-25 11:50:08] Shell> /Users/telatin/miniconda3/envs/dadaist/bin/dadaist2-phyloseqMake -i "/Users/telatin/git/dadaist2/test/sop-old-vanilla/" -o "/Users/telatin/git/dadaist2/test/sop-old-vanilla/R/phyloseq.rds"
+[2021-06-25 11:50:24]     +> Elapsed time: 16.19s; Exit status: 0;
+[2021-06-25 11:50:24] Generating PhyloSeq object
+[2021-06-25 11:50:24] Shell> /Users/telatin/miniconda3/envs/dadaist/bin/dadaist2-normalize -i "/Users/telatin/git/dadaist2/test/sop-old-vanilla/Rhea/OTUs-Table.tab" -o "/Users/telatin/git/dadaist2/test/sop-old-vanilla/Rhea"
+[2021-06-25 11:50:32]     +> Elapsed time: 8.05s; Exit status: 0;
+[2021-06-25 11:50:32] Shell> /Users/telatin/miniconda3/envs/dadaist/bin/dadaist2-alpha -i "/Users/telatin/git/dadaist2/test/sop-old-vanilla/Rhea/OTUs_Table-norm.tab" -o "/Users/telatin/git/dadaist2/test/sop-old-vanilla/Rhea"
+[2021-06-25 11:50:33]     +> Elapsed time: 0.96s; Exit status: 0;
+[2021-06-25 11:50:33] Rhea normalization/alpha finished.
+[2021-06-25 11:50:33] Dadaist finished, output files saved:
+ * dada-taxonomy-table: /Users/telatin/git/dadaist2/test/sop-old-vanilla/taxonomy.txt
+ * feature-table: /Users/telatin/git/dadaist2/test/sop-old-vanilla/feature-table.tsv
+ * features-tree: /Users/telatin/git/dadaist2/test/sop-old-vanilla/rep-seqs.tree
+ * mba-files: /Users/telatin/git/dadaist2/test/sop-old-vanilla/MicrobiomeAnalyst
+ * multiple-alignment: /Users/telatin/git/dadaist2/test/sop-old-vanilla/rep-seqs.msa
+ * phyloseq: /Users/telatin/git/dadaist2/test/sop-old-vanilla/R/phyloseq.rds
+ * rep-seqs: /Users/telatin/git/dadaist2/test/sop-old-vanilla/rep-seqs.fasta
+ * rhea: /Users/telatin/git/dadaist2/test/sop-old-vanilla/Rhea
+
+[2021-06-25 11:50:33] Cleaning up
+[2021-06-25 11:50:33] Shell> rm -rf "/var/folders/v_/xwpxqp0s5jj2n4xq_hrh2r_c0000gn/T/dadaist2_mMGzcj"
+[2021-06-25 11:50:33]     +> Elapsed time: 0.04s; Exit status: 0;
