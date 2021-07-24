@@ -2,13 +2,13 @@
 #ABSTRACT: A program to run DADA2 from the CLI
 use 5.012;
 use warnings;
-my $VERSION  = '1.0.9';
+my $VERSION  = '1.1.0';
 
 BEGIN { 
 		
 		our $EXIT_QUIET = 0;				# Set to true when some error is found (see END {})
-		our $STARTED = 0;						# Set to true when parameters are parsed and pipeline initialized (see END {})
-		our $START_TIME = time(); 	# Track starting time
+		our $STARTED = 0;					# Set to true when parameters are parsed and pipeline initialized (see END {})
+		our $START_TIME = time(); 			# Track starting time
 		my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst)=localtime(time);
 		our $EXECUTION_TIMESTAMP = sprintf ( "%04d%02d%02d %02d:%02d:%02d",
                                    $year+1900,$mon+1,$mday,$hour,$min,$sec);
@@ -1940,5 +1940,10 @@ __END__
 The program is freely available at L<https://quadram-institute-bioscience.github.io/dadaist2>
 released under the MIT licence. The website contains the full I<DOCUMENTATION> and we recommend 
 checking for updates.
+
+The paper describing Dadaist2 was published in:
+
+Ansorge, R.; Birolo, G.; James, S.A.; Telatin, A. I<Dadaist2: A Toolkit to Automate and Simplify Statistical Analysis and Plotting of Metabarcoding Experiments>.
+Int. J. Mol. Sci. 2021, 22, 5309. L<https://doi.org/10.3390/ijms22105309>
 
 =cut
