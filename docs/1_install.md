@@ -113,7 +113,6 @@ From: centos:centos7.6.1810
     cd /opt/software
     git clone https://github.com/quadram-institute-bioscience/dadaist2
     ./dadaist2/bin/dadaist2-getdb -d "dada2-unite" -o /dadaist_databases/
-    ./dadaist2/bin/dadaist2-getdb -d "dada2-unite" -o /dadaist_databases/
     ./dadaist2/bin/dadaist2-getdb -d "decipher-silva-138" -o /dadaist_databases/
 
 %runscript
@@ -184,7 +183,6 @@ From: centos:centos7.6.1810
     source /opt/software/conda/bin/activate /opt/software/conda_env
     cd /opt/software
     git clone https://github.com/quadram-institute-bioscience/dadaist2
-    ./dadaist2/bin/dadaist2-getdb -d "dada2-unite" -o /dadaist_databases/
     ./dadaist2/bin/dadaist2-getdb -d "dada2-unite" -o /dadaist_databases/
     ./dadaist2/bin/dadaist2-getdb -d "decipher-silva-138" -o /dadaist_databases/
 
