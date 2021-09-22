@@ -1,0 +1,30 @@
+# YAML 1.2
+---
+authors: 
+  -
+    family-names: Telatin
+    given-names: Andrea
+    affiliation: Quadram Institute Bioscience, UK
+  -
+    family-names: Rebecca
+    given-names: Ansorge
+    affiliation: Quadram Institute Bioscience, UK
+  -
+    family-names: Giovanni
+    given-names: Birolo
+    affiliation: University of Turin, IT
+  -
+    family-names: Steve
+    given-names: James
+    affiliation: Quadram Institute Bioscience, UK
+cff-version: "1.1.0"
+doi: "10.3390/ijms22105309"
+identifiers: 
+  - 
+    type: url
+    value: "https://quadram-institute-bioscience.github.io/dadaist2/"
+license: MIT
+message: "If you use this software, please cite it using these metadata."
+title: "Dadaist2: A Toolkit to Automate and Simplify Statistical Analysis and Plotting of Metabarcoding Experiments"
+abstract: "The taxonomic composition of microbial communities can be assessed using universal marker amplicon sequencing. The most common taxonomic markers are the 16S rDNA for bacterial communities and the internal transcribed spacer (ITS) region for fungal communities, but various other markers are used for barcoding eukaryotes. A crucial step in the bioinformatic analysis of amplicon sequences is the identification of representative sequences. This can be achieved using a clustering approach or by denoising raw sequencing reads. DADA2 is a widely adopted algorithm, released as an R library, that denoises marker-specific amplicons from next-generation sequencing and produces a set of representative sequences referred to as ‘Amplicon Sequence Variants’ (ASV). Here, we present Dadaist2, a modular pipeline, providing a complete suite for the analysis that ranges from raw sequencing reads to the statistics of numerical ecology. Dadaist2 implements a new approach that is specifically optimised for amplicons with variable lengths, such as the fungal ITS. The pipeline focuses on streamlining the data flow from the command line to R, with multiple options for statistical analysis and plotting, both interactive and automatic."
+...

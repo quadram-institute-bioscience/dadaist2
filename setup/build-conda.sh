@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# ~~ Dadaist2 Perl ~~
+# ~~ Dadai!st2 Perl ~~
 # set -e
 # chmod +x bin/*
 # #./bin/makedb --setupdb
