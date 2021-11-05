@@ -2,7 +2,7 @@
 #ABSTRACT: A program to run DADA2 from the CLI
 use 5.012;
 use warnings;
-my $VERSION  = '1.1.0';
+my $VERSION  = '1.2.0';
 
 BEGIN { 
 		
@@ -18,9 +18,10 @@ BEGIN {
 
 =head1 NAME
 
-B<dadaist2> - a shell wrapper for DADA2, to detect representative sequences and generate
-a feature table starting from Illumina Paired End reads. This is the main program of the
-I<dadaist2 toolkit> that includes several wrappers and utilities to streamline the analysis
+B<dadaist2> - a shell wrapper for DADA2, to detect representative sequences and
+generate a feature table starting from Illumina Paired End reads. 
+This is the main program of the I<dadaist2 toolkit> that includes several
+wrappers and utilities to streamline the analysis
 of metabarcoding reads from the Linux shell to R.
 
 =head1 AUTHOR
@@ -146,49 +147,49 @@ my $chooser = {
 
 # Check dependencies
 my %dependencies = (
-	'fastp'   => 'fastp --version 2>&1',
-	'fu-primers' => 'fu-primers --version 2>&1',
-	'RScript' => 'Rscript  --version 2>&1',
-  'dada2 (lib)'  => 'echo "library(dada2)" | R --no-save > /dev/null',
-	'fasttree'=> 'fasttree 2>&1 | head -n 1 | cut -c 11-',
-	'clustalo'=> 'clustalo --version 2>&1',
-  'exporter' => File::Spec->catfile($RealBin, 'dadaist2-exporter') . ' --version',
+    'fastp'   => 'fastp --version 2>&1',
+    'fu-primers' => 'fu-primers --version 2>&1',
+    'RScript' => 'Rscript  --version 2>&1',
+    'dada2 (lib)'  => 'echo "library(dada2)" | R --no-save > /dev/null',
+    'fasttree'=> 'fasttree 2>&1 | head -n 1 | cut -c 11-',
+    'clustalo'=> 'clustalo --version 2>&1',
+    'exporter' => File::Spec->catfile($RealBin, 'dadaist2-exporter') . ' --version',
 );
 
  
 my $parsed = GetOptions(
 # Main parameters
- 'i|input-directory=s'             => \$opt_input_directory,
- 'o|output-directory=s'            => \$opt_output_directory,
- 'r|d|database=s'                  => \$opt_tax_db,
- 'm|metadata=s'                    => \$opt_metadata,
- 'l|log-file=s'                    => \$opt_log_filename,
- 't|threads=i'                     => \$opt_threads,
- 'tmp-dir=s'                       => \$opt_temp_dir,
+ 'i|input-directory=s'             => \$opt_input_directory, #
+ 'o|output-directory=s'            => \$opt_output_directory, #
+ 'r|d|database=s'                  => \$opt_tax_db, #
+ 'm|metadata=s'                    => \$opt_metadata, #
+ 'l|log-file=s'                    => \$opt_log_filename, #
+ 't|threads=i'                     => \$opt_threads, #
+ 'tmp-dir=s'                       => \$opt_temp_dir, #
 # Input reads
- '1|for-tag=s'                     => \$opt_for_tag,
- '2|rev-tag=s'                     => \$opt_rev_tag,
- 's|id-separator=s'                => \$opt_id_separator,
+ '1|for-tag=s'                     => \$opt_for_tag, #
+ '2|rev-tag=s'                     => \$opt_rev_tag, #
+ 's|id-separator=s'                => \$opt_id_separator, #
 # ASV generation
- 'p|prefix=s'                      => \$opt_seq_prefix,
- 'q|min-quality=f'                 => \$qualified_min_qual,
- 'save-rds'                        => \$opt_save_rds,
- 's1|trim-primer-for=i'            => \$fastp_trim_front1,
- 's2|trim-primer-rev=i'            => \$fastp_trim_front2,
- 'no-trim'                         => \$opt_notrim,
+ 'p|prefix=s'                      => \$opt_seq_prefix, #
+ 'q|min-quality=f'                 => \$qualified_min_qual, #
+ 'save-rds'                        => \$opt_save_rds, #
+ 's1|trim-primer-for=i'            => \$fastp_trim_front1, #
+ 's2|trim-primer-rev=i'            => \$fastp_trim_front2, #
+ 'no-trim'                         => \$opt_notrim, #
  'trunc-len-1=i'                   => \$opt_trunc_len_1,
  'trunc-len-2=i'                   => \$opt_trunc_len_2,
  'j|its|just-concat'               => \$opt_justconcat,
  'dada-pool'                       => \$opt_process_pool,
- 'max-loss=f'                      => \$opt_maxloss,
- 'crosstalk'                       => \$opt_crosstalk,
- 'primers=s'                       => \$opt_primers,
- 'maxee1=f'                        => \$opt_maxee_1,
- 'maxee2=f'                        => \$opt_maxee_2,
- 'no-trunc'                        => \$opt_no_trunc,
+ 'max-loss=f'                      => \$opt_maxloss, # 
+ 'crosstalk'                       => \$opt_crosstalk, #
+ 'primers=s'                       => \$opt_primers, #
+ 'maxee1=f'                        => \$opt_maxee_1, #
+ 'maxee2=f'                        => \$opt_maxee_2, #
+ 'no-trunc'                        => \$opt_no_trunc, #
  'skip-plots'                      => \$opt_skip_plots,
  'skip-qc'                         => \$opt_skip_qc,
- 'fastp'													 => \$opt_fastp_qc,
+ 'fastp'                           => \$opt_fastp_qc,
 # Misc
  'quiet'                           => \$opt_quiet,
  'verbose'                         => \$opt_verbose,
@@ -213,17 +214,18 @@ Directory containing the paired end files in FASTQ format, gzipped or not.
 
 =item I<-o>, I<--output-directory> DIRECTORY
 
-Output directory (will be created).
-
-=item I<-m>, I<--metadata> FILE
-
-Metadata file in TSV format, first column must match sample IDs. If not supplied
-a template will be autogenerated using C<dadaist2-metadata>.
+Output directory (will be created). 
+It is recommended recomment using a new directory for each run.
 
 =item I<-d>, I<--database> DATABASE
 
-Reference database in gzipped FASTA format, specify 'skip' not to assign
-taxonomy (default: skip)
+Reference database in gzipped FASTA format. 
+Optional (default: skip) but highly recommended.
+
+=item I<-m>, I<--metadata> FILE
+
+Metadata file in TSV format, first column must match sample IDs. 
+If not supplied a template will be autogenerated using C<dadaist2-metadata>.
 
 =item I<-t>, I<--threads> INT
 
@@ -231,13 +233,11 @@ Number of threads (default: 2)
 
 =item I<--primers> FOR:REV
 
-Strip primers with I<amplicheck> (from SeqFU), otherwise trim the primer regions
-with I<fastp> (see below).
+Strip primers with I<cutadapt>, supply both sequences separated by a colon.
 
 =item I<-j>, I<--just-concat>
 
 Do not try merging paired end reads, just concatenate. 
-I<Experimental>.
 
 =item I<--fastp>
 
@@ -245,8 +245,8 @@ Perform the legacy "fastp" QC
 
 =item I<--no-trim>
 
-Do not trim primers (using fastp). Equivalent to
-C<--trim-primer-for 0 --trim-primer-rev 0>.
+Do not trim primers (using fastp). 
+Equivalent to C<--trim-primer-for 0 --trim-primer-rev 0>.
 
 =item I<--dada-pool>
 
@@ -254,6 +254,28 @@ Pool samples in DADA2 analysis (experimental)
 
 =back
 
+=head2 Input reads
+
+We recommend to prepare a polished directory of input reads having
+filenames like Samplename_R1.fastq.gz and Samplename_R2.fastq.gz.
+
+Filename starting by numbers are not accepted.
+
+=over 4
+
+=item I<-1>, I<--for-tag> TAG
+
+Tag to recognize forward reads (default: _R1)
+
+=item I<-2>, I<--rev-tag> TAG
+
+Tag to recognize reverse reads (default: _R2)
+
+=item I<-s>, I<--id-separator> CHAR
+
+Character separating the sample name from the rest of the filename (default: _)
+
+=back 
 
 =head2 Metabarcoding processing
 
@@ -272,11 +294,12 @@ Minimum average quality for DADA2 truncation (default: 28)
 Do not truncate reads at the end
  (required for non-overlapping amplicons, like ITS)
 
+
 =item I<--maxee1>, and I<--maxee2> FLOAT
 
 Maximum Expected Errors in R1 and R2, respectively (default: 1.0 and 1.5)
 
-=item I<s1>, I<--trim-primer-for> INT
+=item I<-s1>, I<--trim-primer-for> INT
 
 Trim primer from R1 read specifying the number of bases. Similarly
 use C<-s2> (C<--trim-primer-rev>) to remove the front bases from the
@@ -285,10 +308,6 @@ reverse pair (R2). Default: 20 bases each side.
 =item I<--save-rds>
 
 Save a copy of the RDS file (default: off)
-
-=item I<-1>, I<--for-tag> STRING [and I<-2>, I<--rev-tag>]
-
-String identifying the forward (and reverse) pairs. Default are _R1 and _R2.
 
 =item I<--max-loss> FLOAT
 
@@ -306,10 +325,6 @@ to non-chimeric, abort if the ratio is below threshold (default: 0.2)
 Remove crosstalk using the UNCROSS2 algorithm 
 as described here L<https://doi.org/10.1101/400762>.
 
-=item I<-s>, I<--id-separator> STRING
-
-String used to separate the "sample name" from the filename. Default "_".
-
 =item I<-p>, I<--prefix> STRING
 
 Prefix for the output FASTA file, if "MD5" is specified, the sequence MD5 hash
@@ -324,9 +339,21 @@ Filename for the program log.
 Where to place the temporary directory (default are system temp dir
 or C<$TMPDIR>).
 
+=item I<--skip-plots>
+
+Do not generate quality plots.
+
 =item I<--popup>
 
 Display popup notifications (tested on MacOS and Ubuntu)
+
+=item I<--quiet>
+
+Reduce verbosity
+
+=item I<--verbose> and I<--debug>
+
+Increase reported information
 
 =back
 
@@ -357,7 +384,7 @@ say STDERR color('bold magenta'), " Dadaist2 ", color('reset')
 
 # [-] Check input directory
 if ( ! -d "$opt_input_directory") {
-  die " FATAL ERROR: Input directory not found: $opt_input_directory\n"
+  die " FATAL ERROR: Input directory not found: $opt_input_directory\n";
 }
 
 # [-] Check taxonomy database
@@ -377,6 +404,12 @@ $opt_output_directory .= '/' if ($opt_output_directory !~/\/$/);
 
 if ( ! -d "$opt_output_directory") {
 	mkdir "$opt_output_directory"    || die " FATAL ERROR:\n Unable to create directory $opt_output_directory/\n $!\n";
+} else {
+	if (not directoryIsEmpty($opt_output_directory)) {
+		print STDERR "\n [WARNING] Output directory found."; 
+		print STDERR " This is a warning but in future releases this might require to specify --force to proceed.\n";
+		
+	}
 }
 mkdir File::Spec->catdir("$opt_output_directory", 'qc')    || die " FATAL ERROR:\n Unable to create directory $opt_output_directory/qc\n $!\n";
 die "ERROR: Unable to make ", File::Spec->catdir("$opt_output_directory", 'qc'), " directory.\n" unless (-d File::Spec->catdir("$opt_output_directory", 'qc') );
@@ -1302,8 +1335,11 @@ sub get_file_reads {
 		my ($id) = split /$opt_id_separator/, basename($file);
 
 		if ($id=~/^\d/) {
-			$S->verbose("Warning: Sample id ($id) starting with a digit can introduce discrepancies in R analyses.");
+			$S->verbose("[Warning] Sample id ($id) starting with a digit can introduce discrepancies in R analyses.");
+			$S->verbose("[Warning] This will introduce an error in the next release.");
+		
 		}
+
 		if ( $samples{$id}{'for'} and $samples{$id}{'rev'} ) {
 			$S->verbose("Error: Sample ID <$id> was already found. The delimiter ($opt_id_separator) is probably contained in the filename ID.");
 			die "FATAL ERROR: Duplicateed SampleID <$id> in file $file.\n";
@@ -1609,6 +1645,21 @@ END {
 		if (our $EXIT_QUIET == 0 and our $STARTED > 0) {
 			say STDERR "Dadaist2 execution finished (", formatsec($run_time),")";
 		}
+}
+
+sub directoryIsEmpty {
+	my $dir = $_[0];
+	my $empty = 1;
+	if (opendir(my $D, "$dir")) {
+		while (my $file = readdir($D)) {
+			if ($file ne '.' and $file ne '..') {
+				$empty = 0;
+				last;
+			}
+		}
+		closedir($D);
+	}
+	return $empty;
 }
 
 sub formatsec { 

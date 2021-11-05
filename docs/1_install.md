@@ -12,22 +12,38 @@ This requires  _Miniconda_ installed ([how to install it](https://docs.conda.io/
 We will first install _mamba_, that makes the installation faster (naturally you can skip the mamba installation if
 you already use it).
 
-```
+```bash
 conda install -y -c conda-forge mamba
 mamba install -y -c conda-forge -c bioconda dadaist2
 ```
 
 If you want to keep dadaist2 and its dependencies in a separate environment (**recommended**):
 
-```
+```bash
 conda install -y -c conda-forge mamba
 mamba create -n dadaist -c conda-forge -c bioconda dadaist2
 # Then type `conda activate dadaist` to use it
 ```
- 
-:bulb: Note that you can install also MultiQC and optional dependencies installing
-`dadaist2-full` instead of `dadaist2`.
 
+## Install via Conda environment files
+
+```note
+This is the recommended way for reproducible analyses
+```
+
+When installing a package via Miniconda, some of its dependecies might change
+from one installation to the other. To ensure the highest level or reproducibility
+we are now offering curated YAML files that can be used to install the stable versions
+of dadaist.
+
+A list of environment files are available
+[in the **env** directory](https://github.com/quadram-institute-bioscience/dadaist2/tree/master/data),
+or you can download the last as shown below.
+
+```bash
+wget -O dadaist2.yaml "https://quadram-institute-bioscience.github.io/dadaist2/dadaist2-$(uname).yaml"
+conda env create --file dadaist2.yaml
+```
 
 ### Developmental snapshot
 
@@ -49,12 +65,12 @@ the image can be pulled via:
 sudo docker pull andreatelatin/dadaist2:last
 ```
 
-
 ## Advanced topics
 
 ### Singularity definition
 To manually build an image with the latest version from Bioconda the following definition file can be saved as `dadaist-stable.def`:
-```
+
+```singularity
 Bootstrap: docker
 From: centos:centos7.6.1810
 
@@ -79,6 +95,7 @@ From: centos:centos7.6.1810
 ```
 
 and the image built as:
+
 ```bash
 sudo singularity build dadaist2.simg dadaist2-stable.def
 ```
@@ -86,7 +103,8 @@ sudo singularity build dadaist2.simg dadaist2-stable.def
 ### Developmental snapshot via Singularity
 
 To get the latest code from the repository (and also some databases) here we share a `dadaist2-dev.def` file:
-```
+
+```singularity
 Bootstrap: docker
 From: centos:centos7.6.1810
 

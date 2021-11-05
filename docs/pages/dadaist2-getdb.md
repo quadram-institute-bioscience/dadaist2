@@ -33,6 +33,10 @@ If a `query` keyword is specified, only matching entries will be printed.
 
     Output directory, or the current working directory if not specified.
 
+- _-t_, _--temp-dir_ DIR
+
+    Temporary directory (default: `$TMPDIR`).
+
 ## Source code and documentation
 The program is freely available at [https://quadram-institute-bioscience.github.io/dadaist2](https://quadram-institute-bioscience.github.io/dadaist2)
 released under the MIT licence. The website contains further DOCUMENTATION.
