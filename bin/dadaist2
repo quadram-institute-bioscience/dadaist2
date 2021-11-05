@@ -443,13 +443,16 @@ if ($opt_primers) {
 	die " ERROR: Primers should be in the format --primers FORWARD:REVERSE. Semicolon not found.\n" 
 	  unless defined $primer_rev;
 	if ($opt_seqfu) {
-  	$chooser->{'filtering'}  = 'seqfu';
+  		$chooser->{'filtering'}  = 'seqfu';
+		$S->verbose("Filtering with SeqFu: ON");
 	} else {
 		$chooser->{'filtering'}  = 'cutadapt';
 		$dependencies{'cutadapt'} = 'cutadapt --version';
+		$S->verbose("Filtering with Cutadapt: ON");
 	}
 } elsif ($opt_fastp_qc) {
 	$chooser->{'filtering'} = "fastp";
+	$S->verbose("Filtering with Fastp: ON");
 } elsif ($opt_skip_qc) {
 	# TODO - Check primer management here /* warning is temporary */
 	$S->verbose(" [WARNING] Primer sequence provided, but skipping QC implies no trimming!");
@@ -460,7 +463,8 @@ if ($opt_primers) {
 }	
 
 if ($opt_save_rds) {
-  $save_rds = 'save';
+  $save_rds = 'save';	
+  $S->verbose("Parameter: --save-rds OK");
 }
 
 # If metadata is not supplied, check Metadata maker
@@ -494,7 +498,9 @@ if ($opt_tax_db ne 'skip') {
 				$S->verbose("Taxonomy database not valid: $opt_tax_db. Taxonomy will be skipped.");
 				$opt_tax_db = 'skip';
 			}
-		}	
+		}
+		$S->verbose("Parameter: taxonomy-type: " . $chooser->{'database'});	
+		$S->verbose("Parameter: taxonomy-db: " . $opt_tax_db);
 } else {
 	$S->verbose("[WARNING] Reference-free denoising is not fully supported.")
 }
@@ -520,38 +526,38 @@ if ($opt_verbose) {
 # Check Seqfu Qual
 
 if ( 
-	    (! defined $opt_trunc_len_1 or ! defined $opt_trunc_len_2) 
-    and
-			( $chooser->{'filtering'} eq 'skip' or $chooser->{'filtering'} eq 'cutadapt' ) 
+		(! defined $opt_trunc_len_1 or ! defined $opt_trunc_len_2) 
+ 		and
+		( $chooser->{'filtering'} eq 'skip' or $chooser->{'filtering'} eq 'cutadapt' ) 
 	) {
 	# Seqfu Qual
-	my $max_len = 350; #TODO: change with reads length?
+	my $max_len = 500; #TODO: change with reads length?
 	my $cmd_for = qq(seqfu qual --max 5000 --maxlen $max_len --skip 3 "$opt_input_directory"/*${opt_for_tag}*);
 	my $cmd_rev = qq(seqfu qual --max 5000 --maxlen $max_len --skip 3 "$opt_input_directory"/*${opt_rev_tag}*);
+	$S->verbose("QC: Checking quality profile with SeqFu");
 	my $QC_for = $S->run($cmd_for);
-	my $QC_rev = $S->run($cmd_rev);
-	
+	my $QC_rev = $S->run($cmd_rev); 
 	my ($qualified_for, $low_samples_for) = get_qualified_from_seqfu($QC_for->{'stdout'});
 	my ($qualified_rev, $low_samples_rev) = get_qualified_from_seqfu($QC_rev->{'stdout'});
-	
+
 	if ($$low_samples_for[0]) {
-		$S->verbose("Low quality R1 samples: ", $low_samples_for)
+		$S->verbose("[WARNING] Low quality R1 samples: ", $low_samples_for)
 	}
 	if ($$low_samples_rev[0]) {
-		$S->verbose("Low quality R2 samples: ", $low_samples_rev)
+		$S->verbose("[WARNING] Low quality R2 samples: ", $low_samples_rev)
 	}
 	
-	$S->verbose("SeqFu quality truncation at: $qualified_for - $qualified_rev");
+	$S->verbose("SeqFu quality truncation at (trunc-len-1 and trunc-len-2): $qualified_for - $qualified_rev");
 
 	$opt_trunc_len_1 = $qualified_for;
-	$opt_trunc_len_2 = $qualified_rev;
-	
+	$opt_trunc_len_2 = $qualified_rev; 
 }
 
 
 # Dependency check
 $S->verbose("Checking dependencies");
 check_required_binaries(\%dependencies);
+
 
 # Metadata?
 my $meta_samples;
@@ -755,7 +761,7 @@ my @dada_paired_parameter_labels = (
 
 
 if  ($opt_no_trunc) {
-	$S->verbose("Skipping truncation");
+	$S->verbose("Skipping truncation (trunc-len-1 and trunc-len-2 are set to 0)");
 	$trunc_len_1 = 0;
 	$trunc_len_2 = 0;
 }

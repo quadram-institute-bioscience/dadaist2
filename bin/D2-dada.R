@@ -350,11 +350,15 @@ if (taxonomy_db != 'skip' && file.exists(taxonomy_db)) {
       row.names=TRUE,
       quote=FALSE
   )
+} else {
+  cat("\t * ", file.path(paste(outbasepath, '/taxonomy.tsv', sep='')), " ", taxonomy_db, "  (SKIPPED)\n");
 }
 
 if (save_rds == 'save') {
   cat("\t * Saving RDS: ", gsub("tsv", "rds", out.path))
   saveRDS(seqtab.nochim, gsub("tsv", "rds", out.path)) ### TESTING
+} else {
+  cat("\t * Not saving RDS: ", save_rds, "\n")
 }
 
 q(status=0)
