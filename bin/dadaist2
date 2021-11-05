@@ -99,7 +99,7 @@ my $opt_metadata_separator = "\t";
 my $opt_notify       = 0;
 my $opt_crosstalk    = 0;
 my $opt_seqfu        = undef;
-my $opt_skip_tree        = 0;
+my $opt_skip_tree    = 0;
 
 # FASTP Preprocess
 # To be autocalculated:
@@ -156,10 +156,6 @@ my %dependencies = (
     'exporter' => File::Spec->catfile($RealBin, 'dadaist2-exporter') . ' --version',
 );
 
-if (not $opt_skip_tree) {
-	$dependencies{'fasttree'} = 'fasttree 2>&1 | head -n 1 | cut -c 11-';
-    $dependencies{'clustalo'} = 'clustalo --version 2>&1';
-}
 
  
 my $parsed = GetOptions(
@@ -206,6 +202,12 @@ my $parsed = GetOptions(
 ) || die " Parameters error, type --help for more info.\n";
 
 die " ERROR: Unexpected parameters: ", join(", ", @ARGV), "\n" if ($ARGV[0]);
+
+if (not $opt_skip_tree) {
+	$dependencies{'fasttree'} = 'fasttree 2>&1 | head -n 1 | cut -c 11-';
+    $dependencies{'clustalo'} = 'clustalo --version 2>&1';
+}  
+
 =pod
 
 =head1 PARAMETERS
