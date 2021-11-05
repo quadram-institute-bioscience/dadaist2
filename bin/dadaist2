@@ -99,6 +99,7 @@ my $opt_metadata_separator = "\t";
 my $opt_notify       = 0;
 my $opt_crosstalk    = 0;
 my $opt_seqfu        = undef;
+my $opt_skip_tree        = 0;
 
 # FASTP Preprocess
 # To be autocalculated:
@@ -151,10 +152,14 @@ my %dependencies = (
     'fu-primers' => 'fu-primers --version 2>&1',
     'RScript' => 'Rscript  --version 2>&1',
     'dada2 (lib)'  => 'echo "library(dada2)" | R --no-save > /dev/null',
-    'fasttree'=> 'fasttree 2>&1 | head -n 1 | cut -c 11-',
-    'clustalo'=> 'clustalo --version 2>&1',
+
     'exporter' => File::Spec->catfile($RealBin, 'dadaist2-exporter') . ' --version',
 );
+
+if (not $opt_skip_tree) {
+	$dependencies{'fasttree'} = 'fasttree 2>&1 | head -n 1 | cut -c 11-';
+    $dependencies{'clustalo'} = 'clustalo --version 2>&1';
+}
 
  
 my $parsed = GetOptions(
@@ -190,6 +195,7 @@ my $parsed = GetOptions(
  'skip-plots'                      => \$opt_skip_plots,
  'skip-qc'                         => \$opt_skip_qc,
  'fastp'                           => \$opt_fastp_qc,
+ 'skip-tree'                       => \$opt_skip_tree,
 # Misc
  'quiet'                           => \$opt_quiet,
  'verbose'                         => \$opt_verbose,
@@ -338,6 +344,11 @@ Filename for the program log.
 
 Where to place the temporary directory (default are system temp dir
 or C<$TMPDIR>).
+
+
+=item I<--skip-tree>
+
+Do not generate tree. I<Experimental|Not recommended>.
 
 =item I<--skip-plots>
 
@@ -1081,24 +1092,25 @@ my $tree_output = File::Spec->catfile("$opt_output_directory", 'rep-seqs.tree');
 my $msa_cmd     = qq(clustalo -i "$repseq_file" -o "$msa_output" --outfmt=fasta --force);
 my $tree_cmd    = qq(fasttree -nt -gtr -no2nd -spr 4 -quiet "$msa_output" > "$tree_output");
 
-# TREE
-$S->verbose("Multiple sequence alignment and tree generation");
-my $msa_exec    = $S->run($msa_cmd, { candie => 1 });
-my $tree_exec   = $S->run($tree_cmd , { candie => 1 });
-if ( $msa_exec->{'exit'} != 0 or $tree_exec->{'exit'} != 0) {
-  say STDERR color('red'), " *** ERROR *** " if ($opt_verbose);
-	$S->verbose("Clustalo execution failed.\n cmd> $msa_cmd\noutput> $msa_exec->{stderr}\nstderr> $msa_exec->{stdout}");
-	exit 1;
-} elsif ( $tree_exec->{'exit'} != 0) {
-  say STDERR color('red'), " *** ERROR *** " if ($opt_verbose);
-  $S->verbose("FastTree execution failed.\n cmd> $tree_cmd\noutput> $tree_exec->{stderr}\nstderr> $tree_exec->{stdout}");
-	exit 1;
-} else {
-	$S->verbose("Feature tree generated");
-  $output_files{'multiple-alignment'} = $msa_output;
-  $output_files{'features-tree'} = $tree_output;
+if (not $opt_skip_tree) {
+	# TREE
+	$S->verbose("Multiple sequence alignment and tree generation");
+	my $msa_exec    = $S->run($msa_cmd, { candie => 1 });
+	my $tree_exec   = $S->run($tree_cmd , { candie => 1 });
+	if ( $msa_exec->{'exit'} != 0 or $tree_exec->{'exit'} != 0) {
+	say STDERR color('red'), " *** ERROR *** " if ($opt_verbose);
+		$S->verbose("Clustalo execution failed.\n cmd> $msa_cmd\noutput> $msa_exec->{stderr}\nstderr> $msa_exec->{stdout}");
+		exit 1;
+	} elsif ( $tree_exec->{'exit'} != 0) {
+	say STDERR color('red'), " *** ERROR *** " if ($opt_verbose);
+	$S->verbose("FastTree execution failed.\n cmd> $tree_cmd\noutput> $tree_exec->{stderr}\nstderr> $tree_exec->{stdout}");
+		exit 1;
+	} else {
+		$S->verbose("Feature tree generated");
+	$output_files{'multiple-alignment'} = $msa_output;
+	$output_files{'features-tree'} = $tree_output;
+	}
 }
-
 
 
 if (not $dada_failed) {

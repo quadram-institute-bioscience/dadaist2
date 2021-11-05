@@ -41,11 +41,12 @@ A list of environment files are available
 or you can download the last as shown below.
 
 ```bash
+# Change URL as appropriate selecting from the list in the link above
 wget -O dadaist2.yaml "https://quadram-institute-bioscience.github.io/dadaist2/dadaist2-$(uname).yaml"
-conda env create --file dadaist2.yaml
+conda env create --file dadaist2.yaml -n dadaist2
 ```
 
-### Developmental snapshot
+## Developmental snapshot
 
 We recomment to use Miniconda also to test the last developmental snapshot, as Miniconda
 can create an environment with all the required dependencies, then the binaries from the
@@ -56,6 +57,8 @@ mamba create -n dadaist-last -c conda-forge -c bioconda --only-deps dadaist2-ful
 git clone https://github.com/quadram-institute-bioscience/dadaist2
 export PATH=$PWD/dadaist2/bin:$PATH
 ```
+
+---
 
 ## Docker image
 

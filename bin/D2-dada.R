@@ -331,6 +331,7 @@ if (taxonomy_db != 'skip' && file.exists(taxonomy_db)) {
 
 ### WRITE OUTPUT AND QUIT ###
 # Formatting as tsv plain-text sequence table table
+
 cat(format(Sys.time(), "%Y-%m-%d %H:%M:%S"), "\t[6] Write output\n")
 seqtab.nochim <- t(seqtab.nochim) # QIIME has OTUs as rows
 col.names <- basename(filtsF)
@@ -340,6 +341,8 @@ cat("\t * ", out.path, "\n");
 write.table(seqtab.nochim, out.path, sep="\t",
             row.names=TRUE, col.names=col.names, quote=FALSE)
 
+
+## If taxonomy required with DADA2
 if (taxonomy_db != 'skip' && file.exists(taxonomy_db)) {
   cat("\t * ", file.path(paste(outbasepath, '/taxonomy.tsv', sep='')), "\n");
   write.table(taxa.print,

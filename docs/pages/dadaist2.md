@@ -1,9 +1,7 @@
 ---
 sort: 1
 ---
-
 ## dadaist2
-
 **dadaist2** - a shell wrapper for DADA2, to detect representative sequences and
 generate a feature table starting from Illumina Paired End reads. 
 This is the main program of the _dadaist2 toolkit_ that includes several
@@ -11,13 +9,12 @@ wrappers and utilities to streamline the analysis
 of metabarcoding reads from the Linux shell to R.
 
 ## Author
-
 Andrea Telatin <andrea.telatin@quadram.ac.uk>
 
 ## Synopsis
-
     dadaist2 [options] -i INPUT_DIR -o OUTPUT_DIR
 
+## Parameters
 ## Main Parameters
 
 - _-i_, _--input-directory_ DIRECTORY
@@ -138,6 +135,10 @@ Filename starting by numbers are not accepted.
     Where to place the temporary directory (default are system temp dir
     or `$TMPDIR`).
 
+- _--skip-tree_
+
+    Do not generate tree. _Experimental|Not recommended_.
+
 - _--skip-plots_
 
     Do not generate quality plots.
@@ -155,7 +156,6 @@ Filename starting by numbers are not accepted.
     Increase reported information
 
 ## Source code and documentation
-
 The program is freely available at [https://quadram-institute-bioscience.github.io/dadaist2](https://quadram-institute-bioscience.github.io/dadaist2)
 released under the MIT licence. The website contains the full _DOCUMENTATION_ and we recommend 
 checking for updates.

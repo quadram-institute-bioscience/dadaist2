@@ -1,0 +1,220 @@
+#!/usr/bin/env python3
+"""
+Run DADA2 commanding R from python3
+"""
+
+import os, sys, subprocess
+import logging
+from string import Template
+import time
+import tempfile
+
+dada2list = ['forward_reads', 'reverse_reads', 'feature_table_output', 'stats_output',
+'filt_forward', 'filt_reverse', 'truncLenF', 'truncLenR', 'trimLeftF', 'trimLeftR', 'maxEEF', 'maxEER',
+'truncQ', 'chimeraMethod', 'minFold','threads', 'nreads_learn','baseDir', 'doPlots', 'taxonomyDb', 'saveRDS', 'noMerge', 'processPool']
+
+ 
+def eprint(*args, **kwargs):
+    """
+    Print to stderr
+    """
+    print(*args, file=sys.stderr, **kwargs)
+
+def checkR():
+    """
+    Check if R is installed
+    """
+    try:
+        cmd = ["R", "--version"]
+        subprocess.check_output(cmd)
+        return 1
+    except:
+        print("R is not installed. Please install R and try again.")
+        return 0
+
+def checkMissingModules(modules):
+    """
+    Check if R modules are installed
+    """
+    missing = 0
+    for module in modules:
+        try:
+            cmd = ["R", "--slave", "--no-save", "-e", "library(%s)" % module]
+            subprocess.check_output(cmd, stderr=subprocess.DEVNULL)
+        except:
+            eprint("R module %s is not installed. Please install R module %s and try again." % (module, module))
+            missing += 1
+    return missing
+
+def initInput(dir, outdir, forwardTag="_R1", reverseTag="_R2", sampleSeparator="_", sampleExtension=".fastq.gz"):
+    """
+    Prepare forward and input directory from a single directory of FASTQ files
+    """
+    logger.debug("Checking input directory: {}".format(dir))
+    logger.debug("\tExtension={}  Tags={},{}".format(sampleExtension, forwardTag, reverseTag))
+    
+    if not os.path.exists(dir):
+        logger.error("Input directory not found: {}".format(dir))
+        raise
+    if not os.path.isdir(dir):
+        logger.error("Input directory is not a directory: {}".format(dir))
+        raise
+
+    # Scan files in directory
+    files = os.listdir(dir)
+    files = [f for f in files if f.endswith(sampleExtension)]
+
+    # Split files at sample separator
+    samples = {}
+    for f in files:
+        sample = f.split(sampleSeparator)[0]
+        if sample not in samples:
+            samples[sample] = 1
+        else:
+            samples[sample] += 1
+            if samples[sample] > 2:
+                logger.error("Sample {} has more than two files. Last: {}".format(sample, f))
+                raise
+    else:
+        forFiles = [f for f in files if forwardTag in f]
+        revFiles = [f for f in files if reverseTag in f]
+        if len(forFiles) == 0:
+            logger.error("No forward files found in {}".format(dir))
+            raise
+        elif len(revFiles) != len(forFiles):
+            logger.error("Different number of FOR and REV files in {}.".format(dir))
+    
+    # Create output directory
+    try:
+        os.makedirs(outdir) if not os.path.exists(outdir) else None
+    except:
+        logger.error("Could not create output directory: {}".format(outdir))
+        raise
+
+    forDir = os.path.join(outdir, "forward")
+    revDir = os.path.join(outdir, "reverse")
+    try:
+        os.makedirs(forDir)
+    except:
+        logger.error("Could not create output directory: {}".format(forDir))
+        raise
+    try:
+        os.makedirs(revDir)
+    except:
+        logger.error("Could not create output directory: {}".format(revDir))
+        raise
+
+    for sample in samples:
+        logger.debug("Sample {}: {} file/s".format(sample, samples[sample]))
+        for f in forFiles:
+            if sample in f:
+                os.symlink(os.path.join(dir, f), os.path.join(forDir, f))
+        for f in revFiles:
+            if sample in f:
+                os.symlink(os.path.join(dir, f), os.path.join(revDir, f))
+
+    logger.info("Temporary input directories: {};{}".format(forDir, revDir))
+    return forDir, revDir
+
+def checkDir(dir, extension, sampleseparator):
+    """
+    Check a directory of files, forward or reverse
+    """
+    logger.debug("Checking directory: {}".format(dir))
+
+    files = os.listdir(dir)
+    files = [f for f in files if f.endswith(extension)]
+    if len(files) == 0:
+        logger.error("No files found in {}".format(dir))
+        raise
+    samples = {}
+    for file in files:
+        sample = file.split(sampleseparator)[0]
+        if sample not in samples:
+            samples[sample] = 1
+        else:
+            logger.error("Sample name from {} would be {}, but it's not unique.".format(file, sample))
+            raise
+    
+    return len(files)
+
+if __name__ == "__main__":
+    import argparse
+
+    args = argparse.ArgumentParser(description="Run DADA2")
+    
+    # Main arguments
+    main = args.add_argument_group("Main")
+    main.add_argument("-i", "--input-dir", help="Input directory with both R1 and R2")
+    main.add_argument("-f", "--for-dir", help="Input directory with R1 reads")
+    main.add_argument("-r", "--rev-dir", help="Input directory with R2 reads")
+    main.add_argument("-o", "--output-dir", help="Output directory", required=True)
+    main.add_argument("--fortag", help="String defining a file as forward [default: _R1]", default="_R1")
+    main.add_argument("--revertag", help="String defining a file as reverse [default: _R2]", default="_R2")
+    main.add_argument("--sample-separator", help="String acting as samplename separator [default: _]", default="_")
+    main.add_argument("--sample-extension", help="String acting as samplename extension [default: .fastq.gz]", default=".fastq.gz")
+    main.add_argument("--tmp", help="Temporary directory", default=os.environ["TMPDIR"] if "TMPDIR" in os.environ else "/tmp")
+
+    # Add group of parameters
+    dada2_params = args.add_argument_group("DADA2 parameters")
+    dada2_params.add_argument("-t", "--threads", help="Number of threads", type=int, default=1)
+    
+    # Misc arguments
+    m = args.add_argument_group("Other parameters")
+    m.add_argument("--log", help="Log file", default=None)
+    m.add_argument('--skip-checks', help="Do not check installation of dependencies", action="store_true")
+    m.add_argument("--verbose", help="Verbose mode", action="store_true")
+
+    opts = args.parse_args()
+
+
+    ## Set logger
+    if opts.verbose:
+        llevel = logging.DEBUG
+    else:
+        llevel = logging.WARNING
+
+    if opts.log:
+        logging.basicConfig(filename=opts.log, level=llevel, format='%(asctime)s|%(levelname)s|%(message)s')
+    else:
+        logging.basicConfig(level=llevel, format='%(asctime)s\t%(levelname)s\t%(message)s')
+        
+    logger = logging.getLogger("runDADA2")
+
+    ## Make random temporary directory
+    tmpdir = tempfile.mkdtemp(dir=opts.tmp)
+    logger.debug("Temporary directory: {}".format(tmpdir))
+    ## Initial checks
+    if not opts.skip_checks:
+        if not checkR():
+            eprint("R is not installed. Please install R and try again.")
+            sys.exit(1)
+
+        if checkMissingModules(["dada2"]):
+            eprint("%i modules are missing" % (checkMissingModules(["dada2"])))
+            sys.exit(1)
+    else:
+        logger.info("Skipping dependency checks")
+        
+    
+    # Input directory
+    if opts.input_dir and (opts.for_dir or opts.rev_dir):
+        logger.error("Specify either input directory or forward/reverse directories.")
+        exit(1)
+    
+    if opts.input_dir:
+        forDirectory, revDirectory = initInput(opts.input_dir, tmpdir, opts.fortag, opts.revertag, opts.sample_separator, opts.sample_extension)
+    else:
+        f = checkDir(opts.for_dir, opts.sample_extension, opts.sample_separator)
+        r = checkDir(opts.rev_dir, opts.sample_extension, opts.sample_separator)
+        if f == 0:
+            logger.error("Input directory does not found/valid: {}".format(opts.for_dir))
+            exit(1)
+        if r == 0:
+            logger.error("Input directory does not found/valid: {}".format(opts.rev_dir))
+            exit(1)
+        if f != r:
+            logger.error("Number of forward and reverse files are not equal: {} vs {}".format(f, r))
+            exit(1)
+        forDirectory = opts.for_dir
+        revDirectory = opts.rev_dir
