@@ -1,9 +1,14 @@
+---
+sort: 17
+---
+
 # dadaist2-rundada
 
 ```note
 This is a new wrapper, introduced in 1.2.0, and experimental
 ```
 
+Wrapper for DADA2 without any modification of the input reads.
 
 ```text
 usage: dadaist2-rundada [-h] [-i INPUT_DIR] [-f FOR_DIR] [-r REV_DIR] -o OUTPUT_DIR [--tmp TMP] [--fortag FORTAG] [--revertag REVERTAG] [--sample-separator SAMPLE_SEPARATOR]
