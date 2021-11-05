@@ -9,6 +9,14 @@ This is a new wrapper, introduced in 1.2.0, and experimental
 ```
 
 Wrapper for DADA2 without any modification of the input reads.
+The input can be supplied either:
+
+* As a single directory containing the reads (`-i DIRECTORY`), or
+* As two separate directory, one for the forward reads (`-f FOR_DIR`) and one for the reverse reads (`-r REV_DIR`).
+
+The latter is used as a compatibility layer and will be used by _dadaist2_ itself to invoke the wrapper.
+
+## Synopsis 
 
 ```text
 usage: dadaist2-rundada [-h] [-i INPUT_DIR] [-f FOR_DIR] [-r REV_DIR] -o OUTPUT_DIR [--tmp TMP] [--fortag FORTAG] [--revertag REVERTAG] [--sample-separator SAMPLE_SEPARATOR]
@@ -70,3 +78,15 @@ Other parameters:
   --skip-checks         Do not check installation of dependencies
   --verbose             Verbose mode
 ```
+
+## Output files
+
+The output directory will contain:
+
+* dada2.stats (table with the statistics of reads loss)
+* dada2.tsv (main feature table)
+* dada2.rds (R object with the table)
+* quality_R1.pdf, quality_R2.pdf (quality plots)
+* dada2.execution.log, dada2.execution.txt (log files)
+
+
