@@ -765,6 +765,15 @@ if  ($opt_no_trunc) {
 	$trunc_len_1 = 0;
 	$trunc_len_2 = 0;
 }
+
+if ($opt_debug){
+	$S->writelog("Counting input reads for DADA2");
+	my $forcount = $S->run("seqfu stats " . File::Spec->catfile($temp_dir, 'for', '*.gz'));
+	my $revcount = $S->run("seqfu stats " . File::Spec->catfile($temp_dir, 'rev', '*.gz'));
+	$S->writelog("Forward: " . $forcount->{stdout});
+	$S->writelog("Reverse: " . $revcount->{stdout});
+
+}
 my @dada_paired_args = (
 # 1) File path to directory with the FORWARD .fastq.gz files to be processed.
 #    Ex: path/to/dir/with/FWD_fastqgzs
