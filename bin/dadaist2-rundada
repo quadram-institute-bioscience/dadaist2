@@ -14,7 +14,7 @@ dada2list = ['forward_reads', 'reverse_reads', 'feature_table_output', 'stats_ou
 'filt_forward', 'filt_reverse', 'truncLenF', 'truncLenR', 'trimLeftF', 'trimLeftR', 'maxEEF', 'maxEER',
 'truncQ', 'chimeraMethod', 'minFold','threads', 'nreads_learn','baseDir', 'doPlots', 'taxonomyDb', 'saveRDS', 'noMerge', 'processPool']
 
- 
+
 def eprint(*args, **kwargs):
     """
     Print to stderr
@@ -206,6 +206,9 @@ if __name__ == "__main__":
     m = args.add_argument_group("Other parameters")
     m.add_argument("-t", "--threads", help="Number of threads", type=int, default=1)
     m.add_argument("--keep-temp", help="Keep temporary files", action="store_true")    
+    m.add_argument("--save-rds", help="Save RDS file with DADA2 output", action="store_true")
+    m.add_argument("--save-plots", help="Save Quality plots of the input reads (PDF)", action="store_true")
+        
     m.add_argument("--log", help="Log file", default=None)
     m.add_argument("--copy", help="Copy input files instead of symbolic linking", action="store_true")
     m.add_argument('--skip-checks', help="Do not check installation of dependencies", action="store_true")
@@ -234,6 +237,7 @@ if __name__ == "__main__":
         logger.error("DADA2 script not found: {}".format(dada2script))
         raise
 
+    
     ## Make random temporary directory
     tmpdir = tempfile.mkdtemp(dir=opts.tmp)
     logger.debug("Temporary directory: {}".format(tmpdir))
@@ -255,6 +259,7 @@ if __name__ == "__main__":
         logger.error("Specify either input directory or forward/reverse directories.")
         exit(1)
     
+    # Prepare input files for DADA2.R
     if opts.input_dir:
         forDirectory, revDirectory = initInput(opts.input_dir, tmpdir, opts.fortag, opts.revertag, opts.sample_separator, opts.sample_extension, opts.copy)
     else:
@@ -282,6 +287,9 @@ if __name__ == "__main__":
     tsvFile = os.path.join(tmpdir, "dada2.tsv")
     statsFile = os.path.join(tmpdir, "dada2.stats")
 
+    # Misc options
+    saveRDS = 'save' if opts.save_rds else 'do-not-save-rds'
+    savePlots = 'do_plots' if opts.save_plots else 'do-not-save-plots'
     joinPairs = 1 if opts.join else 0
     poolSamples = 1 if opts.pool else 0
 
@@ -303,14 +311,19 @@ if __name__ == "__main__":
         opts.min_parent_fold, # 15
         opts.threads,    # 16
         opts.n_learn,    # 17
-        tmpdir, # 18
-        'do_plots',     # 19
-        'skip',         # 20   taxonomy
-        'save',         # 21save RDS
+        tmpdir,          # 18
+        savePlots,       # 19
+        'skip',          # 20   taxonomy
+        saveRDS,         # 21save RDS
         joinPairs,
         poolSamples
     ]
+    if len(dada2list) != len(dada2args):
+        raise Exception("Number of arguments in dada2list does not match number of arguments in dada2args")
 
+    for name, value in zip(dada2list, dada2args):
+        logger.info("Parameter `{}`: {}".format(name, value))
+    
     cmd = ["Rscript", "--vanilla", "--no-save", dada2script] + dada2args
     # Convert cmd elements to string
     cmd = [str(x) for x in cmd]
@@ -336,7 +349,13 @@ if __name__ == "__main__":
             logger.info("Output files are in temp dir: " + tmpdir)
             raise
     
-    for file in ["dada2.stats", "dada2.tsv", "quality_R1.pdf", "quality_R2.pdf", "dada2.rds", "dada2.execution.txt", "dada2.execution.log"]:
+    expectedFiles = ["dada2.stats", "dada2.tsv", "dada2.execution.txt", "dada2.execution.log"]
+    if opts.save_plots:
+        expectedFiles += ["quality_R1.png", "quality_R2.png"]
+    if opts.save_rds:
+        expectedFiles += ["dada2.rds"]
+
+    for file in expectedFiles:
         if os.path.exists(os.path.join(tmpdir, file)):
             logger.debug("Moving file: {}".format(file))
             shutil.move(os.path.join(tmpdir, file), os.path.join(opts.output_dir, file))
