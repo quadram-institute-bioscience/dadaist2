@@ -105,6 +105,11 @@ errQuit <- function(mesg, status=1) { message("ERROR: ", mesg); q(status=status)
 getN <- function(x) sum(getUniques(x))
 args <- commandArgs(TRUE)
 
+printList <- function(x) {
+  for (i in 1:length(x)) {
+    cat(paste(i, ": ", x[i], "\n"))
+  }
+}
 feature_table_header = '#OTU ID';
 # Assign each of the arguments, in positional order, to an appropriately named R variable
 inp.dirF      <- args[[1]]
@@ -164,6 +169,11 @@ if(!(dir.exists(inp.dirF) && dir.exists(inp.dirR))) {
     errQuit("Different numbers of forward and reverse .fastq.gz files.")
   }
   cat("# Received ", length(unfiltsF), " paired-end samples.\n")
+  # print unfiltF and unfiltR side by sid
+  cat("# Forward reads:\n")
+  printList(unfiltsF)
+  cat("# Reverse reads:\n")
+  printList(unfiltsR)
 }
 
 # Output files are to be filenames (not directories) and are to be
@@ -198,9 +208,14 @@ cat("# DADA2:", as.character(packageVersion("dada2")), "/",
 
 ### TRIM AND FILTER ###
 cat(format(Sys.time(), "%Y-%m-%d %H:%M:%S"), "\t[1] Filtering reads ")
-filtsF <- file.path(filtered_dirF, basename(unfiltsF))
-filtsR <- file.path(filtered_dirR, basename(unfiltsR))
+filtsF <- sort(file.path(filtered_dirF, basename(unfiltsF)))
+filtsR <- sort(file.path(filtered_dirR, basename(unfiltsR)))
 cat("\n")
+
+cat("# Filtered forward reads paths:\n")
+printList(filtsF)
+cat("# Filtered reverse reads paths:\n")
+printList(filtsR)
 
 
 ### QUALITY PLOTS
@@ -228,9 +243,13 @@ out <- suppressWarnings(filterAndTrim(unfiltsF, filtsF, unfiltsR, filtsR,
 
 cat(" Filter and Trim, finished\n")
 cat(ifelse(file.exists(filtsF), ".", "x"), sep="")
-filtsF <- list.files(filtered_dirF, pattern=".fastq.gz$", full.names=TRUE)
-filtsR <- list.files(filtered_dirR, pattern=".fastq.gz$", full.names=TRUE)
+filtsF <- sort(list.files(filtered_dirF, pattern=".fastq.gz$", full.names=TRUE))
+filtsR <- sort(list.files(filtered_dirR, pattern=".fastq.gz$", full.names=TRUE))
 cat("\n")
+cat("# Filtered forward reads:\n")
+printList(filtsF)
+cat("# Filtered reverse reads:\n")
+printList(filtsR)
 
 if(length(filtsF) == 0) { # All reads were filtered out
   errQuit("No reads passed the filter (were truncLenF/R longer than the read lengths?)", status=2)
