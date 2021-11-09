@@ -16,13 +16,13 @@ The input can be supplied either:
 
 The latter is used as a compatibility layer and will be used by _dadaist2_ itself to invoke the wrapper.
 
-## Synopsis 
+## Synopsis
 
 ```text
 usage: dadaist2-rundada [-h] [-i INPUT_DIR] [-f FOR_DIR] [-r REV_DIR] -o OUTPUT_DIR [--tmp TMP] [--fortag FORTAG] [--revertag REVERTAG] [--sample-separator SAMPLE_SEPARATOR]
                         [--sample-extension SAMPLE_EXTENSION] [-q TRUNC_QUAL] [-j] [-p] [--trunc-len-1 TRUNC_LEN_1] [--trunc-len-2 TRUNC_LEN_2] [--trim-left-1 TRIM_LEFT_1] [--trim-left-2 TRIM_LEFT_2]
-                        [--maxee-1 MAXEE_1] [--maxee-2 MAXEE_2] [--chimera {none,pooled,consensus}] [--min-parent-fold MIN_PARENT_FOLD] [--n-learn N_LEARN] [-t THREADS] [--keep-temp] [--log LOG] [--copy]
-                        [--skip-checks] [--verbose]
+                        [--maxee-1 MAXEE_1] [--maxee-2 MAXEE_2] [--chimera {none,pooled,consensus}] [--min-parent-fold MIN_PARENT_FOLD] [--n-learn N_LEARN] [-t THREADS] [--keep-temp] [--save-rds]
+                        [--save-plots] [--log LOG] [--copy] [--skip-checks] [--verbose]
 
 Run DADA2
 
@@ -73,6 +73,8 @@ Other parameters:
   -t THREADS, --threads THREADS
                         Number of threads
   --keep-temp           Keep temporary files
+  --save-rds            Save RDS file with DADA2 output
+  --save-plots          Save Quality plots of the input reads (PDF)
   --log LOG             Log file
   --copy                Copy input files instead of symbolic linking
   --skip-checks         Do not check installation of dependencies
@@ -85,8 +87,6 @@ The output directory will contain:
 
 * dada2.stats (table with the statistics of reads loss)
 * dada2.tsv (main feature table)
-* dada2.rds (R object with the table)
-* quality_R1.pdf, quality_R2.pdf (quality plots)
-* dada2.execution.log, dada2.execution.txt (log files)
-
-
+* dada2.rds (R object with the table. if `--save-rds` is specified)
+* quality_R1.pdf, quality_R2.pdf (quality plots, if `--save-plots` is specified)
+* dada2.execution.log, dada2.execution.txt (wrapper log files)
