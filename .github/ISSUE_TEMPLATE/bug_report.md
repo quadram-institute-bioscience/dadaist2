@@ -21,4 +21,6 @@ A clear and concise description of what you expected to happen.
 - Dadaist2 version:
  
 **Additional context**
-Add any other context about the problem here.
+It is useful to:
+1) attach the log file 
+2) if the problem is with dadaist2, run it appending `--debug 2>&1 | tee dadaist-debug.log` and attach the second log
