@@ -2,7 +2,7 @@
 #ABSTRACT: A program to run DADA2 from the CLI
 use 5.012;
 use warnings;
-my $VERSION  = '1.2.2';
+my $VERSION  = '1.2.2a';
 
 BEGIN { 
 		
@@ -917,7 +917,7 @@ notify_message("DADA2 finished. Finalizing...");
 # Check exit status of DADA2 wrapper
 if ( $dada2_execution->{'exit'} != 0 ) {
   say STDERR color('red'), " *** ERROR *** " if ($opt_verbose);
-	$S->verbose("DADA2 Failed:\n> $dada2_execution->{stderr}\n> $dada2_execution->{stdout}");
+	$S->verbose("DADA2 Failed:\nERR>\n$dada2_execution->{stderr}\nOUT>\n$dada2_execution->{stdout}");
 	$S->verbose("Input files: " . "${temp_dir}/{for,rev}");
 	our $EXIT_QUIET = 0;
 	exit 1;

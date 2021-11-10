@@ -101,7 +101,32 @@
 # 23) join samples
 
 cat(R.version$version.string, "\n")
-errQuit <- function(mesg, status=1) { message("ERROR: ", mesg); q(status=status) }
+errQuit <- function(mesg, status=1) { 
+  message("ERROR: ", mesg); 
+  q(status=status) 
+}
+timeStamp <- function() {
+  format(Sys.time(), "%y-%m-%d %H:%M")
+}
+
+printStep <- function(step, nocount=FALSE) {   
+  
+  # Remove newline from step
+  step <- gsub("\n", "", step)  
+  if (nocount) {
+    stepString <- " • "
+    cat( stepString, step, "\n", sep="")
+  } else {
+    stepCount <- stepCount + 1
+    cat( rep("-", 66), "\n", sep="")
+    stepString <- paste("STEP ", stepCount, sep="")
+    space <- rep(" ", max(0,  40 - nchar(step)))
+    cat("[", stepString, "] ", step, space, timeStamp(), "\n", sep="")
+  } 
+  # Return stepCount
+  stepCount
+}
+
 getN <- function(x) sum(getUniques(x))
 args <- commandArgs(TRUE)
 
@@ -110,7 +135,16 @@ printList <- function(x) {
     cat(paste(i, ": ", x[i], "\n"))
   }
 }
+
+printTwoLists <- function(x, y) {
+  for (i in 1:length(x)) {
+    # Cat items without spaces
+    cat( paste(i, ",", x[i], ",", y[i], sep=""), "\n")
+    
+  }
+}
 feature_table_header = '#OTU ID';
+stepCount <- 0
 # Assign each of the arguments, in positional order, to an appropriately named R variable
 inp.dirF      <- args[[1]]
 inp.dirR      <- args[[2]]
@@ -154,6 +188,7 @@ if (paramPool == 0) {
 # Input directory is expected to contain .fastq.gz file(s)
 # that have not yet been filtered and globally trimmed
 # to the same length.
+stepCount <- printStep("Starting up")
 if(!(dir.exists(inp.dirF) && dir.exists(inp.dirR))) {
   errQuit("Input directory does not exist.")
 } else {
@@ -170,10 +205,9 @@ if(!(dir.exists(inp.dirF) && dir.exists(inp.dirR))) {
   }
   cat("# Received ", length(unfiltsF), " paired-end samples.\n")
   # print unfiltF and unfiltR side by sid
-  cat("# Forward reads:\n")
-  printList(unfiltsF)
-  cat("# Reverse reads:\n")
-  printList(unfiltsR)
+  cat("# Input reads at startup [unfiltsF, unfiltsR]:\n")
+  printTwoLists(unfiltsF, unfiltsR)
+
 }
 
 # Output files are to be filenames (not directories) and are to be
@@ -207,49 +241,52 @@ cat("# DADA2:", as.character(packageVersion("dada2")), "/",
     "RcppParallel:", as.character(packageVersion("RcppParallel")), "\n")
 
 ### TRIM AND FILTER ###
-cat(format(Sys.time(), "%Y-%m-%d %H:%M:%S"), "\t[1] Filtering reads ")
+stepCount <- printStep( "Filtering reads" )
 filtsF <- sort(file.path(filtered_dirF, basename(unfiltsF)))
 filtsR <- sort(file.path(filtered_dirR, basename(unfiltsR)))
 cat("\n")
 
-cat("# Filtered forward reads paths:\n")
-printList(filtsF)
-cat("# Filtered reverse reads paths:\n")
-printList(filtsR)
-
+cat("# Output filenames for filtered reads [filtsF, filtsR]:\n")
+printTwoLists(filtsF, filtsR)
 
 ### QUALITY PLOTS
 if (make_plots == 'do_plots') {
-  pdf(paste(outbasepath,"/quality_R1.pdf",sep = ""));
+  printStep("Generating quality plots (R1)", nocount=TRUE)
 
+  pdf(paste(outbasepath,"/quality_R1.pdf",sep = ""));
   print(plotQualityProfile( unfiltsF, n = 100000, aggregate=TRUE))
   for (p in c(unfiltsF)) {
     print(plotQualityProfile( file.path(p), n = 100000))
   }
   dev.off();
 
+  printStep("Generating quality plots (R2)", nocount=TRUE)
   pdf(paste(outbasepath,"/quality_R2.pdf",sep = ""));
   print(plotQualityProfile( unfiltsR, n = 100000, aggregate=TRUE))
   for (p in c(unfiltsR)) {
     print(plotQualityProfile( file.path(p), n = 100000))
   }
+  #dev.off();
 }
 
-
+stepCount <- printStep("Trimming reads (filterAndTrim)")
+stepCount <- printStep( suppressWarnings(paste("Forward: ", length(unfiltsF), ", ", length(filtsF), "; Reverse: ", length(unfiltsR), ", ",length(filtsR), sep="")), nocount=TRUE)
+stepCount <- printStep( suppressWarnings(paste("Trunclen:", truncLenF, truncLenR, "; TrimLeft:", trimLeftF, trimLeftR, "; Maxee:", maxEEF, maxEER)), nocount=TRUE)
 out <- suppressWarnings(filterAndTrim(unfiltsF, filtsF, unfiltsR, filtsR,
                                       truncLen=c(truncLenF, truncLenR), trimLeft=c(trimLeftF, trimLeftR),
                                       maxEE=c(maxEEF, maxEER), truncQ=truncQ, rm.phix=TRUE,
                                       multithread=multithread))
 
-cat(" Filter and Trim, finished\n")
-cat(ifelse(file.exists(filtsF), ".", "x"), sep="")
+stepCount <- printStep("filterAndTrim() finished", nocount=TRUE)
+
+## String check
+cat("Missing files: ", ifelse(file.exists(filtsF), "", "x"), sep="")
 filtsF <- sort(list.files(filtered_dirF, pattern=".fastq.gz$", full.names=TRUE))
 filtsR <- sort(list.files(filtered_dirR, pattern=".fastq.gz$", full.names=TRUE))
 cat("\n")
-cat("# Filtered forward reads:\n")
-printList(filtsF)
-cat("# Filtered reverse reads:\n")
-printList(filtsR)
+
+stepCount <- printStep("Filtered forward reads", nocount=TRUE)
+printTwoLists(filtsF, filtsR)
 
 if(length(filtsF) == 0) { # All reads were filtered out
   errQuit("No reads passed the filter (were truncLenF/R longer than the read lengths?)", status=2)
@@ -257,7 +294,7 @@ if(length(filtsF) == 0) { # All reads were filtered out
 
 ### LEARN ERROR RATES ###
 # Dereplicate enough samples to get nreads.learn total reads
-cat(format(Sys.time(), "%Y-%m-%d %H:%M:%S"), "\t[2] Learning Error Rates\n")
+stepCount <- printStep( "Learning Error Rates learnErrors()")
 errF <- suppressWarnings(learnErrors(filtsF, nreads=nreads.learn, multithread=multithread))
 errR <- suppressWarnings(learnErrors(filtsR, nreads=nreads.learn, multithread=multithread))
 
@@ -265,10 +302,10 @@ errR <- suppressWarnings(learnErrors(filtsR, nreads=nreads.learn, multithread=mu
 # Loop over rest in streaming fashion with learned error rates
 
 
-cat(format(Sys.time(), "%Y-%m-%d %H:%M:%S"), "\t[3] Denoise remaining samples \n")
+stepCount <- printStep( "Denoise remaining samples")
 
 if (processPool == FALSE) {
-      cat(" * Sample by sample")
+      stepCount <- printStep("Sample by sample", nocount=TRUE)
       denoisedF <- rep(0, length(filtsF))
       mergers <- vector("list", length(filtsF))
 
@@ -289,7 +326,7 @@ if (processPool == FALSE) {
       seqtab <- makeSequenceTable(mergers)
 
 } else {
-      cat(" * Dereplicate all samples\n")
+      stepCount <- printStep("Dereplicate all samples (pooled)")
       derepFs <- derepFastq(filtsF, verbose=TRUE)
       derepRs <- derepFastq(filtsR, verbose=TRUE)
 
@@ -316,7 +353,7 @@ cat("\n")
 
 
 # Remove chimeras
-cat(format(Sys.time(), "%Y-%m-%d %H:%M:%S"), "\t[4] Remove chimeras (method = ", chimeraMethod, ")\n", sep="")
+stepCount <- printStep( paste("Remove chimeras (method = ", chimeraMethod, ")", sep="") )
 if(chimeraMethod %in% c("pooled", "consensus")) {
   seqtab.nochim <- removeBimeraDenovo(seqtab, method=chimeraMethod, minFoldParentOverAbundance=minParentFold, multithread=multithread)
 } else { # No chimera removal, copy seqtab to seqtab.nochim
@@ -338,46 +375,45 @@ write.table(track, out.track, sep="\t", row.names=TRUE, col.names=NA,
 # ### TAXONOMY
 
 if (taxonomy_db != 'skip' && file.exists(taxonomy_db)) {
-   cat(format(Sys.time(), "%Y-%m-%d %H:%M:%S"), "\t[5.1] Taxonomy\n");
+   stepCount <- printStep( "Taxonomy\n");
    taxa <- assignTaxonomy(seqtab.nochim, file.path(taxonomy_db), multithread=TRUE,tryRC=TRUE)
 
    taxa.print <- taxa # Removing sequence rownames for display only
    rownames(taxa.print) <- NULL
 
 } else {
-  cat(format(Sys.time(), "%Y-%m-%d %H:%M:%S"), "\t[5.1] Taxonomy (SKIPPED)\n");
+  stepCount <- printStep( "Taxonomy (SKIPPED)\n");
 }
 
 ### WRITE OUTPUT AND QUIT ###
 # Formatting as tsv plain-text sequence table table
 
-cat(format(Sys.time(), "%Y-%m-%d %H:%M:%S"), "\t[6] Write output\n")
+stepCount <- printStep( "Write output\n")
 seqtab.nochim <- t(seqtab.nochim) # QIIME has OTUs as rows
 col.names <- basename(filtsF)
 col.names[[1]] <- paste0(feature_table_header,"\t", col.names[[1]])
 
-cat("\t * ", out.path, "\n");
+cat("\t - Output: ", out.path, "\n");
 write.table(seqtab.nochim, out.path, sep="\t",
             row.names=TRUE, col.names=col.names, quote=FALSE)
 
 
 ## If taxonomy required with DADA2
 if (taxonomy_db != 'skip' && file.exists(taxonomy_db)) {
-  cat("\t * ", file.path(paste(outbasepath, '/taxonomy.tsv', sep='')), "\n");
+
+  stepCount <- printStep( paste("Write taxonomy: ", file.path(paste(outbasepath, '/taxonomy.tsv', sep='')), sep="") )
   write.table(taxa.print,
       file.path(paste(outbasepath, '/taxonomy.tsv', sep='')),
       row.names=TRUE,
       quote=FALSE
   )
 } else {
-  cat("\t * ", file.path(paste(outbasepath, '/taxonomy.tsv', sep='')), " ", taxonomy_db, "  (SKIPPED)\n");
+  cat("\t - ", file.path(paste(outbasepath, '/taxonomy.tsv', sep='')), " ", taxonomy_db, "  (SKIPPED)\n");
 }
 
 if (save_rds == 'save') {
-  cat("\t * Saving RDS: ", gsub("tsv", "rds", out.path))
+  cat("\t - Saving RDS: ", gsub("tsv", "rds", out.path))
   saveRDS(seqtab.nochim, gsub("tsv", "rds", out.path)) ### TESTING
-} else {
-  cat("\t * Not saving RDS: ", save_rds, "\n")
-}
+} 
 
 q(status=0)
