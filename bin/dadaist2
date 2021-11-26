@@ -2,7 +2,7 @@
 #ABSTRACT: A program to run DADA2 from the CLI
 use 5.012;
 use warnings;
-my $VERSION  = '1.2.2a';
+my $VERSION  = '1.2.3';
 
 BEGIN { 
 		
@@ -392,7 +392,7 @@ usage("Missing parameter(s): input directory (-i DIR).")  if (not defined $opt_i
 usage("Missing parameter(s): output directory (-o DIR).") if (not defined $opt_output_directory);
 
 # [*] Splash screen - here starts the user communication
-say STDERR color('bold magenta'), " Dadaist2 ", color('reset')
+say STDERR color('bold magenta'), " Dadaist2 ", color('reset'), $VERSION
  if not $opt_quiet;
 
 # [-] Check input directory
@@ -913,7 +913,14 @@ my $dada2_execution = $S->run($cmd_dada_paired, { candie => 1 });
 addToTemplate($LOG_TEMPLATE, 'DADA2_LOG', runToHtml($dada2_execution));
 notify_message("DADA2 finished. Finalizing...");
 
+if ($opt_debug){
+	$S->writelog("Counting filtered reads from DADA2");
+	my $forcount = $S->run("seqfu stats " . File::Spec->catfile("${temp_dir}", 'for', 'filtered', '*.gz'));
+	my $revcount = $S->run("seqfu stats " . File::Spec->catfile("${temp_dir}", 'rev', 'filtered', '*.gz'));
+	$S->writelog("Forward: " . $forcount->{stdout});
+	$S->writelog("Reverse: " . $revcount->{stdout});
 
+}
 # Check exit status of DADA2 wrapper
 if ( $dada2_execution->{'exit'} != 0 ) {
   say STDERR color('red'), " *** ERROR *** " if ($opt_verbose);

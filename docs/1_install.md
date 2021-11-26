@@ -37,7 +37,7 @@ we are now offering curated YAML files that can be used to install the stable ve
 of dadaist.
 
 A list of environment files are available
-[in the **env** directory](https://github.com/quadram-institute-bioscience/dadaist2/tree/master/data),
+[in the **env** directory](https://github.com/quadram-institute-bioscience/dadaist2/tree/master/env),
 or you can download the last as shown below.
 
 ```bash
@@ -55,7 +55,7 @@ repository can be used instead:
 ```bash
 mamba create -n dadaist-last -c conda-forge -c bioconda --only-deps dadaist2-full
 git clone https://github.com/quadram-institute-bioscience/dadaist2
-export PATH=$PWD/dadaist2/bin:$PATH
+export PATH="$PWD"/dadaist2/bin:"$PATH"
 ```
 
 ---
@@ -64,6 +64,7 @@ export PATH=$PWD/dadaist2/bin:$PATH
 
 Dadaist2 is available from [DockerHub](https://hub.docker.com/r/andreatelatin/dadaist2) and
 the image can be pulled via:
+
 ```
 sudo docker pull andreatelatin/dadaist2:last
 ```
