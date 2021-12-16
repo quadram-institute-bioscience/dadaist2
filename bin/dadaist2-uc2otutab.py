@@ -2,17 +2,6 @@
 """
 Convert UC files to otu table
 
-Example:
-H   
-5193   
-402    
-97.5    
-+   
-0  
-0 
-377I402M729I 
-ERR2730202.5 
-Bacteria;Firmicutes;Clostridia;Clostridiales;Lachnospiraceae;
 """
 
 import os, sys
@@ -20,7 +9,7 @@ import pandas as pd
 
 def eprint(*args, **kwargs):
     print(*args, file=sys.stderr, **kwargs)
-    py
+
 if __name__ == "__main__":
     import argparse
     args = argparse.ArgumentParser(description="Convert UC files to otu table")
@@ -71,6 +60,18 @@ if __name__ == "__main__":
             else:
                 otutable.loc[target, sample] = 1
 
+    # Add zeroes instead of missing values
+    otutable = otutable.fillna(0) 
 
+    # Print all the column names
+    eprint("Samples: " + str(len(otutable.columns)))
+    eprint("N. OTUs: " + str(len(otutable.index)))
+
+    # Add column "sum" to the dataframe
+    otutable["sum"] = otutable.sum(axis=1)
+    # Sort by sum
+    otutable = otutable.sort_values(by="sum", ascending=False)
+    # Drop sum column
+    otutable = otutable.drop(columns=["sum"])
     # Print table
     otutable.to_csv(out, sep="\t", index=True, header=True)
