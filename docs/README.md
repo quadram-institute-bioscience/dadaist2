@@ -18,8 +18,6 @@ Standalone wrapper for [DADA2](https://benjjneb.github.io/dada2/index.html) pack
 set of representative sequences from a folder with Paired End Illumina reads.
 *Dadaist2* is designed to simplify the stream of data from the read processing to the statistical analysis and plots.
 
-Developeb by Andrea Telatin, Rebecca Ansorge and Giovanni Birolo. 
-
 Dadaist2 is a highway to downstream analyses:
 * Generation of a [*PhyloSeq*](https://joey711.github.io/phyloseq/) object, for immediate usage in R
 * Possibility to run in the pipeline a _custom R script_ that starts from the PhyloSeq object
