@@ -105,8 +105,17 @@ errQuit <- function(mesg, status=1) {
   message("ERROR: ", mesg); 
   q(status=status) 
 }
+
 timeStamp <- function() {
   format(Sys.time(), "%y-%m-%d %H:%M")
+}
+
+
+ 
+printInfo <- function(x, ...) {
+  cat("   ", x);
+  cat(paste(..., sep=" ", collapse=NULL))
+  cat("\n")
 }
 
 printStep <- function(step, nocount=FALSE) {   
@@ -142,6 +151,8 @@ printTwoLists <- function(x, y) {
     
   }
 }
+
+
 feature_table_header = '#OTU ID';
 stepCount <- 0
 # Assign each of the arguments, in positional order, to an appropriately named R variable
@@ -310,8 +321,9 @@ stepCount <- printStep( "Denoise remaining samples")
 if (processPool == FALSE) {
       stepCount <- printStep("Sample by sample", nocount=TRUE)
       denoisedF <- rep(0, length(filtsF))
+       
       mergers <- vector("list", length(filtsF))
-
+        
       for(j in seq(length(filtsF))) {
         dadaDerepFor <- derepFastq(filtsF[[j]])
         dadaClassFor <- dada(dadaDerepFor, err=errF, multithread=multithread, verbose=FALSE)
@@ -325,7 +337,7 @@ if (processPool == FALSE) {
                       justConcatenate=paramConcat,
                       trimOverhang=TRUE,
                       maxMismatch=0)
-        denoisedF[[j]] <- getN(ddF)
+        denoisedF[[j]] <- getN(dadaDerepFor)
        
       }
       # Make sequence table

@@ -1,4 +1,5 @@
 #!/bin/bash
+
 readlinkf(){ perl -MCwd -e 'print Cwd::abs_path shift' "$1";}
 TEST_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
 BASEDIR=$(readlink -f "$TEST_DIR/.." || readlinkf "$TEST_DIR/..")
@@ -25,14 +26,18 @@ echo -e "list_binaries:\t"$(ls "$SCRIPTS")
 echo '--------------'
 
 rm -rf "$OUT"/*
-set -eux pipefail
+set -eu pipefail
 
 # TEST: VERSION
+echo " =========== RUN 0: Version ==================== "
 echo " [0] Check version"
 perl "$SCRIPTS"/dadaist2 --version && printf  " * $PASS: Version $($SCRIPTS/dadaist2 --version )\n";
 
 
 # TEST: NO TAXONOMY
+echo " =========== RUN 1: Defaults ==================== "
+echo perl "$SCRIPTS"/dadaist2 -i "$DATA" -o "$OUT"/no-tax --tmp-dir "$BASEDIR"
+
 echo " [1] Test basic settings"
 perl "$SCRIPTS"/dadaist2 -i "$DATA" -o "$OUT"/no-tax --tmp-dir "$BASEDIR" > /dev/null 2>&1 || echo "dadaist failed: debugging"
 
@@ -64,6 +69,9 @@ else
 	printf  " * $FAIL: tree not found\n";
 fi
 
+echo " =========== RUN 2: Defaults ==================== "
+echo perl "$SCRIPTS"/dadaist2 --dada-pool -i "$DATA" -o "$OUT"/no-tax-pooled --tmp-dir "$BASEDIR"
+
 echo " [1.1] Test basic settings but pooling"
 perl "$SCRIPTS"/dadaist2 --dada-pool -i "$DATA" -o "$OUT"/no-tax-pooled --tmp-dir "$BASEDIR" > /dev/null 2>&1 || echo "dadaist failed: debugging"
 if [[ -e "$OUT"/no-tax-pooled/feature-table.tsv ]]; then
@@ -77,6 +85,8 @@ fi
 
 echo " [2] Test with taxonomy assignments"
 if [ -e "$BASEDIR/refs/rdp_train_set_16.fa.gz" ];then
+		echo " =========== RUN 2: Defaults ==================== "
+		echo perl "$SCRIPTS"/dadaist2  -d "$BASEDIR/refs/rdp_train_set_16.fa.gz" -i "$DATA" -o "$OUT"/output-dada-taxonomy --tmp-dir "$BASEDIR" 
 
 		perl "$SCRIPTS"/dadaist2  -d "$BASEDIR/refs/rdp_train_set_16.fa.gz" -i "$DATA" -o "$OUT"/output-dada-taxonomy --tmp-dir "$BASEDIR" > /dev/null  2>&1 || echo "dadaist failed: debugging"
 
@@ -121,6 +131,7 @@ echo " [3] Test taxonomy assignment with DADA"
 FASTA_INPUT="$BASEDIR/data/repseqs/rep-seqs.fasta"
 DADAREF="$BASEDIR"/refs/silva_nr_v138_train_set.fa.gz
 DECIREF="$BASEDIR"/refs/SILVA_SSU_r138_2019.RData
+echo " =================================== "
 if [[ -e "$DADAREF" ]]; then
   perl "$SCRIPTS"/dadaist2-assigntax -r "$DADAREF" -i "$FASTA_INPUT" -o "$OUT"/taxonomy-dada/
 fi
