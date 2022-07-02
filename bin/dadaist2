@@ -82,6 +82,8 @@ addToTemplate($LOG_TEMPLATE, 'UNAME', getSysinfo());
 # Where to place the temporary directory
 my $opt_temp_dir     = File::Spec->tmpdir();
 
+my $seqfu_minqual	 = 20;
+my $seqfu_wndqual	 = 28.5;
 my $opt_verbose      = 1;
 my $opt_quiet        = 0;
 my $opt_debug        = 0;
@@ -534,8 +536,8 @@ if (
 	) {
 	# Seqfu Qual
 	my $max_len = 500; #TODO: change with reads length?
-	my $cmd_for = qq(seqfu qual --max 5000 --maxlen $max_len --skip 3 "$opt_input_directory"/*${opt_for_tag}*);
-	my $cmd_rev = qq(seqfu qual --max 5000 --maxlen $max_len --skip 3 "$opt_input_directory"/*${opt_rev_tag}*);
+	my $cmd_for = qq(seqfu qual --wnd 4 --min-qual $seqfu_minqual --wnd-qual $seqfu_wndqual --max 5000 --maxlen $max_len --skip 3 "$opt_input_directory"/*${opt_for_tag}*);
+	my $cmd_rev = qq(seqfu qual --wnd 4 --min-qual $seqfu_minqual --wnd-qual $seqfu_wndqual --max 5000 --maxlen $max_len --skip 3 "$opt_input_directory"/*${opt_rev_tag}*);
 	$S->verbose("QC: Checking quality profile with SeqFu");
 	my $QC_for = $S->run($cmd_for);
 	my $QC_rev = $S->run($cmd_rev); 
@@ -930,7 +932,11 @@ if ( $dada2_execution->{'exit'} != 0 ) {
 	exit 1;
 } else {
 	$S->verbose("DADA2 output:\n" . color('yellow') . $dada2_execution->{stdout} . color('reset')) if ($opt_debug);
-	$S->run(qq(rm -rf "$temp_dir"/for "$temp_dir"/rev))
+	if ($opt_debug) {
+	   $S->verbose(" * Temporary directory kept:  $temp_dir/{for,rev}");
+	} else {
+	   $S->run(qq(rm -rf "$temp_dir"/for "$temp_dir"/rev));
+	}
 }
 
 
@@ -1284,8 +1290,8 @@ sub get_qualified_from_seqfu {
 		$sum += $qual;
 		$tot += 1;
 	}
-  if ($tot == 0) {
-		die " Qualified quality from SeqFu: 0 samples received.\n";
+  	if ($tot == 0) {
+		die "ERROR: Qualified quality from SeqFu: 0 samples received.\n";
 	}
 
 	my $avg = sprintf("%.2f", $sum/$tot);
