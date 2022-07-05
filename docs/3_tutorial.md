@@ -9,12 +9,12 @@ permalink: /tutorial
 
 [Install Dadaist2](/installation) and activate the Miniconda environment (if needed).
 
-For this tutorial we will analyze three small samples present in the repository, so
-we will download the repository as well:
+For this tutorial we will analyze three small samples (also present in the repository).
+This will create a `./data` directory.
 
 ```bash
-git clone https://github.com/quadram-institute-bioscience/dadaist2
-cd dadaist2
+wget "https://github.com/quadram-institute-bioscience/dadaist2/releases/download/v1.2.4/data.zip"
+unzip data.zip && rm data.zip
 ```
 
 Let's start checking the number of reads per sample. The reads are in `data/16S`:
