@@ -5,7 +5,13 @@ on:
   # Triggers the workflow on push or pull request events but only for the master branch
   release:
     branches: [ master ]
-
+    
+defaults:
+  run:
+    # This is needed for miniconda, see:
+    # https://github.com/marketplace/actions/setup-miniconda#important.
+    shell: bash -l {0}
+    
 jobs:
   build:
 
