@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 """
 Convert UC files to otu table
-
 """
 
 import os, sys
@@ -13,9 +12,11 @@ def eprint(*args, **kwargs):
 if __name__ == "__main__":
     import argparse
     args = argparse.ArgumentParser(description="Convert UC files to otu table")
-    args.add_argument("-i", "--input", help="Input UC file", required=True)
-    args.add_argument("-o", "--output", help="Output otu table", required=False)
-    args.add_argument("-s", "--sample", help="Sample name split char (default: %(default)s)",  default=".", required=False)
+    args.add_argument("-i", "--input",  help="Input UC file", required=True)
+    args.add_argument("-o", "--output", help="Output OTU table [default: STDOUT]", required=False)
+    args.add_argument("-s", "--sample", help="Sample name split char [default: %(default)s]",  default=".", required=False)
+    args.add_argument("-t", "--top",   help="Print only the first TOP records [default: %(default)s]",  default=0, type=int, required=False)
+    args.add_argument("-m", "--min-counts", dest="mincounts",   help="Remove OTUs with less than MIN counts [default: %(default)s]",  default=0, type=int, required=False)
     args = args.parse_args()
 
     # Output file
@@ -73,5 +74,14 @@ if __name__ == "__main__":
     otutable = otutable.sort_values(by="sum", ascending=False)
     # Drop sum column
     otutable = otutable.drop(columns=["sum"])
+
+    # Print the first INT records
+    if args.top > 0:
+        otutable = otutable.head(args.top)
+    
+    if args.mincounts > 0:
+        # Remove all rows with less than MIN counts
+        otutable = otutable[otutable.sum(axis=1) >= args.mincounts]
+        
     # Print table
     otutable.to_csv(out, sep="\t", index=True, header=True)
