@@ -1,4 +1,4 @@
-name: Dadaist-CI
+name: Darwin-env
 
 # Controls when the action will run. 
 on:
