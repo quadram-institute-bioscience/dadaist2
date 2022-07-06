@@ -64,7 +64,7 @@ dependencies:
   - curl=7.79.1=hf45b732_1
   - cutadapt=3.5=py39ha492530_0
   - cycler=0.11.0=pyhd8ed1ab_0
-  - dadaist2=1.1.0=hdfd78af_1
+  - dadaist2=1.2.4=hdfd78af_1
   - dnaio=0.6.0=py39ha492530_0
   - fastp=0.23.1=hd78bc7a_0
   - fasttree=2.1.10=hb4d813b_5

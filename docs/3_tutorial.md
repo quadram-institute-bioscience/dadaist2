@@ -7,7 +7,7 @@ permalink: /tutorial
 
 ## Get ready
 
-[Install Dadaist2](/installation) and activate the Miniconda environment (if needed).
+[Install Dadaist2](({{ 'installation' | relative_url }})) and activate the Miniconda environment (if needed).
 
 For this tutorial we will analyze three small samples (also present in the repository).
 This will create a `./data` directory.
