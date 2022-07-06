@@ -711,17 +711,31 @@ for my $sample (sort keys %{ $files_hash } ) {
 		$rev_name =~s/\.(fq|FQ|FASTQ)/.fastq/;
 		#my $dest_for = File::Spec->catfile($for_dir, $for_name);
 		#my $dest_rev = File::Spec->catfile($rev_dir, $rev_name);
+
 		my $dest_for = File::Spec->catfile($for_dir, "${sample}_R1.fastq.gz");
 		my $dest_rev = File::Spec->catfile($rev_dir, "${sample}_R2.fastq.gz");
+
+		if ($fastp_trim_front1 > 0 or $fastp_trim_front2 > 0) {
+			$S->verbose("Fixed primer trimming");
+			my $cmd1 = qq(seqfu cat --trim-front $fastp_trim_front1 "$$files_hash{$sample}{for}" | gzip -c > "$dest_for" );
+			my $cmd2 = qq(seqfu cat --trim-front $fastp_trim_front2 "$$files_hash{$sample}{rev}" | gzip -c > "$dest_rev" );
+			$S->run($cmd1, { candie => 0 });
+			$S->run($cmd2, { candie => 0 });
+		} else {
+			$S->verbose("Copying input reads for DADA2");
+			
+			
+			copy(
+					$$files_hash{$sample}{for},
+					$dest_for
+				);
+			copy(
+					$$files_hash{$sample}{rev},
+					$dest_rev
+				);
+
+		}
 		
-		copy(
-				$$files_hash{$sample}{for},
-				$dest_for
-			);
-		copy(
-				$$files_hash{$sample}{rev},
-				$dest_rev
-			);
 		if ($for_name !~ /gz$/) {
 			$S->run( qq(gzip "$dest_for") );
 		}

@@ -127,7 +127,8 @@ In this case a good loss is at the first step (filtered), as these sample
 reads are not of very high quality and are just used to test the pipeline. 
 
 But if the pipeline ended, it means you are ready to run it with real samples
-as [described in another tutorial]({{ site.baseurl }}{% link 4_usage.md %})
+as [described in another tutorial]({{ site.baseurl }}{% link 4_usage.md %}).
+
 
 ## The output directory
 
