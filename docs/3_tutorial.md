@@ -7,7 +7,7 @@ permalink: /tutorial
 
 ## Get ready
 
-[Install Dadaist2](({{ 'installation' | relative_url }})) and activate the Miniconda environment (if needed).
+[Install Dadaist2](({{ 'installation' | relative_url }})) and activate the Miniconda environment (if needed).   
 
 For this tutorial we will analyze three small samples (also present in the repository).
 This will create a `./data` directory.
@@ -93,7 +93,7 @@ Dadaist2 provides options to:
 
 As a first run, we recommend using the default parameters:
 ```bash
-dadaist2 -i data/16S/ -o example-output -d refs/SILVA_SSU_r138_2019.RData -t 8 -m metadata.tsv
+dadaist2 -i data/16S/ -o example-output -d refs/SILVA_SSU_r138_2019.RData -t 8 -m metadata.tsv --verbose
 ```
 
 Briefly:
@@ -102,6 +102,32 @@ Briefly:
 * `-d` is the reference database in DADA2 or DECIPHER format (we downloaded a DECIPHER database)
 * `-m` link to the metadata file (if not supplied a blank one will be generated and used)
 * `-t` is the number of processing threads
+* `--verbose` will print more information about the analysis
+
+## Warnings and errors
+
+Dadaist2 will print the following warning:
+
+```
+DADA2 filtered too many reads: 9.0102% from total 16104 to 1451
+```
+
+We can inspect the filtering steps in the output directory (`dada2_stats.tsv`) to
+check the steps with the highest loss (can differs slightly):
+
+Sample name | input  |  filtered | denoised | merged | non-chimeric
+------ | ------- | --------: | ------: | -----: | ----------:
+A01    | 6137      |2291      |2291      |1924      |765
+A02    | 5414      |2079      |2079      |1865      |413
+F99    | 4553      |1770      |1770      |1517      |273
+
+If, for example, the highest loss is at "merged", it means we truncated too much
+and we didn't have overlap between the reads.
+In this case a good loss is at the first step (filtered), as these sample
+reads are not of very high quality and are just used to test the pipeline. 
+
+But if the pipeline ended, it means you are ready to run it with real samples
+as [described in another tutorial]({{ site.baseurl }}{% link 4_usage.md %})
 
 ## The output directory
 

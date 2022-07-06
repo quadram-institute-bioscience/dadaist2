@@ -141,7 +141,8 @@ my @taxonomy = ();
 my $r1_len = 10_000;
 my $r2_len = 10_000;
 my $tot_reads = 0;
-my ($opt_help,  $opt_log_filename, $opt_input_directory,
+my $opt_trunc_q = 10;
+my ($opt_help,  $opt_force,$opt_log_filename, $opt_input_directory,
  $opt_output_directory, $opt_version, $opt_skip_plots, $opt_skip_check_deps);
 
 my $chooser = {
@@ -170,6 +171,7 @@ my $parsed = GetOptions(
  'l|log-file=s'                    => \$opt_log_filename, #
  't|threads=i'                     => \$opt_threads, #
  'tmp-dir=s'                       => \$opt_temp_dir, #
+ 'force'                           => \$opt_force, #
 # Input reads
  '1|for-tag=s'                     => \$opt_for_tag, #
  '2|rev-tag=s'                     => \$opt_rev_tag, #
@@ -177,6 +179,7 @@ my $parsed = GetOptions(
 # ASV generation
  'p|prefix=s'                      => \$opt_seq_prefix, #
  'q|min-quality=f'                 => \$qualified_min_qual, #
+ 'trunc-qual=f'                    => \$opt_trunc_q, #
  'save-rds'                        => \$opt_save_rds, #
  's1|trim-primer-for=i'            => \$fastp_trim_front1, #
  's2|trim-primer-rev=i'            => \$fastp_trim_front2, #
@@ -310,6 +313,10 @@ Do not truncate reads at the end
 =item I<--maxee1>, and I<--maxee2> FLOAT
 
 Maximum Expected Errors in R1 and R2, respectively (default: 1.0 and 1.5)
+
+=item I<--trunc-qual> FLOAT
+
+DADA2 truncate quality (default: 10)
 
 =item I<-s1>, I<--trim-primer-for> INT
 
@@ -873,7 +880,7 @@ my @dada_paired_args = (
 # 13) truncQ - Reads are truncated at the first instance of quality score truncQ.
 #                If the read is then shorter than truncLen, it is discarded.
 #    Ex: 2
-    10,
+    $opt_trunc_q,
 ### CHIMERA ARGUMENTS ###
 #
 # 14) chimeraMethod - The method used to remove chimeras. Valid options are:
@@ -930,12 +937,10 @@ my $i_index = 0;
 for my $arg (@dada_paired_args) {
   my $label = $dada_paired_parameter_labels[$i_index];
   $i_index++;
-	if ($opt_debug) {
+	if ($opt_verbose) {
 	  say STDERR  " * [$i_index]", color('blue'), " $label: " , color('reset'), "$arg";
-	} else {
-		$S->writelog("Dada2 parameter\t$label\t$arg");
 	}
-
+	$S->writelog("Dada2 parameter\t$label\t$arg");
 }
 
 # RUN_DADA2
@@ -953,7 +958,7 @@ if ($opt_debug){
 }
 # Check exit status of DADA2 wrapper
 if ( $dada2_execution->{'exit'} != 0 ) {
-  say STDERR color('red'), " *** ERROR *** " if ($opt_verbose);
+    say STDERR color('red'), " ~~ DADA2 ERROR ~~ ";
 	$S->verbose("DADA2 Failed:\nERR>\n$dada2_execution->{stderr}\nOUT>\n$dada2_execution->{stdout}");
 	$S->verbose("Input files: " . "${temp_dir}/{for,rev}");
 	our $EXIT_QUIET = 0;
@@ -1171,7 +1176,7 @@ if (not $opt_skip_tree) {
 }
 
 
-if (not $dada_failed) {
+if (not $dada_failed or $opt_force) {
 		# Export MicrobiomeAnalyst + Rhea
 
 		my $export_cmd = qq($RealBin/dadaist2-exporter -i "$opt_output_directory");

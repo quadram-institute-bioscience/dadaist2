@@ -83,6 +83,13 @@ We can rename the header and this will suffice to work with Dadaist2 (that expec
 sed 's/group/#SampleID/g' MiSeq_SOP/mouse.time.design > metadata.tsv
 ```
 
+Note that the metadata is missing an entry for the mock community: either add it to the
+metadata or remove it from the dataset.
+
+```bash
+echo -e "Mock\tControl" >> metadata.tsv
+```
+
 ### Running Dadaist2
 
 The minimum parameter to run Dadaist are:
