@@ -8,10 +8,12 @@ sort: 5
 
 List all the yaml files in the current directory via jekyll
 
-{for file in site.static_files}
-{% include list.liquid %}
-{/for}
-
-## liquid
-
-{% include list.liquid %}
+<ul>
+{% for member in site.data.members %}
+  <li>
+    <a href="https://github.com/{{ member.github }}">
+      {{ member.name }}
+    </a>
+  </li>
+{% endfor %}
+</ul>
