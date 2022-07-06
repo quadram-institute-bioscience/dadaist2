@@ -396,13 +396,18 @@ usage("Missing parameter(s): input directory (-i DIR).")  if (not defined $opt_i
 usage("Missing parameter(s): output directory (-o DIR).") if (not defined $opt_output_directory);
 
 # [*] Splash screen - here starts the user communication
-say STDERR color('bold magenta'), " Dadaist2 ", color('reset'), $VERSION
+my $ascii_art_dadaist = <<'EOF';
+    ____            __      _      __ ___ 
+   / __ \____ _____/ /___ _(_)____/ /|__ \
+  / / / / __ `/ __  / __ `/ / ___/ __/_/ /
+ / /_/ / /_/ / /_/ / /_/ / (__  ) /_/ __/ 
+/_____/\__,_/\__,_/\__,_/_/____/\__/____/ 
+                                          
+EOF
+say STDERR color('bold magenta'), $ascii_art_dadaist, color('reset'), $VERSION
  if not $opt_quiet;
 
-# [-] Check input directory
-if ( ! -d "$opt_input_directory") {
-  die " FATAL ERROR: Input directory not found: $opt_input_directory\n";
-}
+
 
 # [-] Check taxonomy database
 if ( $opt_tax_db ne 'skip' and ! -e "$opt_tax_db") {
@@ -423,7 +428,7 @@ if ( ! -d "$opt_output_directory") {
 	mkdir "$opt_output_directory"    || die " FATAL ERROR:\n Unable to create directory $opt_output_directory/\n $!\n";
 } else {
 	if (not directoryIsEmpty($opt_output_directory)) {
-		print STDERR "\n [WARNING] Output directory found."; 
+		print STDERR "\n[WARNING] Output directory found.\n"; 
 		print STDERR " This is a warning but in future releases this might require to specify --force to proceed.\n";
 		
 	}
@@ -442,7 +447,10 @@ my $S = FASTX::ScriptHelper->new({
 our $STARTED = 1;
 $S->verbose("$PROGRAM $VERSION");
 notify_message("Starting dadaist2");
-
+# [-] Check input directory
+if ( ! -d "$opt_input_directory") {
+  $S->verbose(" FATAL ERROR: Input directory not found: $opt_input_directory");
+}
 # [***] Remove primers if provided 					[ >>>>>    <<<<< ]
 if ($opt_primers) {
 	($primer_for, $primer_rev) = split /:/, $opt_primers;
