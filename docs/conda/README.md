@@ -8,12 +8,6 @@ sort: 5
 
 List all the yaml files in the current directory via jekyll
 
-<ul>
-{% for member in site.data.members %}
-  <li>
-    <a href="https://github.com/{{ member.github }}">
-      {{ member.name }}
-    </a>
-  </li>
-{% endfor %}
-</ul>
+{% loop_directory directory:. iterator:file filter:*.yaml sort:descending %}
+* [{{ file }}]({{ file }})
+{% endloop_directory %}
