@@ -5,6 +5,29 @@ permalink: /installation
 
 # Installation
 
+## Install via Conda environment files
+
+```note
+This is the recommended way for reproducible analyses
+```
+
+When installing a package via Miniconda, some of its dependecies might change
+from one installation to the other. To ensure the highest level or reproducibility
+we are now offering curated YAML files that can be used to install the stable versions
+of dadaist.
+
+:warning: A list of environment files are available
+[in the **env** directory](https://github.com/quadram-institute-bioscience/dadaist2/tree/master/env),
+where you can download the appropriate version for your system.
+
+```bash
+# Change URL as appropriate selecting from the list in the link above
+wget -O dadaist2.yaml "https://quadram-institute-bioscience.github.io/dadaist2/dadaist2-$(uname).yaml"
+
+# You can use mamba instead of conda for faster installation
+conda env create --file dadaist2.yaml -n dadaist2
+```
+
 ## Install via Miniconda
 
 The easiest way to install **dadaist2** is from the BioConda repository.
@@ -25,26 +48,6 @@ mamba create -n dadaist -c conda-forge -c bioconda dadaist2
 # Then type `conda activate dadaist` to use it
 ```
 
-## Install via Conda environment files
-
-```note
-This is the recommended way for reproducible analyses
-```
-
-When installing a package via Miniconda, some of its dependecies might change
-from one installation to the other. To ensure the highest level or reproducibility
-we are now offering curated YAML files that can be used to install the stable versions
-of dadaist.
-
-:warning: A list of environment files are available
-[in the **env** directory](https://github.com/quadram-institute-bioscience/dadaist2/tree/master/env),
-where you can download the appropriate version for your system.
-
-```bash
-# Change URL as appropriate selecting from the list in the link above
-wget -O dadaist2.yaml "https://quadram-institute-bioscience.github.io/dadaist2/dadaist2-$(uname).yaml"
-conda env create --file dadaist2.yaml -n dadaist2
-```
 
 
 ## Developmental snapshot
