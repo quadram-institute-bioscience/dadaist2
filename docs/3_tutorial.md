@@ -5,6 +5,10 @@ permalink: /tutorial
 
 # Dadaist2: a first tutorial
 
+```note
+Updated for version 1.3.0
+```
+
 ## Get ready
 
 [Install Dadaist2](({{ 'installation' | relative_url }})) and activate the Miniconda environment (if needed).   
@@ -126,7 +130,15 @@ and we didn't have overlap between the reads.
 In this case a good loss is at the first step (filtered), as these sample
 reads are not of very high quality and are just used to test the pipeline. 
 
-But if the pipeline ended, it means you are ready to run it with real samples
+:bulb: In this datasets the primers were not removed. There are two ways to fix this:
+
+* Use the primer sequences with `--primers CCTACGGGNGGCWGCAGTNG:GACTACNNGGGTATCTAATC` (forward:reverse)
+* Trim fixed lengths from forward and reverse reads with `--trim-primer-for 20` and `--trim-primer-rev 20` (or `--s1 20` and `--s2 20` in shorter form)
+
+
+## A real dataset
+
+If the pipeline ended as expected, it means you are ready to run it with real samples
 as [described in another tutorial]({{ site.baseurl }}{% link 4_usage.md %}).
 
 
@@ -143,3 +155,5 @@ Subdirectories:
 * **MicrobiomeAnalyst** a set of files formatted to be used with the online (also available offline as R package) software [MicrobiomeAnalyst](https://www.microbiomeanalyst.ca/MicrobiomeAnalyst/upload/OtuUploadView.xhtml).
 * **Rhea** a directory with files to be used with the [Rhea pipeline](https://lagkouvardos.github.io/Rhea/), as well as some pre-calculated outputs (Normalization and Alpha diversity are done by default, as they don't require knowledge about metadata categories)
 * **R** a directory with the PhyloSeq object
+
+:bulb: Note that the *MicrobiomeAnalyst* and *Rhea* directories are only generated if DADA2 didn't filter too many reads. To try producing them anyway, add `--force` (not recommended).

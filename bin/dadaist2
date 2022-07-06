@@ -2,7 +2,7 @@
 #ABSTRACT: A program to run DADA2 from the CLI
 use 5.012;
 use warnings;
-my $VERSION  = '1.2.5';
+my $VERSION  = '1.3.0';
 
 BEGIN { 
 		
@@ -88,7 +88,7 @@ my $opt_verbose      = 1;
 my $opt_quiet        = 0;
 my $opt_debug        = 0;
 my $opt_metadata     = undef;
-my $opt_id_separator = '_';		# [SampleName]_S01_L001_R1_001...
+my $opt_id_separator = '_';	  # [SampleName]_S01_L001_R1_001...
 my $opt_for_tag      = '_R1'; # Tag for R1
 my $opt_rev_tag      = '_R2'; # Tag for R2
 my $opt_seq_prefix   = 'ASV'; # Name for FASTA sequences (MD5 to use seq hash)
@@ -107,8 +107,8 @@ my $opt_skip_tree    = 0;
 # To be autocalculated:
 my $opt_notrim;
 my $opt_fastp_qc;
-my $fastp_trim_front1 = 20;
-my $fastp_trim_front2 = 20;
+my $fastp_trim_front1 = 0;
+my $fastp_trim_front2 = 0;
 my $fastp_trim_tail1  = 0;
 my $fastp_trim_tail2  = 0;
 my $fastp_minlen      = 110;
@@ -262,6 +262,12 @@ Perform the legacy "fastp" QC
 
 Do not trim primers (using fastp). 
 Equivalent to C<--trim-primer-for 0 --trim-primer-rev 0>.
+
+=item I<--force>
+
+Will overwrite output folder if it already exists, and will
+attempt to produce MicrobiomeAnalyst and Rhea folders even when
+DADA2 filters too many reads.
 
 =item I<--dada-pool>
 
@@ -1102,12 +1108,12 @@ if ( defined $decipher_db ) {
 	addToTemplate($LOG_TEMPLATE, 'TAXONOMY_LOG', runToHtml($taxRun));
 }
 
-if ($chooser->{'database'} eq 'decipher') {
+if ($opt_tax_db ne 'skip' and $chooser->{'database'} eq 'decipher') {
 	my $f = File::Spec->catfile("$temp_dir", 'taxonomy.tsv');
 	$S->verbose("Converting " . $chooser->{'database'}.  " taxonomy output: " . $f);
 	die " Taxonomy not found: $f\n" unless (-e $f);
-  @taxonomy = loadTaxonomyArray($f);
-	die " Error loading taxonomy: $f\n"if (scalar @taxonomy == 0);
+  	@taxonomy = loadTaxonomyArray($f);
+	die " Error loading taxonomy: $f\n" if (scalar @taxonomy == 0);
 }
 
 
@@ -1138,6 +1144,8 @@ if (defined $chooser->{'database'}) {
 		say {$O} '>', $name, $comment, "\n", $sequence;
 		
 	}
+} else {
+	
 }
 
 # Copy optional files
