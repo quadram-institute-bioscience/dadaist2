@@ -49,6 +49,7 @@ conda env create --file dadaist2.yaml -n dadaist2
 ### List of environment files
 
 {% for file in site.conda %}
+     test {{ file.name}}
      {% if file.extname == 'yaml' %}
         * [{{ file.url }}]({{ file.url }})
      {% endif %}
