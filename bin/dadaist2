@@ -2,7 +2,7 @@
 #ABSTRACT: A program to run DADA2 from the CLI
 use 5.012;
 use warnings;
-my $VERSION  = '1.2.4';
+my $VERSION  = '1.2.5';
 
 BEGIN { 
 		
@@ -141,7 +141,8 @@ my @taxonomy = ();
 my $r1_len = 10_000;
 my $r2_len = 10_000;
 my $tot_reads = 0;
-my ($opt_help,  $opt_log_filename, $opt_input_directory, $opt_output_directory, $opt_version, $opt_skip_plots);
+my ($opt_help,  $opt_log_filename, $opt_input_directory,
+ $opt_output_directory, $opt_version, $opt_skip_plots, $opt_skip_check_deps);
 
 my $chooser = {
 	'filtering' => 'skip',
@@ -195,6 +196,7 @@ my $parsed = GetOptions(
  'fastp'                           => \$opt_fastp_qc,
  'skip-tree'                       => \$opt_skip_tree,
 # Misc
+ 'no-check'                        => \$opt_skip_check_deps, #
  'quiet'                           => \$opt_quiet,
  'verbose'                         => \$opt_verbose,
  'debug'                           => \$opt_debug,
@@ -560,7 +562,7 @@ if (
 
 # Dependency check
 $S->verbose("Checking dependencies");
-check_required_binaries(\%dependencies);
+check_required_binaries(\%dependencies) unless ($opt_skip_check_deps);
 
 
 # Metadata?
@@ -586,6 +588,21 @@ $S->verbose("Threads: $opt_threads");
 $S->verbose("Output directory: $opt_output_directory");
 
 my ($files_hash, $is_paired, $samples_count) = get_file_reads($opt_input_directory);
+
+# Add check on metadata-file consistency with input files
+
+
+for my $file_sample (sort keys %$files_hash) {
+   if (defined $meta_samples->{$file_sample}) {
+   		$S->verbose("Checked metadata for $file_sample");
+   } else {
+   		$S->verbose("[WARNING] Sample $file_sample not found in metadata file but found in input directory");
+        $S->verbose("Metadata contains: ", join(', ', keys %$meta_samples));
+		die;
+   }
+ 
+}
+
 my $library_type = $is_paired > 0 ? 'paired-end' : 'single-end';
 $S->verbose("Input directory \"$opt_input_directory\": $samples_count found ($library_type) ");
 
@@ -668,7 +685,7 @@ for my $sample (sort keys %{ $files_hash } ) {
 		my $rev_dir = File::Spec->catdir($temp_dir, 'rev');
 		my $for_name = basename($$files_hash{$sample}{for});
 		my $rev_name = basename($$files_hash{$sample}{rev});
-
+		
 		if (not defined $opt_trunc_len_1 or not defined $opt_trunc_len_2) {
 			$S->verbose("ERROR: Missing boundaries --trunc-len-1 and --trunc-len-2 to operate in QC-less mode.");
 			exit;
@@ -677,8 +694,11 @@ for my $sample (sort keys %{ $files_hash } ) {
 		$trunc_len_2 = $opt_trunc_len_2;
 		$for_name =~s/\.(fq|FQ|FASTQ)/.fastq/;
 		$rev_name =~s/\.(fq|FQ|FASTQ)/.fastq/;
-		my $dest_for = File::Spec->catfile($for_dir, $for_name);
-		my $dest_rev = File::Spec->catfile($rev_dir, $rev_name);
+		#my $dest_for = File::Spec->catfile($for_dir, $for_name);
+		#my $dest_rev = File::Spec->catfile($rev_dir, $rev_name);
+		my $dest_for = File::Spec->catfile($for_dir, "${sample}_R1.fastq.gz");
+		my $dest_rev = File::Spec->catfile($rev_dir, "${sample}_R2.fastq.gz");
+		
 		copy(
 				$$files_hash{$sample}{for},
 				$dest_for
