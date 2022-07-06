@@ -48,13 +48,14 @@ conda env create --file dadaist2.yaml -n dadaist2
 
 ### List of environment files
 
+<ul>
 {% for file in site.conda %}
-     test {{ file.name}}
+     <li>test {{ file.name}}</li>
      {% if file.extname == 'yaml' %}
-        * [{{ file.url }}]({{ file.url }})
+        <li>ok {{ file.name}}: {{ file.url }}</li>
      {% endif %}
 {% endfor %}
-
+</ul>
 ## Developmental snapshot
 
 We recomment to use Miniconda also to test the last developmental snapshot, as Miniconda
