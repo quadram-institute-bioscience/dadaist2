@@ -19,5 +19,3 @@ commonmark:
   options: ['SMART']
   extensions: ['table']
 
-collections:
-- conda

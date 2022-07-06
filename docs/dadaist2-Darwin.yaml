@@ -275,7 +275,7 @@ dependencies:
   - requests=2.26.0=pyhd8ed1ab_0
   - rich=10.12.0=py39h6e9494a_0
   - scipy=1.7.1=py39h056f1c0_0
-  - seqfu=1.8.4=hfa5225b_0
+  - seqfu=1.12.0=hfa5225b_0
   - setuptools=58.5.3=py39h6e9494a_0
   - simplejson=3.17.5=py39h89e85a6_1
   - six=1.16.0=pyh6c4a22f_0

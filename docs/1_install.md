@@ -36,9 +36,9 @@ from one installation to the other. To ensure the highest level or reproducibili
 we are now offering curated YAML files that can be used to install the stable versions
 of dadaist.
 
-A list of environment files are available
+:warning: A list of environment files are available
 [in the **env** directory](https://github.com/quadram-institute-bioscience/dadaist2/tree/master/env),
-or you can download the last as shown below.
+where you can download the appropriate version for your system.
 
 ```bash
 # Change URL as appropriate selecting from the list in the link above
@@ -46,16 +46,7 @@ wget -O dadaist2.yaml "https://quadram-institute-bioscience.github.io/dadaist2/d
 conda env create --file dadaist2.yaml -n dadaist2
 ```
 
-### List of environment files
 
-<ul>
-{% for file in site.conda %}
-     <li>test {{ file.name}}</li>
-     {% if file.extname == 'yaml' %}
-        <li>ok {{ file.name}}: {{ file.url }}</li>
-     {% endif %}
-{% endfor %}
-</ul>
 ## Developmental snapshot
 
 We recomment to use Miniconda also to test the last developmental snapshot, as Miniconda
