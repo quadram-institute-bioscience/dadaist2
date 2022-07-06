@@ -7,7 +7,7 @@ permalink: /installation
 
 ## Install via Miniconda
 
-The easiest (and recommended) way to install **dadaist2** is from the BioConda repository.
+The easiest way to install **dadaist2** is from the BioConda repository.
 This requires  _Miniconda_ installed ([how to install it](https://docs.conda.io/en/latest/miniconda.html)).
 We will first install _mamba_, that makes the installation faster (naturally you can skip the mamba installation if
 you already use it).
@@ -45,6 +45,14 @@ or you can download the last as shown below.
 wget -O dadaist2.yaml "https://quadram-institute-bioscience.github.io/dadaist2/dadaist2-$(uname).yaml"
 conda env create --file dadaist2.yaml -n dadaist2
 ```
+
+### List of environment files
+
+{% for file in site.conda %}
+     {% if file.extname == 'yaml' %}
+        * [{{ file.url }}]({{ file.url }})
+     {% endif %}
+{% endfor %}
 
 ## Developmental snapshot
 
