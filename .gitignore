@@ -37,3 +37,4 @@ ps-0
 data/MiSeq_SOP/
 test-err
 dada2-input
+__pycache__

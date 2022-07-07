@@ -42,10 +42,9 @@ if __name__ == "__main__":
         sys.exit(1)
 
     # Create Dadaist output object
-    dadaistDir = dadaist2.DadaistOutputDir(args.input)
+    dadaistDir = dadaist2.DadaistOutputDir(args.input, verbose=args.verbose)
     dadaistDir.print()
-    dadaist2.console.log(f"Input directory \"[cyan]{args.input}[/cyan]\" created with [bold]Dadaist2 {dadaistDir.version}[/bold]", highlight=False)
-
+    
     if not dadaistDir.valid:
         print("ERROR: Input directory is not valid and cannot be processed")
         sys.exit(1)
@@ -53,6 +52,7 @@ if __name__ == "__main__":
         print("ERROR: Input directory does not have a MicrobiomeAnalyst directory")
         sys.exit(1)
     else:
+        dadaist2.console.log(f"Input directory \"[cyan]{args.input}[/cyan]\" created with [bold]Dadaist2 {dadaistDir.version}[/bold]", highlight=False)
         dadaist2.console.log(f"MicrobiomeAnalyst directory found: {dadaistDir.analyst}", highlight=False)
     # Command: Rscript --vanilla --no-save $rScript "$opt_inputdir"
     cmd = ["Rscript", "--vanilla", "--no-save", rScript, args.input]

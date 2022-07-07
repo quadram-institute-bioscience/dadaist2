@@ -153,9 +153,9 @@ def printProgramTitleBoxed(title):
     console.print(Panel("  [white]{title}[/]   ".format(title=title), style="cyan", title="Dadaist2"), justify="left")
 
 if __name__ == "__main__":
-
     # User home directory
     default_outdir = os.path.join(os.path.expanduser("~"), "refs")
+
     # Timestamp
     timestamp = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
 
@@ -184,6 +184,7 @@ if __name__ == "__main__":
     opts = parser.parse_args()
 
     dadaist2.printBox("dadaist2-getdb " + dadaist2.getVersion())
+    
     # Set logger 
     logging.basicConfig(filename=opts.logfile, filemode="a", format="%(asctime)s - %(levelname)s: %(name)s > %(message)s")
     term_logger = logging.getLogger(__name__)
@@ -268,15 +269,23 @@ Andrea Telatin <andrea.telatin@quadram.ac.uk>
 
 =head1 LIST AVAILABLE DATABASES
 
-  dadaist2-getdb --list [query]
+List all databases
+
+  dadaist2-getdb --list --query [query]
+
+List all databases matching the query string (example: dada2)
+
+  dadaist2-getdb --list --query STRING
 
 If a C<query> keyword is specified, only matching entries will be printed.
 
 =head1 DOWNLOAD ONE OR MORE DATABASES
 
+Download a single database by ID via C<-d> or C<--database>
+
   dadaist2-getdb -d DATABASE_NAME [-o OUTPUT_DIR]
 
-  dadaist2-getdb -d DB1 -d DB2 -d DB3 [-o OUTPUT_DIR]
+Download multiple databases with a query string, via C<-q> or C<--query>, which can be set to "all"
 
   dadaist2-getdb -q QUERY_STRING
 
@@ -285,8 +294,7 @@ If a C<query> keyword is specified, only matching entries will be printed.
 =item I<-d>, I<--database> ID
 
 Identifier of the database to be downloaded (list available database and their
-identifier name using C<dadaist2-getdb --list>). This parameter can be repeated
-multiple times to download multiple databases.
+identifier name using C<dadaist2-getdb --list>). 
 
 =item I<-q>, I<--query> STRING
 
@@ -301,6 +309,27 @@ Output directory, or the current working directory if not specified.
 Temporary directory (default: C<$TMPDIR>).
 
 =back
+
+=head1 USAGE VIGNETTE
+
+    usage: dadaist2-getdb [-h] [-d DATABASE] [-l] [-q QUERY] [-o OUTDIR] [--full] [--logfile LOGFILE] [--version] [--verbose]
+
+    Download databases for Dadaist2
+
+    optional arguments:
+    -h, --help            Show this help message and exit
+    -d, --database ID
+                          Database code
+    -l, --list            List databases
+    -q, --query QUERY
+                          Query string for databases, to be used with --list or alone (instead of --database)
+    -o, --output-dir DIR
+                          Output directory [default: /home/ubuntu/refs]
+    --full                Print full citation
+    --logfile LOGFILE     Log file [default: /home/ubuntu/refs/dadaist2-getdb.log]
+    --version             show program's version number and exit
+    --verbose, -v         Increase verbosity
+
 
 =head1 SOURCE CODE AND DOCUMENTATION
 

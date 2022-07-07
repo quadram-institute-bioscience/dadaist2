@@ -27,9 +27,19 @@ def read_fasta(path, getseq=False):
     yield seq_name, seq_string
 
 class DadaistOutputDir:
-    def __init__(self, path):
+    def __init__(self, path, verbose=False):
         self.valid = True
+        self.messages = list()
+        self.verbose = verbose
         self.path = os.path.abspath(path)
+        self.version = "n/a"
+        if not os.path.isdir(self.path):
+            self.messages.append(f"Dadaist directory not found at {self.path}")
+            if self.verbose:
+                console.log(f"[red]ERROR:[/red] Dadaist directory not found at {self.path}")
+            self.valid = False
+            return
+            
         self.name = os.path.dirname(path)
         self.log  = os.path.join(self.path, "dadaist.log")
         self.version = self.getVersion()
@@ -37,7 +47,7 @@ class DadaistOutputDir:
         self.otus, self.table, self.metadata, self.tree = self._files()
         self.num_otus = self._num_otus()
         self.num_samples = self._num_samples()
-
+        
         self._check_sample_names()
 
         # Extra analyses
@@ -45,8 +55,8 @@ class DadaistOutputDir:
         self.rhea, self.has_rhea = self.check_Rhea()
         self.analyst, self.has_analyst = self.check_analyst()
 
-        if not os.path.isdir(self.path):
-            raise Exception("[Dadaist2] Output directory does not exist: " + self.path)
+
+            
     
     def _files(self):
         files = ["rep-seqs.fasta", "feature-table.tsv", "metadata.tsv", "rep-seqs.tree"]
@@ -56,13 +66,16 @@ class DadaistOutputDir:
         if len(missingfiles) == 0:
             return files[0], files[1], files[2], files[3]
         else:
-            console.log(f"[red]WARNING:[/red] Output directory does not contain all required files: {', '.join(missingfiles)}")
+            if self.verbose:
+                console.log(f"[red]ERROR:[/red] Output directory does not contain all required files: {', '.join(missingfiles)}")
+            self.messages.append(f"Output directory does not contain all required files: {', '.join(missingfiles)}")
             self.valid = False
             return None, None, None, None
 
     def _check_sample_names(self):
         sample_names_metadata = []
         sample_names_table = []
+        ma_table = []
         with open(self.metadata, "r") as f:
             for line in f:
                 if not line.startswith("#"):
@@ -72,10 +85,29 @@ class DadaistOutputDir:
                 fields = line.strip().split("\t")
                 sample_names_table = fields[1:]
                 break
-        
+        with open(os.path.join(self.path, "MicrobiomeAnalyst", "table.csv"), "r") as f:
+            for line in f:
+                fields = line.strip().split(",")
+                ma_table = fields[1:]
+                break
+
         if len(sample_names_metadata) != len(sample_names_table):
-            console.log(f"[red]WARNING:[/red] Number of samples in metadata ({len(sample_names_metadata)}) does not match number of samples in table ({len(sample_names_table)})")
+            if self.verbose:
+                console.log(f"[red]ERROR:[/red] Number of samples in metadata ({len(sample_names_metadata)}) does not match number of samples in table ({len(sample_names_table)})")
+            self.messages.append(f"Number of samples in metadata ({len(sample_names_metadata)}) does not match number of samples in table ({len(sample_names_table)})")
             self.valid = False
+        
+        for name in sample_names_metadata:
+            if name not in sample_names_table:
+                if self.verbose:
+                    console.log(f"[red]ERROR:[/red] Sample {name} not found in table")
+                self.messages.append(f"Sample {name} not found in table")
+                self.valid = False
+            elif name not in ma_table:
+                self.messages.append(f"Sample {name} not found in MicrobiomeAnalyst table")
+                if self.verbose:
+                    console.log(f"[red]ERROR:[/red] Sample {name} not found in MicrobiomeAnalyst table")
+                self.valid = False
             
     def _num_otus(self):
         num_table = 0
@@ -92,7 +124,8 @@ class DadaistOutputDir:
         if num_table == num_fasta:
             return num_table
         else:
-            console.log(f"[red]WARNING:[/red] Number of OTUs in table ({num_table}) does not match number of OTUs in fasta ({num_fasta})")
+            if self.verbose:
+                console.log(f"[red]ERROR:[/red] Number of OTUs in table ({num_table}) does not match number of OTUs in fasta ({num_fasta})")
             return -1
 
     def _num_samples(self):
@@ -113,7 +146,7 @@ class DadaistOutputDir:
         if num_table == num_metadata:
             return num_table
         else:
-            console.log(f"[red]WARNING:[/red] Number of samples in table ({num_table}) does not match number of samples in metadata ({num_metadata})")
+            console.log(f"[red]ERROR:[/red] Number of samples in table ({num_table}) does not match number of samples in metadata ({num_metadata})")
             return f"{num_table} == {num_metadata}"
 
 
@@ -151,6 +184,8 @@ class DadaistOutputDir:
 
     def getVersion(self):
         # Get first line of self.log
+        if not os.path.isfile(self.log):
+            return None
         with open(self.log, "r") as f:
             firstLine = f.readline()
         # Get version from first line
@@ -174,6 +209,17 @@ class DadaistOutputDir:
 - has_microb_analyst:    {self.has_analyst}"""
 
     def print(self):
+        p = "\n               "
+        if not self.valid:
+            text = f"""
+path:          [bold]{self.path}[/bold] (not found)
+version:       [bold]n/a[/bold]
+valid:         [red]No[/red]
+{f'[red bold]ERRORS:[/red bold]        {p.join(self.messages)}' if len(self.messages)>0 else ''}"""
+            console.print(Panel(f"{text}", title=f"Dadaist2 invalid dir"))
+            return 
+
+        
         text = f"""
 path:          [bold]{self.path}[/bold]
 version:       [bold]{self.version}[/bold]
@@ -184,7 +230,8 @@ base_files:    {os.path.basename(self.otus)}, {os.path.basename(self.table)}, {o
 has_phyloseq:  {f'[green]Yes[/green] {self.phyloseq}' if self.has_phyloseq else '[red]-[/red]'}
 has_rhea:      {f'[green]Yes[/green] {self.rhea}' if self.has_rhea else '[red]-[/red]'}
 has_analyst:   {f'[green]Yes[/green] {self.analyst}' if self.has_analyst else '[red]-[/red]'}
-"""
+{f'[red bold]ERRORS:[/red bold]        {p.join(self.messages)}' if len(self.messages)>0 else ''}"""
+        #
         console.print(Panel(f"{text}", title=f"Dadaist2: [bold]{self.name}[/bold]"))
 
 def printBox(text, title=""):
