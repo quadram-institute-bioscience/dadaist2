@@ -17,17 +17,15 @@ jobs:
 
     steps:
     - uses: actions/checkout@v1
-    - name: provision-with-micromamba
-      # You may pin to the exact commit or the version.
-      # uses: mamba-org/provision-with-micromamba@34071ca7df4983ccd272ed0d3625818b27b70dcc
-      uses: mamba-org/provision-with-micromamba@v12
-      with:
-        # Required. The 'environment.yml' or '.lock' file for the Conda environment. If 'false', only `extra-specs` will be considered and you should provide 'channels'. If both 'environment-file' and 'extra-specs' are empty, no enviroment will be created (only Micromamba will be installed). See the [Conda documentation](https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html#creating-an-environment-from-an-environment-yml-file) for more information.
-        environment-file: docs/dadaist2-Darwin.yaml
-        # The name of the Conda environment. Defaults to name from the environment.yml file. Required if 'environment-file' is a '.lock' file or 'false'.
-        environment-name: dadaist2-last
-        # Version of micromamba to use, eg. '0.20'. See https://github.com/mamba-org/mamba/releases/ for a list of releases.
-        micromamba-version: latest
-        # Additional specifications (packages) to install.
-        channel-priority: flexible
-   
+    - name: Install mamba & environment
+      uses: mamba-org/provision-with-micromamba@v10
+
+    - name: build meta-packages
+      shell: bash -l {0}
+      env:
+        CONDA_UPLOAD_TOKEN: ${{ secrets.CONDA_UPLOAD_TOKEN }}
+      run: |
+        export MAXICONDA_ENV_RELEASE=${GITHUB_REF##*/}
+        conda config --set channel_priority false
+        mamba env create -n dadaist --file docs/dadaist2-Darwin.yaml
+        conda env export -n dadaist
