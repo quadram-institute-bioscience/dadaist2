@@ -29,4 +29,5 @@ jobs:
         # Version of micromamba to use, eg. '0.20'. See https://github.com/mamba-org/mamba/releases/ for a list of releases.
         micromamba-version: latest
         # Additional specifications (packages) to install.
+        channel-priority: flexible
    
