@@ -1,0 +1,324 @@
+#!/usr/bin/env perl
+#ABSTRACT: A program to download databases
+
+
+use 5.012;
+use warnings;
+use Pod::Usage;
+my $VERSION = "1.3.5";
+
+my $url_db = {
+	'testset' => {
+		desc => 'FASTQ input, Small 16S dataset to test the suite',
+		url  => 'https://github.com/quadram-institute-bioscience/dadaist2/releases/download/v0.1.04/data.zip',
+		md5  => 'd0afeec85f0d36c9f28e09372b868d42',
+		ver  => '1.0',
+	},
+	'dada2-hitdb' => {
+		desc => 'HITdb is a reference taxonomy for Human Intestinal 16S rRNA genes',
+		url  => 'https://zenodo.org/record/159205/files/hitdb_v1.00.fa.gz?download=1',
+		md5  => '1a94d81644a76e513f486a5901a78a1b',
+		cite => 'Ritari J, Salojärvi J, Lahti L & de Vos WM. Improved taxonomic assignment of human intestinal 16S rRNA sequences by a dedicated reference database. BMC Genomics. 2015 Dec 12;16(1):1056. doi: 10.1186/s12864-015-2265-y.',
+		ver  => 'v1.00',
+	},
+	'dada2-silva-138' => {
+		desc => 'SILVA release 138',
+		url  => 'https://zenodo.org/record/3731176/files/silva_nr_v138_train_set.fa.gz?download=1',
+		md5  => '1deeaa2ecc9dbeabdcb9331a565f8343',
+		cite => 'Quast C, Pruesse E, Yilmaz P, Gerken J, Schweer T, Yarza P, Peplies J, Glöckner FO (2013) The SILVA ribosomal RNA gene database project: improved data processing and web-based tools. Opens external link in new windowNucl. Acids Res. 41 (D1): D590-D596. ',
+		ver  => '138',
+	},
+	# 'dada2-silva-species-138' => {
+	# 	desc => 'SILVA release 138 (species)',
+	# 	url  => 'https://zenodo.org/record/3731176/files/silva_species_assignment_v138.fa.gz?download=1',
+	# 	md5  => '0ba301cbdd6e3684db25fae78fad8158',
+	# 	cite => 'Quast C, Pruesse E, Yilmaz P, Gerken J, Schweer T, Yarza P, Peplies J, Glöckner FO (2013) The SILVA ribosomal RNA gene database project: improved data processing and web-based tools. Opens external link in new windowNucl. Acids Res. 41 (D1): D590-D596. ',
+	# 	ver  => '138',
+	# },
+	# 'dada2-rdp-species-16' => {
+	# 	desc => 'RDP taxonomic training data formatted for DADA2 (RDP trainset 16/release 11.5)',
+	# 	url  => 'https://zenodo.org/record/801828/files/rdp_species_assignment_16.fa.gz?download=1',
+	# 	md5  => 'd68d4980326be10c58aaaa74cc6cdb6e',
+	# 	cite => 'Cole, J. R., Q. Wang, J. A. Fish, B. Chai, D. M. McGarrell, Y. Sun, C. T. Brown, A. Porras-Alfaro, C. R. Kuske, and J. M. Tiedje. 2014. Ribosomal Database Project: data and tools for high throughput rRNA analysis Nucl. Acids Res. 42(Database issue):D633-D642; doi: 10.1093/nar/gkt1244 ',
+	# 	ver  => '11.5',
+	# },
+	'dada2-rdp-train-16' => {
+		desc => 'RDP taxonomic training data formatted for DADA2 (RDP trainset 16/release 11.5)',
+		url  => 'https://zenodo.org/record/801828/files/rdp_train_set_16.fa.gz?download=1',
+		md5  => 'cac51b436f1679fefc9a1db1d3b24686',
+		cite => 'Cole, J. R., Q. Wang, J. A. Fish, B. Chai, D. M. McGarrell, Y. Sun, C. T. Brown, A. Porras-Alfaro, C. R. Kuske, and J. M. Tiedje. 2014. Ribosomal Database Project: data and tools for high throughput rRNA analysis Nucl. Acids Res. 42(Database issue):D633-D642; doi: 10.1093/nar/gkt1244 ',
+		ver  => '16',
+	},
+	'dada2-gtdb-2018' => {
+		desc => 'GTDB 20486 bacteria and 1073 archaea full 16S rRNA gene sequences. (20/11/2018)',
+		url  => 'https://zenodo.org/record/2541239/files/GTDB_bac-arc_ssu_r86.fa.gz?download=1',
+		md5  => '307c9d79fb7e167b696fad16f698eb57',
+		cite => 'Ali Alishum. (2019). DADA2 formatted 16S rRNA gene sequences for both bacteria & archaea (Version Version 1) [Data set]. Zenodo. http://doi.org/10.5281/zenodo.2541239',
+		ver  => '2018-11',
+	},
+	'dada2-gtdb-2020' => {
+		desc => 'GTDB 21965 bacteria and 1126 archaea full 16S rRNA gene sequences. (19/07/2020)',
+		url  => 'https://zenodo.org/record/4409439/files/GTDB_bac120_arc122_ssu_r95_Genus.fa.gz?download=1',
+		md5  => '2f8bc3fee2ccde9d94f0bbdcfd92e809',
+		cite => 'Ali Alishum. (2021). DADA2 formatted 16S rRNA gene sequences for both bacteria & archaea (Version Version 4.1) [Data set]. Zenodo. http://doi.org/10.5281/zenodo.4409439',
+		ver  => '2020-07',
+	},
+	'dada2-refseq-2020' => {
+		desc => 'RefSeq+RDP: This database contains 22433 bacterial, 1055 archaea and 99 eukaryotic full lengths16S  (19/07/2020)',
+		url  => 'https://zenodo.org/record/4409439/files/RefSeq_16S_6-11-20_RDPv16_Genus.fa.gz?download=1',
+		md5  => '53aac0449c41db387d78a3c17b06ad07',
+		cite => 'Ali Alishum. (2021). DADA2 formatted 16S rRNA gene sequences for both bacteria & archaea (Version Version 4.1) [Data set]. Zenodo. http://doi.org/10.5281/zenodo.4409439',
+		ver  => '2020-07',
+	},
+	'dada2-unite' => {
+		desc => 'UNITE database for ITS',
+		url  => 'https://github.com/quadram-institute-bioscience/dadaist2/releases/download/v0.7.3/uniref.fa.gz',
+		md5  => 'ac09ed60363790ffbd2c0fa67f681107',
+		cite => 'Nilsson RH, Larsson K-H, Taylor AFS, Bengtsson-Palme J, Jeppesen TS, Schigel D, Kennedy P, Picard K, Glöckner FO, Tedersoo L, Saar I, Kõljalg U, Abarenkov K. 2018. The UNITE database for molecular identification of fungi: handling dark taxa and parallel taxonomic classifications. Nucleic Acids Research',
+		ver  => '2020'
+	},
+	#http://www2.decipher.codes/Downloads.html
+	'decipher-silva-138' => {
+		desc => 'SILVA release 138 (Decipher)',
+		url  => 'http://www2.decipher.codes/Classification/TrainingSets/SILVA_SSU_r138_2019.RData',
+		md5  => 'cb983b6a5e8cdb46f8c88b5afae21f66',
+		cite => 'Quast C, Pruesse E, Yilmaz P, Gerken J, Schweer T, Yarza P, Peplies J, Glöckner FO (2013) The SILVA ribosomal RNA gene database project: improved data processing and web-based tools. Opens external link in new windowNucl. Acids Res. 41 (D1): D590-D596.',
+		ver  => '138'
+	},
+	'decipher-unite-2020' => {
+		desc => 'UNITE 2020 (Decipher)',
+		url  => 'http://www2.decipher.codes/Classification/TrainingSets/UNITE_v2020_February2020.RData',
+		md5  => '72a18bf939bcd30bedf7a7edd2d907f1',
+		cite => 'Nilsson RH, Larsson K-H, Taylor AFS, Bengtsson-Palme J, Jeppesen TS, Schigel D, Kennedy P, Picard K, Glöckner FO, Tedersoo L, Saar I, Kõljalg U, Abarenkov K. 2018. The UNITE database for molecular identification of fungi: handling dark taxa and parallel taxonomic classifications. Nucleic Acids Research',
+		ver  => '2020',
+	},
+	'decipher-gtdb95' => {
+		desc => 'GTDB',
+		url  => 'http://www2.decipher.codes/Classification/TrainingSets/GTDB_r95-mod_August2020.RData',
+		md5  => '7d926cc5f95f3eca1bef31d54b0ed2b8',
+		cite => 'Chaumeil, P.-A, et al. (2019). "GTDB-Tk: a toolkit to classify genomes with the Genome Taxonomy Database." Bioinformatics,',
+		ver  => 'r95 (aug2020)'
+	}
+};
+use Getopt::Long;
+use Data::Dumper;
+use FindBin qw($RealBin);
+use File::Basename;
+use File::Spec;
+use File::Spec::Functions;
+use File::Copy;
+use Term::ANSIColor qw(color);
+use FASTX::Reader;
+use FASTX::ScriptHelper;
+use JSON::PP;
+use File::Temp;
+
+my ($opt_query,$opt_urls_db, $opt_force, $opt_list, @opt_db, $opt_output_dir, $opt_help, $opt_version);
+
+my $opt_temp_dir = File::Spec->tmpdir();
+GetOptions(
+	'u|url-db=s'     => \$opt_urls_db,
+	'l|list'         => \$opt_list,
+	'q|query=s'      => \$opt_query,
+	'd|database=s'   => \@opt_db,
+	'o|output-dir=s' => \$opt_output_dir,
+	'f|force'        => \$opt_force,
+	't|temp-dir=s'   => \$opt_temp_dir,
+ 	'version'        => \$opt_version,
+	'help'           => \$opt_help,
+);
+my $query = shift @ARGV;
+
+say STDERR color('magenta bold'), " DADAIST2 Database Downloader", color('reset');
+
+$opt_version && version();
+$opt_help    && pod2usage({-exitval => 0, -verbose => 2});
+
+$url_db = $opt_urls_db ? load_db_from_file($opt_urls_db) : $url_db;
+my $log_filename = File::Temp->new(
+	TEMPLATE => "dadaist2-downloader-XXXXXXX",
+	DIR => $opt_temp_dir);
+my $S = FASTX::ScriptHelper->new({
+	verbose => 1,
+	logfile  => $log_filename,
+});
+
+my $curl = $S->run('curl --version');
+my $wget = $S->run('wget --version');
+my $downloader = 'curl';
+if ($curl->{exit} != 0) {
+	if ($wget->{exit} == 0) {
+		$downloader = 'wget';
+	} else {
+		say STDERR "ERROR:\n'curl' (or 'wget') are required, but none was found.\n";
+		exit(1);
+	}
+}
+validate_db($url_db);
+
+
+if ($opt_list) {
+	# LIST DATABASES
+	list_dbs($url_db, $query);
+	exit(0);
+} 
+$opt_output_dir //= $ENV{PWD};
+
+
+if ($opt_query) {
+	# Pre-populate $opt_db
+	@opt_db =  grep {$_=~/$opt_query/} keys %{ $url_db };
+	say "Preparing to download ", scalar @opt_db, " databases.";
+}
+if ($opt_db[0]) {
+	# DOWNLOAD DATABASES
+	$S->run(qq(mkdir -p "$opt_output_dir"));
+	say STDERR " * Preparing to download to $opt_output_dir";
+	my $c = 0;
+	for my $id (sort  @opt_db) {
+		if (defined $url_db->{$id}) {
+			$c++;
+			say STDERR " * $c/", scalar @opt_db, " Getting ", $url_db->{$id}->{desc};
+			#$S->download($url_db->{$id}->{url}, $opt_output_dir);
+			my $filename = basename($url_db->{$id}->{url});
+			($filename) = split /[\?]/, $filename;
+			my $destination = File::Spec->catfile($opt_output_dir, $filename);
+
+			# overwrite?
+			if ( -e "$destination") {
+				if (not $opt_force) { 
+					$S->verbose($id . " found. skipping.");
+					next;
+				}
+			}
+			my $download_cmd = $downloader eq 'curl' ?
+				qq(curl -L --silent -o "$destination" "$url_db->{$id}->{url}") :
+				qq(wget --max-redirect 0 --quiet -O "$destination" "$url_db->{$id}->{url}"); 
+			my $get_log = $S->run($download_cmd);
+			if ($get_log->{exit} != 0) {
+				say STDERR color('red'), "ERROR:", color('reset');
+				say "Unable to download ", $id, ": process failed.\n";
+			} else {
+				my $md5sum = $^O eq 'darwin' ? 'md5' : 'md5sum';
+				my $md5_cmd = qq(cat "$destination" | $md5sum);
+				my $md5_out = $S->run($md5_cmd);
+				my $md5_sum = '';
+				if ($md5_out->{stdout} =~/([a-z0-9]{32})/) {
+					$md5sum = $1;
+				}
+				if ( $url_db->{$id}->{'md5'} and ( $url_db->{$id}->{'md5'} ne $md5sum) ) {
+					say STDERR color('red'), 'ERROR:' , color('reset');
+					say STDERR "Database $id download failed (integrity): expecting ", $url_db->{$id}->{'md5'}, " but ", $md5sum, " found.";
+					say STDERR "\$", $get_log->{cmd};
+					unlink "$destination";
+				} else {
+					say STDERR color('bold'), $id, color('reset'), " downloaded.";
+				}
+			}
+		} else {
+			$S->verbose("WARNING: Database not found! Try using --list (or --query STRING)");
+		}
+
+	}
+
+
+} else {
+	usage();
+}
+
+unlink "$log_filename";
+
+sub list_dbs {
+	my( $db, $query )  = @_;
+	for my $record (sort keys %{ $db }) {
+		say STDERR color('bold'), $record, color('reset'), ": ${ $db }{ $record }{desc} ", color('yellow'),  ${ $db }{ $record }{'ver'}, "\n",
+			color('cyan'), ${ $db }{ $record }{'cite'} // '', color('reset')
+		  if (not $query or ( $record =~/$query/i or ${ $db }{ $record }{desc} =~/$query/i ));
+	}
+}
+sub load_db_from_file {
+	my $file = shift @_;
+	return 0;
+}
+sub validate_db{
+	my $db = shift @_;
+	my %valid_attr = (
+		desc => 1,
+		url  => 1,
+		md5  => 1,
+		cite => 1,
+		ver  => 1,
+	);
+
+	for my $record (sort keys %{ $db }) {
+
+		for my $key (sort keys %{ $db->{$record} }) {
+			die  "ERROR IN DATABASE: Record $record has unexpected key=$key\n"
+				unless ($valid_attr{$key});
+		}
+	}
+}
+
+sub usage {
+	my $PROG = basename($0);
+	say "USAGE:";
+	say "$PROG --list   (to list datasets)";
+	say "$PROG -d DATABASE_ID  -o DESTINATION (to download a dataset)\n";
+	exit;
+}
+
+sub version {
+	my $PROG = basename($0);
+	say "$PROG $VERSION";
+	exit;	
+}
+__END__
+
+=head1 NAME
+
+B<dadaist2-getdb> - download reference databases for dadaist2
+
+=head1 AUTHOR
+
+Andrea Telatin <andrea.telatin@quadram.ac.uk>
+
+=head1 LIST AVAILABLE DATABASES
+
+  dadaist2-getdb --list [query]
+
+If a C<query> keyword is specified, only matching entries will be printed.
+
+=head1 DOWNLOAD ONE OR MORE DATABASES
+
+  dadaist2-getdb -d DATABASE_NAME [-o OUTPUT_DIR]
+
+  dadaist2-getdb -d DB1 -d DB2 -d DB3 [-o OUTPUT_DIR]
+
+  dadaist2-getdb -q QUERY_STRING
+
+=over 4
+
+=item I<-d>, I<--database> ID
+
+Identifier of the database to be downloaded (list available database and their
+identifier name using C<dadaist2-getdb --list>). This parameter can be repeated
+multiple times to download multiple databases.
+
+=item I<-q>, I<--query> STRING
+
+Download all databases matching the query string ('.' for all)
+
+=item I<-o>, I<--output-dir> DIR
+
+Output directory, or the current working directory if not specified.
+
+=item I<-t>, I<--temp-dir> DIR
+
+Temporary directory (default: C<$TMPDIR>).
+
+=back
+
+=head1 SOURCE CODE AND DOCUMENTATION
+
+The program is freely available at L<https://quadram-institute-bioscience.github.io/dadaist2>
+released under the MIT licence. The website contains further DOCUMENTATION.

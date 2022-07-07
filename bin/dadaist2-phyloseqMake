@@ -1,111 +1,89 @@
-#!/usr/bin/env perl
-#ABSTRACT: Check phyloseq object
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 
-use 5.012;
-use warnings;
-use Pod::Usage;
-my $VERSION = "1.0.5";
+import subprocess
+import argparse
+import os
+import sys
+import importlib  
+dadaist2 = importlib.import_module("dadaist2-console")
 
-use Getopt::Long;
-use Data::Dumper;
-use FindBin qw($RealBin);
-use File::Basename;
-use File::Spec;
-use File::Spec::Functions;
-use File::Copy;
-use Term::ANSIColor qw(color);
-use FASTX::Reader;
-use FASTX::ScriptHelper;
-use JSON::PP;
-use File::Temp;
-my  $opt_verbose = undef;
-my (
-	$opt_inputdir, $opt_outfile,
-	$opt_version, $opt_help, $opt_force, $opt_json
-); 
+dadaist2.printBox("dadaist2-phyloseqMake " + dadaist2.getVersion())
+if __name__ == "__main__":
+    args = argparse.ArgumentParser()
+    currentDirectory = os.getcwd()
+    defaultOutput = os.path.join(currentDirectory, "phyloseq.rds")
+    args.add_argument("-i", "--input", help="Input directory")
+    args.add_argument("-o", "--output", help="Output directory")
+    args.add_argument("--verbose", help="Verbose output", action="store_true")
+    args.add_argument("--version", help="Print version", action="store_true")
+    args = args.parse_args()
 
-my %required_files = (
-	'table.csv' => 'feature table',
-	'taxonomy.csv' => 'taxonomy table',
-	'metadata.csv' => 'metadata file',
-);
-my %desired_files = (
-	'rep-seqs.tree' => 'tree of representative sequences',
-	'table.csv' => 'feature table',
-	'taxonomy.csv' => 'taxonomy table',
-	'metadata.csv' => 'metadata file',
-);
+    if args.version:
+        dadaist2.console.print("dadaist2-phyloseqMake", dadaist2.getVersion(), highlight=False)
+    else:
+        # Check input dir: not required as version can be specified
+        if args.input is None:
+            print("ERROR: Input directory is required (-i, --input)")
+            sys.exit(1)
 
-my $rScript = File::Spec->catfile($RealBin, 'D2-importPhyloseq.R');
- 
-GetOptions(
-	'i|input=s'      => \$opt_inputdir,
-	'o|output=s'     => \$opt_outfile,
-	'verbose'        => \$opt_verbose,
-	'version'        => \$opt_version,
-	'force'          => \$opt_force,
-	'help'           => \$opt_help,
-);
+    # Output object: default is inside the input directory
+    outputObject = os.path.join(args.input, "phyloseq.rds")
+    
+    if args.output is None:
+        outputDestination = None
+    else:
+        outputDestination = os.path.abspath( args.output )
 
-say STDERR color('magenta bold'), " DADAIST2 Import to PhyloSeq", color('reset');
+    # Check script
+    rScript = os.path.join(dadaist2.selfDir, "D2-importPhyloseq.R")
+    if not os.path.isfile(rScript):
+        print("ERROR: R script not found: " + rScript)
+        sys.exit(1)
 
-$opt_version && version();
-$opt_help    && pod2usage({-exitval => 0, -verbose => 2});
+    # Create Dadaist output object
+    dadaistDir = dadaist2.DadaistOutputDir(args.input)
+    dadaistDir.print()
+    dadaist2.console.log(f"Input directory \"[cyan]{args.input}[/cyan]\" created with [bold]Dadaist2 {dadaistDir.version}[/bold]", highlight=False)
 
+    if not dadaistDir.valid:
+        print("ERROR: Input directory is not valid and cannot be processed")
+        sys.exit(1)
+    if not dadaistDir.has_analyst:
+        print("ERROR: Input directory does not have a MicrobiomeAnalyst directory")
+        sys.exit(1)
+    else:
+        dadaist2.console.log(f"MicrobiomeAnalyst directory found: {dadaistDir.analyst}", highlight=False)
+    # Command: Rscript --vanilla --no-save $rScript "$opt_inputdir"
+    cmd = ["Rscript", "--vanilla", "--no-save", rScript, args.input]
+    
+    # Run R script capturing stdout and stderr
+    try:
+        output = subprocess.check_output(cmd, stderr=subprocess.STDOUT)
+        dadaist2.console.log("Finished running R script", highlight=False)
+    except subprocess.CalledProcessError as e:
+        print("ERROR: R script failed with exit code " + str(e.returncode))
+        print(e.output.decode("utf-8"))
+        sys.exit(1)
+    
+    if not os.path.isfile(outputObject):
+        print("ERROR: Output file not found: " + args.output)
+        sys.exit(1)
+    
+    if outputDestination:
+        # move outputObject to args.output
+        try:
+            os.rename(outputObject, outputDestination)
+            dadaist2.console.log(f"Output file: \"[cyan]{args.output}[/cyan]\"", highlight=False)
+        except OSError as e:
+            print("ERROR: Failed to move output file: " + str(e))
+            sys.exit(1)
+    else:
+        dadaist2.console.log(f"Output file: \"[red]{outputObject}[/red]\"", highlight=False)
 
-my $S = FASTX::ScriptHelper->new({
-	verbose => $opt_verbose,
-	logfile => File::Temp->new(TEMPLATE => "dadaist2-phyloSeq-XXXXXXX")
-}); 
-
-die "Missing parameters. Use --help for full manual.\n" if (!$opt_inputdir); 
-
-my $MicrobiomeAnalystDir = File::Spec->catdir($opt_inputdir, "MicrobiomeAnalyst");
-die "ERROR: Input directory not found: $opt_inputdir\n" unless (-d $opt_inputdir);
-die "ERROR: Input directory not valid (MicrobiomeAnalyst missing): $opt_inputdir/MicrobiomeAnalyst\n" 
- unless (-d $MicrobiomeAnalystDir);
-
-
-for my $file (sort keys %desired_files) {
-	if (! -e File::Spec->catfile($MicrobiomeAnalystDir,$file) ) {
-		if (defined $required_files{$file}) {
-			die "Missing required file <$file> in $opt_inputdir/MicrobiomeAnalyst (", $required_files{$file}, ")\n";
-		} else {
-			say STDERR " WARNING: Missing file <$file> in $opt_inputdir/MicrobiomeAnalyst\n";
-		}
-	}
-}
-die "ERROR: Missing script $rScript.\n" unless (-e $rScript);
-
-  
-my $output = $S->run(qq(Rscript --vanilla --no-save $rScript "$opt_inputdir" 2>&1), {candie => 1});
-
-if ( $output->{exit} == 0 ) {
-	if ($opt_verbose) {
-		say $output->{stdout};
-	}
-	my $PSobject = File::Spec->catfile($opt_inputdir, 'phyloseq.rds');
-	if (! -e "$PSobject") {
-		die " ERROR: Phyloseq object not found at: ", $PSobject, "\n";
-	}
-	my %parsed_log = ();
-	if (defined $opt_outfile) {
-		if (! -d dirname($opt_outfile)) {
-			mkdir dirname($opt_outfile) || die " ERROR: Unable to make dir: ",dirname($opt_outfile), "\n";
-		}
-		say STDERR " * saving to: ", $opt_outfile;
-		move(
-			$PSobject,
-			$opt_outfile
-		) || die "ERROR: Unable to move ", $PSobject, " to ", $opt_outfile, "\n";
-	}
- 
-} else {
-	say STDERR $output->{stdout};
-	say STDERR $output->{stderr};
-	die "PhyloSeq creation failed.";
-}
-__END__
+    if args.verbose:
+        dadaist2.console.log(output.decode("utf-8"))
+"""
 
 =head1 NAME
 
@@ -137,3 +115,4 @@ Print verbose output
 
 The program is freely available at L<https://quadram-institute-bioscience.github.io/dadaist2>
 released under the MIT licence. The website contains further DOCUMENTATION.
+"""

@@ -1,4 +1,4 @@
-name: dadaist
+name: dadaist2_1.1
 channels:
   - defaults
   - conda-forge

@@ -57,6 +57,12 @@ Andrea Telatin <andrea.telatin@quadram.ac.uk>
     Do not trim primers (using fastp). 
     Equivalent to `--trim-primer-for 0 --trim-primer-rev 0`.
 
+- _--force_
+
+    Will overwrite output folder if it already exists, and will
+    attempt to produce MicrobiomeAnalyst and Rhea folders even when
+    DADA2 filters too many reads.
+
 - _--dada-pool_
 
     Pool samples in DADA2 analysis (experimental)
@@ -98,6 +104,10 @@ Filename starting by numbers are not accepted.
 - _--maxee1_, and _--maxee2_ FLOAT
 
     Maximum Expected Errors in R1 and R2, respectively (default: 1.0 and 1.5)
+
+- _--trunc-qual_ FLOAT
+
+    DADA2 truncate quality (default: 10)
 
 - _-s1_, _--trim-primer-for_ INT
 

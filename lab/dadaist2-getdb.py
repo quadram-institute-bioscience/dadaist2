@@ -22,6 +22,7 @@ databases_json = """{
       "url" : "https://zenodo.org/record/4409439/files/RefSeq_16S_6-11-20_RDPv16_Genus.fa.gz?download=1",
       "md5" : "53aac0449c41db387d78a3c17b06ad07",
       "ver" : "2020-07",
+      "c"    : "Alishum 2021",
       "cite" : "Ali Alishum. (2021). DADA2 formatted 16S rRNA gene sequences for both bacteria & archaea (Version Version 4.1) [Data set]. Zenodo. http://doi.org/10.5281/zenodo.4409439"
    },
    "dada2-hitdb" : {
@@ -29,6 +30,7 @@ databases_json = """{
       "ver" : "v1.00",
       "url" : "https://zenodo.org/record/159205/files/hitdb_v1.00.fa.gz?download=1",
       "desc" : "HITdb is a reference taxonomy for Human Intestinal 16S rRNA genes",
+      "c": "Ritari 2015",
       "cite" : "Ritari J, Salojärvi J, Lahti L & de Vos WM. Improved taxonomic assignment of human intestinal 16S rRNA sequences by a dedicated reference database. BMC Genomics. 2015 Dec 12;16(1):1056. doi: 10.1186/s12864-015-2265-y."
    },
    "decipher-silva-138" : {
@@ -36,9 +38,11 @@ databases_json = """{
       "ver" : "138",
       "desc" : "SILVA release 138 (Decipher)",
       "url" : "http://www2.decipher.codes/Classification/TrainingSets/SILVA_SSU_r138_2019.RData",
+      "c":     "Quast 2013",
       "cite" : "Quast C, Pruesse E, Yilmaz P, Gerken J, Schweer T, Yarza P, Peplies J, Glöckner FO (2013) The SILVA ribosomal RNA gene database project: improved data processing and web-based tools.  ucl. Acids Res. 41 (D1): D590-D596."
    },
    "dada2-unite" : {
+      "c": "Nilsson 2018",
       "cite" : "Nilsson RH, Larsson K-H, Taylor AFS, Bengtsson-Palme J, Jeppesen TS, Schigel D, Kennedy P, Picard K, Glöckner FO, Tedersoo L, Saar I, Kõljalg U, Abarenkov K. 2018. The UNITE database for molecular identification of fungi: handling dark taxa and parallel taxonomic classifications. Nucleic Acids Research",
       "url" : "https://github.com/quadram-institute-bioscience/dadaist2/releases/download/v0.7.3/uniref.fa.gz",
       "desc" : "UNITE database for ITS",
@@ -46,6 +50,7 @@ databases_json = """{
       "ver" : "2020"
    },
    "dada2-gtdb-2018" : {
+      "c"    : "Alishum 2019",
       "cite" : "Ali Alishum. (2019). DADA2 formatted 16S rRNA gene sequences for both bacteria & archaea (Version Version 1) [Data set]. Zenodo. http://doi.org/10.5281/zenodo.2541239",
       "ver" : "2018-11",
       "md5" : "307c9d79fb7e167b696fad16f698eb57",
@@ -57,9 +62,11 @@ databases_json = """{
       "md5" : "72a18bf939bcd30bedf7a7edd2d907f1",
       "url" : "http://www2.decipher.codes/Classification/TrainingSets/UNITE_v2020_February2020.RData",
       "desc" : "UNITE 2020 (Decipher)",
+      "c"    : "Nilsson 2018",
       "cite" : "Nilsson RH, Larsson K-H, Taylor AFS, Bengtsson-Palme J, Jeppesen TS, Schigel D, Kennedy P, Picard K, Glöckner FO, Tedersoo L, Saar I, Kõljalg U, Abarenkov K. 2018. The UNITE database for molecular identification of fungi: handling dark taxa and parallel taxonomic classifications. Nucleic Acids Research"
    },
    "dada2-gtdb-2020" : {
+      "c"    : "Alishum 2021",
       "cite" : "Ali Alishum. (2021). DADA2 formatted 16S rRNA gene sequences for both bacteria & archaea (Version Version 4.1) [Data set]. Zenodo. http://doi.org/10.5281/zenodo.4409439",
       "desc" : "GTDB 21965 bacteria and 1126 archaea full 16S rRNA gene sequences. (19/07/2020)",
       "url" : "https://zenodo.org/record/4409439/files/GTDB_bac120_arc122_ssu_r95_Genus.fa.gz?download=1",
@@ -74,6 +81,7 @@ databases_json = """{
       "cite": ""
  },
    "dada2-rdp-train-16" : {
+      "c": "Cole 2014",
       "cite" : "Cole, J. R., Q. Wang, J. A. Fish, B. Chai, D. M. McGarrell, Y. Sun, C. T. Brown, A. Porras-Alfaro, C. R. Kuske, and J. M. Tiedje. 2014. Ribosomal Database Project: data and tools for high throughput rRNA analysis Nucl. Acids Res. 42(Database issue):D633-D642; doi: 10.1093/nar/gkt1244 ",
       "ver" : "16",
       "md5" : "cac51b436f1679fefc9a1db1d3b24686",
@@ -81,6 +89,7 @@ databases_json = """{
       "url" : "https://zenodo.org/record/801828/files/rdp_train_set_16.fa.gz?download=1"
    },
    "dada2-silva-138" : {
+      "c" : "Quast 2013",
       "cite" : "Quast C, Pruesse E, Yilmaz P, Gerken J, Schweer T, Yarza P, Peplies J, Glöckner FO (2013) The SILVA ribosomal RNA gene database project: improved data processing and web-based tools. Nucl. Acids Res. 41 (D1): D590-D596. ",
       "md5" : "1deeaa2ecc9dbeabdcb9331a565f8343",
       "ver" : "138",
@@ -92,6 +101,7 @@ databases_json = """{
       "desc" : "GTDB",
       "md5" : "7d926cc5f95f3eca1bef31d54b0ed2b8",
       "ver" : "r95 (aug2020)",
+      "c" : "Chaumeil 2019",
       "cite" : "Chaumeil, P.-A, et al. (2019). GTDB-Tk: a toolkit to classify genomes with the Genome Taxonomy Database. Bioinformatics,"
    }
 }"""
@@ -174,6 +184,7 @@ if __name__ == "__main__":
     parser.add_argument("-l", "--list", action="store_true", help="List databases")
     parser.add_argument("-q", "--query", help="Query string for databases, to be used with --list or alone (instead of --database)")
     parser.add_argument("-o", "--output-dir", dest="outdir", help="Output directory", default=default_outdir)
+    parser.add_argument("--full", action="store_true", help="Print full citation")
     parser.add_argument("--logfile", help="Log file", default=default_logfile)
     parser.add_argument("--version", action="version", version="%(prog)s " + __version__)
     parser.add_argument("--verbose", "-v", action="count", default=0, help="Increase verbosity")
@@ -215,7 +226,7 @@ if __name__ == "__main__":
                 db,
                 dbs[db]["desc"],
                 #dbs[db]["url"],
-                dbs[db]["cite"],
+                dbs[db]["cite"] if opts.full else dbs[db]["c"] if "c" in dbs[db] else "",
             )
         console.print(table)
         sys.exit(0)

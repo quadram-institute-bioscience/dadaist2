@@ -1,5 +1,5 @@
 ---
-sort: 14
+sort: 16
 ---
 ## dadaist2-taxplot
 **dadaist2-taxaplot** - Automatically plot taxonomy barbplots

@@ -1,7 +1,7 @@
 ---
-sort: 7
+sort: 8
 ---
-## dadaist2-getdb
+## dadaist2-getdb-legacy
 **dadaist2-getdb** - download reference databases for dadaist2
 
 ## Author
@@ -40,4 +40,3 @@ If a `query` keyword is specified, only matching entries will be printed.
 ## Source code and documentation
 The program is freely available at [https://quadram-institute-bioscience.github.io/dadaist2](https://quadram-institute-bioscience.github.io/dadaist2)
 released under the MIT licence. The website contains further DOCUMENTATION.
-"""

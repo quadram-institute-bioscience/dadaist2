@@ -1,5 +1,5 @@
 ---
-sort: 13
+sort: 15
 ---
 ## dadaist2-taxonomy-binning
 **dadaist2-taxonomy-binning** - Normalize OTU table using the **Rhea** protocol.

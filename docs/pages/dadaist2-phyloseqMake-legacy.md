@@ -1,7 +1,7 @@
 ---
-sort: 13
+sort: 14
 ---
-## dadaist2-phyloseqMake
+## dadaist2-phyloseqMake-legacy
 **dadaist2-phyloseqMake** - Generate PhyloSeq object from the command line
 
 ## Author
@@ -23,4 +23,3 @@ Andrea Telatin and Rebecca Ansorge
 ## Source code and documentation
 The program is freely available at [https://quadram-institute-bioscience.github.io/dadaist2](https://quadram-institute-bioscience.github.io/dadaist2)
 released under the MIT licence. The website contains further DOCUMENTATION.
-"""

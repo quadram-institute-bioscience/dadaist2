@@ -1,5 +1,5 @@
 ---
-sort: 8
+sort: 9
 ---
 ## dadaist2-importq2
 **dadaist2-importq2** - create a PhyloSeq object from a set of
