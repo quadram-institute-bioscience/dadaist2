@@ -54,7 +54,7 @@ dependencies:
   - compiler-rt_osx-64=14.0.4
   - curl=7.83.1
   - cutadapt=3.5
-  - dadaist2=1.2.4
+  - dadaist2=1.2.5
   - dataclasses=0.8
   - dnaio=0.9.0
   - expat=2.4.8
