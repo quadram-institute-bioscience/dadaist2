@@ -49,15 +49,30 @@ dadaist2-getdb --list
 
 This should produce something like:
 ```text
-dada2-hitdb: HITdb is a reference taxonomy for Human Intestinal 16S rRNA genes
-dada2-rdp-species-16: RDP taxonomic training data formatted for DADA2 (RDP trainset 16/release 11.5)
-dada2-rdp-train-16: RDP taxonomic training data formatted for DADA2 (RDP trainset 16/release 11.5)
-dada2-silva-138: SILVA release 138
-dada2-silva-species-138: SILVA release 138 (species)
-decipher-gtdb95: GTDB
-decipher-silva-138: SILVA release 138 (Decipher)
-decipher-unite-2020: UNITE 2020 (Decipher)
-testset: FASTQ input, Small 16S dataset to test the suite
+╭─────────────────────────────────────────────────────────────────────────────────────────────────╮
+│ dadaist2-getdb 1.2.5                                                                            │
+╰─────────────────────────────────────────────────────────────────────────────────────────────────╯
+┏━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━┓
+┃ Code                   ┃ Description                                            ┃ Paper         ┃
+┡━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━┩
+│ dada2-refseq-2020      │ RefSeq+RDP: This database contains 22433 bacterial,    │ Alishum 2021  │
+│                        │ 1055 archaea and 99 eukaryotic full lengths16S         │               │
+│                        │ (19/07/2020)                                           │               │
+│ dada2-hitdb            │ HITdb is a reference taxonomy for Human Intestinal 16S │ Ritari 2015   │
+│                        │ rRNA genes                                             │               │
+│ decipher-silva-138     │ SILVA release 138 (Decipher)                           │ Quast 2013    │
+│ dada2-unite            │ UNITE database for ITS                                 │ Nilsson 2018  │
+│ dada2-gtdb-2018        │ GTDB 20486 bacteria and 1073 archaea full 16S rRNA     │ Alishum 2019  │
+│                        │ gene sequences. (20/11/2018)                           │               │
+│ decipher-unite-2020    │ UNITE 2020 (Decipher)                                  │ Nilsson 2018  │
+│ dada2-gtdb-2020        │ GTDB 21965 bacteria and 1126 archaea full 16S rRNA     │ Alishum 2021  │
+│                        │ gene sequences. (19/07/2020)                           │               │
+│ testset                │ FASTQ input, Small 16S dataset to test the suite       │               │
+│ dada2-rdp-train-16     │ RDP taxonomic training data formatted for DADA2 (RDP   │ Cole 2014     │
+│                        │ trainset 16/release 11.5)                              │               │
+│ dada2-silva-138        │ SILVA release 138                                      │ Quast 2013    │
+│ decipher-gtdb95        │ GTDB                                                   │ Chaumeil 2019 │
+└────────────────────────┴────────────────────────────────────────────────────────┴───────────────┘
 ```
 Some reference files are for DADA2, others are for DECIPHER. Dadaist2 will automatically select the
 correct classifier based on the extension of the reference database.
