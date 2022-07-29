@@ -23,8 +23,4 @@ for installation and usage notes.
 <div data-badge-popover="right" data-badge-type="donut" data-doi="10.3390/ijms22105309" data-hide-no-mentions="true" class="altmetric-embed"></div>
 
 Ansorge, R., Birolo, G., James, S. A., & Telatin, A. (2021). Dadaist2: A Toolkit to Automate and Simplify Statistical Analysis and Plotting of Metabarcoding Experiments. _International journal of molecular sciences_, 22(10), 5309. [10.3390/ijms22105309](https://doi.org/10.3390/ijms22105309)
-
-## Authors
-* Andrea Telatin, Quadram Institute Bioscience, UK
-* Rebecca Ansorge, Quadram Institute Bioscience, UK
-* Giovanni Birolo, University of Turin, Italy
+ 
