@@ -508,13 +508,19 @@ if ($opt_crosstalk ) {
 if ($opt_tax_db ne 'skip') {
 		$dependencies{'assign-taxonomy'} = "$RealBin/dadaist2-assigntax --version";
 		if ($opt_tax_db =~/RData$/i ) {
-			$chooser->{'database'} = 'decipher';
+			
 			# This is a Decipher database
 			$dependencies{'DECIPHER'} = 'echo "library(DECIPHER)" | R --no-save > /dev/null';
 			
-			$decipher_db = $opt_tax_db;
-			$opt_tax_db = 'skip';
-			$S->verbose("DECIPHER Taxonomy database found: $decipher_db");
+			if (-e $opt_tax_db) {
+				$decipher_db = $opt_tax_db;
+				$opt_tax_db = 'skip'; # TODO REFACTOR
+				$S->verbose("DECIPHER Taxonomy database found: $decipher_db");
+			} else {
+				$S->verbose("Decipher database not found: $opt_tax_db");
+				die " FATAL ERROR: Decipher database not found: $opt_tax_db\n";
+			}
+			
 		} else {
 			# This is a DADA2 Naive classifier database
 			if (valid_gzipped_fasta($opt_tax_db)) {
@@ -1123,10 +1129,13 @@ my %output_files = (
 );
 
 ## Generate TAX OTUS
-if (defined $chooser->{'database'}) {
+if ($opt_tax_db ne 'skip' and defined $chooser->{'database'}) {
 	my $repseq_tax_file = File::Spec->catfile($opt_output_directory, 'rep-seqs-tax.fasta');
 	open (my $I, '<', File::Spec->catfile($opt_output_directory, 'dada2_raw.tsv'));
 	open (my $O, '>', "$repseq_tax_file") || die " ERROR:\n Unable to write to <$repseq_tax_file>\n";
+	if (scalar @taxonomy == 0) {
+		die " Error loading taxonomy [db:$opt_tax_db and db_type:" . $chooser->{'database'} . "]\n";
+	}
 	my $seq_counter = 0;
 	while (my $line = readline( $I  )) {
 		chomp($line);
@@ -1134,7 +1143,12 @@ if (defined $chooser->{'database'}) {
 		$seq_counter++;
 		my @fields = split /\t/, $line;
 		my $sequence = $fields[0];
-		my $comment = "\t" . $taxonomy[$seq_counter - 1];
+		my $comment = '';
+		if (defined $taxonomy[$seq_counter - 1]) {
+			 $comment = "\t" . $taxonomy[$seq_counter - 1];
+		} else {
+			$S->verbose("No taxonomy found for sequence $seq_counter [$taxonomy[0]...]");
+		}
 		my $name;
 		if ($opt_seq_prefix eq 'MD5') {
 			$name = md5_hex($sequence);
