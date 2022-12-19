@@ -1,4 +1,4 @@
-name: dadaist_1.2
+name: dadaist
 channels:
   - defaults
   - bioconda

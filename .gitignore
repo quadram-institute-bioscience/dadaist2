@@ -38,3 +38,5 @@ data/MiSeq_SOP/
 test-err
 dada2-input
 __pycache__
+MiSeq_SOP/
+miseqsopdata.zip
