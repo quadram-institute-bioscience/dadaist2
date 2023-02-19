@@ -6,7 +6,7 @@
 [![version](
 https://anaconda.org/bioconda/dadaist2/badges/version.svg)](https://bioconda.github.io/recipes/dadaist2/README.html)
 [![Conda](https://anaconda.org/bioconda/dadaist2/badges/downloads.svg)](https://bioconda.github.io/recipes/dadaist2/README.html)
-[![Dadaist-CI](https://img.shields.io/github/workflow/status/quadram-institute-bioscience/dadaist2/Dadaist-CI?label=Dadaist2%20tests)](https://github.com/quadram-institute-bioscience/dadaist2/actions/workflows/blank.yml)
+[![Dadaist-CI](https://img.shields.io/github/actions/workflow/status/quadram-institute-bioscience/dadaist2/test-dadaist.yml?branch=main)](https://github.com/quadram-institute-bioscience/dadaist2/actions/workflows/blank.yml)
 
 
 Standalone wrapper for [DADA2](https://benjjneb.github.io/dada2/index.html) package, to quickly generate a feature table and a
