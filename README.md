@@ -12,10 +12,14 @@ https://anaconda.org/bioconda/dadaist2/badges/version.svg)](https://bioconda.git
 Standalone wrapper for [DADA2](https://benjjneb.github.io/dada2/index.html) package, to quickly generate a feature table and a
 set of representative sequences from a folder with Paired End Illumina reads.
 
-# [Documentation and tutorials](https://quadram-institute-bioscience.github.io/dadaist2)
+## [Dadaist2 stable](https://quadram-institute-bioscience.github.io/dadaist2)
 
-Please check the [online documentation](https://quadram-institute-bioscience.github.io/dadaist2) and tutorials
+Please check the [**legacy documentation**](https://quadram-institute-bioscience.github.io/dadaist1-docs/) and tutorials
 for installation and usage notes.
+
+### Dadaist2 2.x under development
+
+Please check the [online documentation](https://quadram-institute-bioscience.github.io/dadaist2) for dev
 
 
 ## Cite 
